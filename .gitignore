@@ -12,6 +12,3 @@ Saved
 *.suo
 *.xcodeproj
 *.xcworkspace
-Content/**/*.umap
-Content/**/*.uasset
-
