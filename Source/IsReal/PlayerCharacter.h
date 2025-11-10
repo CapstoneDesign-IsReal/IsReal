@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 
 class UNiagaraSystem;
+class AWeaponSystem;
 
 #include "PlayerCharacter.generated.h"
 
@@ -130,7 +131,9 @@ protected:
 	// 나중에 처리해야함 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim")
 	bool IsHasGun = false; // 총을 들고 있는지.
-
+	// weapon system
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	AWeaponSystem* CurrentWeapon;
 
 
 	// 조준 관련 

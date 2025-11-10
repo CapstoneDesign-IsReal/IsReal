@@ -12,6 +12,7 @@
 #include "NiagaraSystem.h"
 #include "Blueprint/UserWidget.h"
 #include "Interactable.h"
+#include "WeaponSystem.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -157,22 +158,22 @@ void APlayerCharacter::Rewind(const FInputActionValue& inputValue)
 
 		if (Is_Rewind == false)
 		{
-			RewindCoolTime = 10.0f; // ���⿣ ���� ������ �ϳ� �ּ� �����۰����� ������ ü���ð� �þ�� �� �� ����
+			RewindCoolTime = 10.0f; // 여기엔 추후 변수를 하나 둬서 아이템같은거 먹으면 체류시간 늘어나게 할 수 있음
 			GetWorldTimerManager().SetTimer(RewindTimerHandle, this, &APlayerCharacter::RewindCooldown, 1.0f, true);
 
-			// ���ŷ� ����
+			// 과거로 갈때
 			Is_Rewind = true;
 			RewindCore -= 100;
 			if (RewindVFX)
 			{
-				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, CurrentLocation, GetActorRotation()); // ��ġ �̵� �� VFX
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, CurrentLocation, GetActorRotation()); // 위치 이동 전 VFX
 			}
 
 			FVector NewLocation = CurrentLocation + FVector(0.f, 0.f, 10000.f);
 			SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
 			UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
 
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, NewLocation, GetActorRotation());  // ��ġ �̵� �� VFX
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, NewLocation, GetActorRotation());  // 위치 이동 후 VFX
 		}
 	}
 	else {
@@ -184,7 +185,7 @@ void APlayerCharacter::RewindCooldown()
 {
 	RewindCoolTime--;
 
-	UKismetSystemLibrary::PrintString(						// ��ٿ� �����ִ� �ؽ�Ʈ(��������)
+	UKismetSystemLibrary::PrintString(						// 쿨다운 보여주는 텍스트(지워도됨)
 		GetWorld(),
 		FString::Printf(TEXT("CoolDown.. : %.1f"), RewindCoolTime)
 		, true, true, FLinearColor::Green, 2.0f);
@@ -193,7 +194,7 @@ void APlayerCharacter::RewindCooldown()
 		GetWorldTimerManager().ClearTimer(RewindTimerHandle);
 		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("To Present!"), true, true, FLinearColor::Green, 2.0f);
 
-		// ����� �ö�
+		// 현재로 올때
 		Is_Rewind = false;
 
 		FVector CurrentLocation = GetActorLocation();
@@ -395,10 +396,23 @@ void APlayerCharacter::PInteract(const FInputActionValue & inputValue) {
 
 	if (HitActor->Implements<UInteractable>()) {
 		EInteractionType InteractionType = IInteractable::Execute_GetInteractionType(HitActor);
-		if (InteractionType == EInteractionType::Door) {
-			IInteractable::Execute_Interact(HitActor, this);
+
+		switch (InteractionType) {
+			case EInteractionType::Door: {
+				IInteractable::Execute_Interact(HitActor, this);
+				break;
+			}
+			case EInteractionType::Gun: {
+				IInteractable::Execute_Interact(HitActor, this);
+				AWeaponSystem* Weapon = Cast<AWeaponSystem>(HitActor);
+				UE_LOG(LogTemp, Warning, TEXT("gun type: %s"),
+					*StaticEnum<EWeaponType>()->GetNameStringByValue((int64)Weapon->GetWeaponType()));
+				CurrentWeapon = Weapon;
+				break;
+			}
+			default:
+				break;
 		}
-			//IInteractable::Execute_Interact(HitActor, this);  // ��� �� ���ٷ� ��������� �� Type üũ�� �̷� ����� �ִٴ� �� �����ֱ� ����(���ο�)
 	}
 }
 
