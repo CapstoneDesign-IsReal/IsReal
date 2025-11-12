@@ -23,11 +23,6 @@ class ISREAL_API AWeaponSystem : public AActor
 	GENERATED_BODY()
 	
 protected:
-	// Weapon System Functions
-	UFUNCTION(BlueprintCallable, Category = "Weapon System")
-	virtual void WeaponFire();
-	UFUNCTION(BlueprintCallable, Category = "Weapon System")
-	virtual void WeaponReload();
 	// Weapon System Variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon System")
 	int Damage;
@@ -45,6 +40,13 @@ public:
 	// Weapon Type setters and getters
 	void SetWeaponType(EWeaponType NewType);
 	EWeaponType GetWeaponType() const;
+	// Weapon Ammo setters and getters
+	void SetWeaponAmmo(int ammo);
+	int GetWeaponAmmo();
+
+	// Weapon System Functions
+	virtual void WeaponFire();
+	virtual void WeaponReload();
 
 public:	
 	// Sets default values for this actor's properties

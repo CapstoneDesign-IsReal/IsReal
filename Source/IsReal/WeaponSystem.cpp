@@ -39,4 +39,8 @@ void AWeaponSystem::SetWeaponType(EWeaponType NewType) { _weapontype = NewType; 
 
 EWeaponType AWeaponSystem::GetWeaponType() const { return _weapontype; }
 
+// Weapon Ammor setters and gettters
+void AWeaponSystem::SetWeaponAmmo(int ammo) { CurrentAmmo = ammo; }
+
+int AWeaponSystem::GetWeaponAmmo() { return CurrentAmmo; }
 

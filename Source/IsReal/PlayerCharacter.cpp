@@ -288,10 +288,42 @@ void APlayerCharacter::DoShootingStart()
 	IsShooting = true;
 
 	// �ܹ߿�: ��ư ���� ���� ��� �� �� �߻�
-	FireLineTrace();
+	//FireLineTrace();
+
+	// 가지고 있는 무기에 따라 fire가 다르게 나감
+	if (CurrentWeapon && IsHasGun) {
+		switch (CurrentWeapon->GetWeaponType()) {
+			case EWeaponType::EWT_Rifle:{
+				if (CurrentWeapon->GetWeaponAmmo() > 0) {
+					UE_LOG(LogTemp, Warning, TEXT("(PlayerCharacter-DoShootingStart) Fire!"));
+					CurrentWeapon->WeaponFire();
+					GetWorldTimerManager().SetTimer(AutoFireTimer, this, &APlayerCharacter::FireLineTrace, 0.1f, true); // 리팩토링 해야함
+					UE_LOG(LogTemp, Warning, TEXT("(PlayerCharacter-DoShootingStart) Current Ammo : %d"), CurrentWeapon->GetWeaponAmmo());
+				}
+				else {
+					CurrentWeapon->WeaponReload(); // 추후 수정 예정 : 아무것도 작동 안하게
+				}
+				break;
+			}
+			case EWeaponType::EWT_Pistol: {
+				if (CurrentWeapon->GetWeaponAmmo() > 0) {
+					UE_LOG(LogTemp, Warning, TEXT("(PlayerCharacter-DoShootingStart) Fire!"));
+					CurrentWeapon->WeaponFire();
+					GetWorldTimerManager().SetTimer(AutoFireTimer, this, &APlayerCharacter::FireLineTrace, 0.5f, true); // 리팩토링 해야함
+					UE_LOG(LogTemp, Warning, TEXT("(PlayerCharacter-DoShootingStart) Current Ammo : %d"), CurrentWeapon->GetWeaponAmmo());
+				}
+				else {
+					CurrentWeapon->WeaponReload(); // 추후 수정 예정 : 아무것도 작동 안하게
+				}
+				break;
+			}
+			default:
+				break;
+		}
+	}
 
 	// �����: ���� �ֱ�� �ڵ� �߻� ���� (0.1�ʸ���)
-	GetWorldTimerManager().SetTimer(AutoFireTimer, this, &APlayerCharacter::FireLineTrace, 0.1f, true);
+	//GetWorldTimerManager().SetTimer(AutoFireTimer, this, &APlayerCharacter::FireLineTrace, 0.1f, true);
 
 	// �𸮾��� Ÿ�̸� �Ŵ����� �̿��� 0.1�ʸ��� FireLineTrace()�� �ݺ� �����Ų��.
 	// �� 3�ʵ��� ������ �갡 �ڵ����� 30���� ��������ִ°��� 
@@ -370,6 +402,7 @@ void APlayerCharacter::FireLineTrace()
 				if (HitActor2)
 				{
 					UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *HitActor2->GetName());
+					// 여기서 적 체력 처리
 				}
 			}
 			else
