@@ -4,26 +4,24 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "TChase.generated.h"
+#include "TAttack.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ISREAL_API UTChase : public UBTTaskNode
+class ISREAL_API UTAttack : public UBTTaskNode
 {
 	GENERATED_BODY()
 	
 public:
-	UTChase(); //Generator
+	UTAttack();
 
 protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
-	
+
 public:
+	//area for key
 	UPROPERTY(EditAnywhere, Category = "BlackBoard")
 	FBlackboardKeySelector targetKey;
-
-	UPROPERTY(EditAnywhere, Category = "BlackBoard")
-	FBlackboardKeySelector distanceKey;
 };

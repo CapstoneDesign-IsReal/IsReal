@@ -1,20 +1,19 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TChase.h"
+#include "TAttack.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "PlayerCharacter.h"
 #include "AIController.h"
 #include "Enemy.h"
 
-//Generator
-UTChase::UTChase()
+UTAttack::UTAttack()
 {
-	NodeName = "Chase";
+	NodeName = "Attack";
 }
 
-EBTNodeResult::Type UTChase::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
@@ -25,20 +24,15 @@ EBTNodeResult::Type UTChase::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint
 	{
 		return EBTNodeResult::Failed;
 	}
-	
-	
+
 	UBlackboardComponent* BlackBoardComp = OwnerComp.GetBlackboardComponent();
 	if (!BlackBoardComp)
 		return EBTNodeResult::Failed;
-	//Find target Actor to chase in BlackBoard
+
 	APlayerCharacter* target = Cast<APlayerCharacter>(BlackBoardComp->GetValueAsObject(targetKey.SelectedKeyName));
 	if (!target)
 		return EBTNodeResult::Failed;
 
-	float dist = BlackBoardComp->GetValueAsFloat(distanceKey.SelectedKeyName);
-	AEnemy* SelfActor = Cast<AEnemy>(BlackBoardComp->GetValueAsObject(TEXT("SelfActor")));
-	if(dist < SelfActor->getAttackRange())
-	currentEnemy->Chase(target);
-	//targetKey
+	currentEnemy->Attack(target);
 	return EBTNodeResult::Succeeded;
 }

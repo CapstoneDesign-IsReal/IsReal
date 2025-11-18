@@ -40,4 +40,7 @@ protected:
 
 	UFUNCTION()
 	FAIStimulus CanSenseActor(AActor* Actor, EAIPerceptionSense AIPerceptionSense);
+
+	UFUNCTION()
+	void HandleSensedSight(AActor* Actor);
 };

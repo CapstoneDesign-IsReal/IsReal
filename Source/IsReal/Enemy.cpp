@@ -23,7 +23,6 @@ void AEnemy::BeginPlay()
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
@@ -35,8 +34,13 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AEnemy::Attack(APawn* target)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Attack Called"));
 	AttackCoolTime = AttackSpeed;
-	GetWorldTimerManager().SetTimer(CoolTimeHandle, this, &AEnemy::AttackCountdown, 1.0f, true);
+	/*
+	Attack implement
+	target HP_getter() -= AttackDamage;
+	animinstance ¼öÁ¤
+	*/
 }
 
 float AEnemy::getAttackRange()

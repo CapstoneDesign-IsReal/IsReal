@@ -3,27 +3,24 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/BTTaskNode.h"
-#include "TChase.generated.h"
+#include "BehaviorTree/Services/BTService_BlackboardBase.h"
+#include "TSDistance.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ISREAL_API UTChase : public UBTTaskNode
+class ISREAL_API UTSDistance : public UBTService_BlackboardBase
 {
 	GENERATED_BODY()
 	
 public:
-	UTChase(); //Generator
+	UTSDistance();
 
-protected:
-	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
-	
-public:
 	UPROPERTY(EditAnywhere, Category = "BlackBoard")
 	FBlackboardKeySelector targetKey;
-
 	UPROPERTY(EditAnywhere, Category = "BlackBoard")
 	FBlackboardKeySelector distanceKey;
+protected:
+	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Memory, float DeltaSeconds) override;
 };
