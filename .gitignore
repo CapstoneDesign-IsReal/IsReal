@@ -2,6 +2,7 @@ Binaries
 DerivedDataCache
 Intermediate
 Saved
+Content/DownloadAsset/
 .vscode
 .vs
 *.VC.db
