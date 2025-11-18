@@ -8,6 +8,7 @@ ARifle::ARifle()
 	Damage = 15;
 	CurrentAmmo = 30;
 	MaxAmmo = 30;
+	FireRate = 0.1f;
 }
 
 void ARifle::WeaponFire()
@@ -15,13 +16,19 @@ void ARifle::WeaponFire()
 	UE_LOG(LogTemp, Warning, TEXT("Rifle Fire!!"));
 	// 들어가야 하는 것
 	// 탄약 체크, 탄 수 감소
-	CurrentAmmo--;
 	// 사운드 및 이펙트 출력
-	// 라인 트레이스 (playerCharacter에 있는 FireLineTrace()를 리팩토링 해야할듯?)
+	// 라인 트레이스
+	FireLineTrace();
+	GetWorldTimerManager().SetTimer(AutoFireTimer, this, &ARifle::FireLineTrace, FireRate, true);
 	// 연사속도 제어
 	// 피격 처리
 	
 	
+}
+void ARifle::WeaponStopFire()
+{
+
+	GetWorldTimerManager().ClearTimer(AutoFireTimer);
 }
 
 void ARifle::WeaponReload()

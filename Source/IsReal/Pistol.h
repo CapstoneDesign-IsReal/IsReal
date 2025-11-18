@@ -18,6 +18,7 @@ public:
 	APistol();
 
 	virtual void WeaponFire() override;
+	virtual void WeaponStopFire() override;
 	virtual void WeaponReload() override;
 
 	virtual void Interact_Implementation(AActor* Interactor) override;

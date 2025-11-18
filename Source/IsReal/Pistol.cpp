@@ -8,6 +8,7 @@ APistol::APistol()
 	Damage = 10;
 	CurrentAmmo = 10;
 	MaxAmmo = 10;
+	FireRate = 0.5f;
 }
 
 void APistol::WeaponFire()
@@ -15,14 +16,18 @@ void APistol::WeaponFire()
 	UE_LOG(LogTemp, Warning, TEXT("Pistol Fire!!"));
 	// 들어가야 하는 것
 	// 탄약 체크, 탄 수 감소
-	CurrentAmmo--;
 	// 사운드 및 이펙트 출력
-	// 라인 트레이스 (playerCharacter에 있는 FireLineTrace()를 리팩토링 해야할듯?)
+	// 라인 트레이스
+	FireLineTrace();
+	GetWorldTimerManager().SetTimer(AutoFireTimer, this, &APistol::FireLineTrace, FireRate, true);
 	// 피격 처리
 	// 연사속도 제어
 
 }
-
+void APistol::WeaponStopFire()
+{
+	GetWorldTimerManager().ClearTimer(AutoFireTimer);
+}
 void APistol::WeaponReload()
 {
 	CurrentAmmo = MaxAmmo;
