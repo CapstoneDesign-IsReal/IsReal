@@ -30,6 +30,5 @@ void UTSDistance::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* Memory, flo
 	}
 
 	float dist = selfActor->GetDistanceTo(target);
-	UE_LOG(LogTemp, Warning, TEXT("!!"));
 	BlackBoardComp->SetValueAsFloat(distanceKey.SelectedKeyName, dist);
 }

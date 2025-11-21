@@ -7,6 +7,7 @@
 #include "PlayerCharacter.h"
 #include "AIController.h"
 #include "Enemy.h"
+#include "EnemyController.h"
 
 UTAttack::UTAttack()
 {
@@ -25,11 +26,11 @@ EBTNodeResult::Type UTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uin
 		return EBTNodeResult::Failed;
 	}
 
-	UBlackboardComponent* BlackBoardComp = OwnerComp.GetBlackboardComponent();
-	if (!BlackBoardComp)
+	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
+	if (!BlackboardComp)
 		return EBTNodeResult::Failed;
 
-	APlayerCharacter* target = Cast<APlayerCharacter>(BlackBoardComp->GetValueAsObject(targetKey.SelectedKeyName));
+	APlayerCharacter* target = Cast<APlayerCharacter>(BlackboardComp->GetValueAsObject(targetKey.SelectedKeyName));
 	if (!target)
 		return EBTNodeResult::Failed;
 

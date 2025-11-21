@@ -114,6 +114,7 @@ void AEnemyController::HandleSensedSight(AActor* Actor)
 		UE_LOG(LogTemp, Warning, TEXT("<Perception Process Error>: No BlackBoard"));
 		return;
 	}
-	//BlackboardComp->setvalueas
+	//Setting Blackboard Key value to Move Enemy
 	BlackboardComp->SetValueAsObject(TEXT("sensedTarget"), Actor);
+	BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Chase));
 }

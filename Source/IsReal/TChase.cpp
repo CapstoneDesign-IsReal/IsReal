@@ -7,6 +7,7 @@
 #include "PlayerCharacter.h"
 #include "AIController.h"
 #include "Enemy.h"
+#include "EnemyController.h"
 
 //Generator
 UTChase::UTChase()
@@ -26,19 +27,23 @@ EBTNodeResult::Type UTChase::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint
 		return EBTNodeResult::Failed;
 	}
 	
-	
-	UBlackboardComponent* BlackBoardComp = OwnerComp.GetBlackboardComponent();
-	if (!BlackBoardComp)
+	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
+	if (!BlackboardComp)
 		return EBTNodeResult::Failed;
 	//Find target Actor to chase in BlackBoard
-	APlayerCharacter* target = Cast<APlayerCharacter>(BlackBoardComp->GetValueAsObject(targetKey.SelectedKeyName));
+	APlayerCharacter* target = Cast<APlayerCharacter>(BlackboardComp->GetValueAsObject(targetKey.SelectedKeyName));
 	if (!target)
 		return EBTNodeResult::Failed;
 
-	float dist = BlackBoardComp->GetValueAsFloat(distanceKey.SelectedKeyName);
-	AEnemy* SelfActor = Cast<AEnemy>(BlackBoardComp->GetValueAsObject(TEXT("SelfActor")));
-	if(dist < SelfActor->getAttackRange())
+	float dist = BlackboardComp->GetValueAsFloat(distanceKey.SelectedKeyName);
+	AEnemy* SelfActor = Cast<AEnemy>(BlackboardComp->GetValueAsObject(TEXT("SelfActor")));
+	//do attack
+	if (dist < SelfActor->getAttackRange())
+	{
+		BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Attack));
+	}
+	//elas keep chase
 	currentEnemy->Chase(target);
-	//targetKey
+
 	return EBTNodeResult::Succeeded;
 }

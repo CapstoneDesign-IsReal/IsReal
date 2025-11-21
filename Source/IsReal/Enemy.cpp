@@ -35,7 +35,6 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void AEnemy::Attack(APawn* target)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Attack Called"));
-	AttackCoolTime = AttackSpeed;
 	/*
 	Attack implement
 	target HP_getter() -= AttackDamage;
