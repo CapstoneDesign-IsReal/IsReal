@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 
 class UNiagaraSystem;
+class AWeaponSystem;
 
 #include "PlayerCharacter.generated.h"
 
@@ -18,6 +19,11 @@ public:
 
 	// Sets default values for this character's properties
 	APlayerCharacter();
+
+public:
+	// 카메라 Weaponsystem에서 접근해야 해서 public으로 변경 22/11/19
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UCameraComponent* CameraComp;
 
 protected:
 	// 엔진이 자동으로 호출
@@ -35,12 +41,10 @@ protected:
 	// 스프링암
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class USpringArmComponent* SpringArmComp;
-	// 카메라
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UCameraComponent* CameraComp;
 
 
-	// 무기 컴포넌트 
+
+	//무기 컴포넌트  // 이거 Weaponsystem으로 옮김  25/11/16 (코드 리팩토링)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GunMesh)
 	class UStaticMeshComponent* gunMeshComp;
 
@@ -90,9 +94,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// Tab키 (시간위젯 나오기)
 		class UInputAction* ia_ToggleClock;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input") // R (재장전)
+		class UInputAction* ia_Reload;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* ia_Interact;
-
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// 오른쪽 마우스 (조준)
 		class UInputAction* AimAction;
@@ -116,7 +122,7 @@ protected:
 	void OnTapStarted(const FInputActionValue& Value); // Tab 눌렀을 때 실행됨
 	void OnTapCompleted(const FInputActionValue& Value); // Tab 뗐을 때 실행됨
 
-
+	void Reload(const struct FInputActionValue& inputValue); // R 눌렀을 때 실행됨
 
 	virtual void DoAimStart();// 오른쪽 마우스 눌렀을 때 실행됨
 
@@ -126,12 +132,12 @@ protected:
 
 	virtual void DoShootingEnd();// 왼쪽 마우스 뗐을 때 실행됨
 
-
 	// 나중에 처리해야함 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim")
 	bool IsHasGun = false; // 총을 들고 있는지.
-
-
+	// weapon system
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	AWeaponSystem* CurrentWeapon;
 
 	// 조준 관련 
 
@@ -154,16 +160,12 @@ protected:
 
 	// 마우스 왼쪽버튼으로 총 쏘기 관련
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-	FTimerHandle AutoFireTimer; // 총 연속 쏘기 관리할 타이머 핸들러 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	bool IsShooting = false; //총 쏘고 있는지
 
+	//이거 필요없는거 아닌가?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float FireRange = 3000.f; // 총 나가는 거리 
 
-	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void FireLineTrace(); // 라인트레이스로 총 구현할 함수 
 
 
 
