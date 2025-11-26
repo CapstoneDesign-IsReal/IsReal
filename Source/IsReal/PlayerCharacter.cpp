@@ -96,6 +96,13 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 }
 
+void  APlayerCharacter::PlayerHPDown() {
+	PlayerHp = PlayerHp - 10;
+	if (PlayerHp == 0) {
+		PlayerDie = true;
+	}
+}
+
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -103,15 +110,18 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	auto PlayerInput = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 	if (PlayerInput)
 	{
-		PlayerInput->BindAction(ia_Look, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
-		PlayerInput->BindAction(ia_Move, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
+		// Turn in Place 만들기 위해 일단 뺌
+		//PlayerInput->BindAction(ia_Look, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
+		//PlayerInput->BindAction(ia_Move, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
 
-		PlayerInput->BindAction(ia_Jump, ETriggerEvent::Started, this, &APlayerCharacter::InputJump);
+		//PlayerInput->BindAction(ia_Jump, ETriggerEvent::Started, this, &APlayerCharacter::InputJump);
 
 		PlayerInput->BindAction(ia_Rewind, ETriggerEvent::Started, this, &APlayerCharacter::Rewind);
 
-		PlayerInput->BindAction(ia_ToggleClock, ETriggerEvent::Started, this, &APlayerCharacter::OnTapStarted);
-		PlayerInput->BindAction(ia_ToggleClock, ETriggerEvent::Completed, this, &APlayerCharacter::OnTapCompleted);
+		//PlayerInput->BindAction(ia_ToggleClock, ETriggerEvent::Started, this, &APlayerCharacter::OnTapStarted);
+		//PlayerInput->BindAction(ia_ToggleClock, ETriggerEvent::Completed, this, &APlayerCharacter::OnTapCompleted);
+
+		PlayerInput->BindAction(ia_ToggleClock, ETriggerEvent::Started, this, &APlayerCharacter::ToggleClock);
 
 		PlayerInput->BindAction(AimAction, ETriggerEvent::Started, this, &APlayerCharacter::DoAimStart);
 		PlayerInput->BindAction(AimAction, ETriggerEvent::Completed, this, &APlayerCharacter::DoAimEnd);
@@ -124,31 +134,31 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
-void APlayerCharacter::Look(const FInputActionValue& inputValue)
-{
-	FVector2D value = inputValue.Get<FVector2D>();
-	AddControllerYawInput(value.X);
-	AddControllerPitchInput(value.Y);
-}
-
-void APlayerCharacter::Move(const FInputActionValue& inputValue)
-{
-	FVector2D value = inputValue.Get<FVector2D>();
-
-	const FRotator ControlRot = Controller->GetControlRotation();
-	const FRotator YawRot(0.f, ControlRot.Yaw, 0.f);
-
-	const FVector ForwardDir = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
-	const FVector RightDir = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
-
-	AddMovementInput(ForwardDir, value.X);
-	AddMovementInput(RightDir, value.Y);
-}
-
-void APlayerCharacter::InputJump(const FInputActionValue& inputValue)
-{
-	Jump();
-}
+//void APlayerCharacter::Look(const FInputActionValue& inputValue)
+//{
+//	FVector2D value = inputValue.Get<FVector2D>();
+//	AddControllerYawInput(value.X);
+//	AddControllerPitchInput(value.Y);
+//}
+//
+//void APlayerCharacter::Move(const FInputActionValue& inputValue)
+//{
+//	FVector2D value = inputValue.Get<FVector2D>();
+//
+//	const FRotator ControlRot = Controller->GetControlRotation();
+//	const FRotator YawRot(0.f, ControlRot.Yaw, 0.f);
+//
+//	const FVector ForwardDir = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
+//	const FVector RightDir = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
+//
+//	AddMovementInput(ForwardDir, value.X);
+//	AddMovementInput(RightDir, value.Y);
+//}
+//
+//void APlayerCharacter::InputJump(const FInputActionValue& inputValue)
+//{
+//	Jump();
+//}
 
 void APlayerCharacter::Rewind(const FInputActionValue& inputValue)
 {
@@ -211,29 +221,61 @@ void APlayerCharacter::RewindCooldown()
 	}
 }
 
-void APlayerCharacter::OnTapStarted(const FInputActionValue& inputValue)
+//void APlayerCharacter::OnTapStarted(const FInputActionValue& inputValue)
+//{
+//	if (!ClockWidgetInstance && ClockWidgetClass)
+//	{
+//		ClockWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), ClockWidgetClass);
+//	}
+//
+//	if (ClockWidgetInstance && !ClockWidgetInstance->IsInViewport())
+//	{
+//		ClockWidgetInstance->AddToViewport();
+//		UE_LOG(LogTemp, Warning, TEXT("Clock UI Opened"));
+//	}
+//}
+
+//void APlayerCharacter::OnTapCompleted(const FInputActionValue& inputValue)
+//{
+//	if (ClockWidgetInstance && ClockWidgetInstance->IsInViewport())
+//	{
+//		ClockWidgetInstance->RemoveFromParent();
+//		ClockWidgetInstance = nullptr;
+//		UE_LOG(LogTemp, Warning, TEXT("Clock UI Closed"));
+//	}
+//}
+
+void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 {
+	// 위젯 생성 (없으면 생성)
 	if (!ClockWidgetInstance && ClockWidgetClass)
 	{
 		ClockWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), ClockWidgetClass);
 	}
 
-	if (ClockWidgetInstance && !ClockWidgetInstance->IsInViewport())
+	// 토글: 열려 있으면 → 닫고 / 안 열렸으면 → 열기
+	if (ClockWidgetInstance)
 	{
-		ClockWidgetInstance->AddToViewport();
-		UE_LOG(LogTemp, Warning, TEXT("Clock UI Opened"));
+		if (IsLookTimer)
+		{
+			// 닫기
+			ClockWidgetInstance->RemoveFromParent();
+			SpringArmComp->TargetArmLength = 400;
+			UE_LOG(LogTemp, Warning, TEXT("Clock UI Closed"));
+		}
+		else
+		{
+			// 열기
+			ClockWidgetInstance->AddToViewport();
+			SpringArmComp->TargetArmLength = 250;
+			UE_LOG(LogTemp, Warning, TEXT("Clock UI Opened"));
+		}
+
+		// 상태 반전
+		IsLookTimer = !IsLookTimer;
 	}
 }
 
-void APlayerCharacter::OnTapCompleted(const FInputActionValue& inputValue)
-{
-	if (ClockWidgetInstance && ClockWidgetInstance->IsInViewport())
-	{
-		ClockWidgetInstance->RemoveFromParent();
-		ClockWidgetInstance = nullptr;
-		UE_LOG(LogTemp, Warning, TEXT("Clock UI Closed"));
-	}
-}
 
 void APlayerCharacter::DoAimStart()
 {

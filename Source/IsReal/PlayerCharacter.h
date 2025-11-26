@@ -75,14 +75,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// 인풋매핑컨텍스트
 		class UInputMappingContext* imc_TPS;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// wasd (이동)
-		class UInputAction* ia_Move;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// wasd (이동)
+	//	class UInputAction* ia_Move;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// 스페이스바 (점프)
-		class UInputAction* ia_Jump;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// 스페이스바 (점프)
+	//	class UInputAction* ia_Jump;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// 마우스 (시야)
-		class UInputAction* ia_Look;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// 마우스 (시야)
+	//	class UInputAction* ia_Look;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// T (시간 이동하기)
 		class UInputAction* ia_Rewind;
@@ -93,7 +93,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* ia_Interact;
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// 오른쪽 마우스 (조준)
 		class UInputAction* AimAction;
 
@@ -103,18 +102,21 @@ protected:
 
 
 	// 인풋 매핑에 의해 실행 될 함수 
-	void Move(const struct FInputActionValue& inputValue);
+
+	/*void Move(const struct FInputActionValue& inputValue);
 
 	void InputJump(const struct FInputActionValue& inputValue);
 
-	void Look(const struct FInputActionValue& inputValue);
+	void Look(const struct FInputActionValue& inputValue);*/
 
 	void Rewind(const struct FInputActionValue& inputValue); //T 눌렀을 때 실행됨 
 
 	void PInteract(const struct FInputActionValue& inputValue);
 
-	void OnTapStarted(const FInputActionValue& Value); // Tab 눌렀을 때 실행됨
-	void OnTapCompleted(const FInputActionValue& Value); // Tab 뗐을 때 실행됨
+	//void OnTapStarted(const FInputActionValue& Value); // Tab 눌렀을 때 실행됨   
+	//void OnTapCompleted(const FInputActionValue& Value); // Tab 뗐을 때 실행됨
+
+	void ToggleClock(const FInputActionValue& Value); //추가함
 
 
 
@@ -125,6 +127,7 @@ protected:
 	virtual void DoShootingStart();// 왼쪽 마우스 눌렀을 때 실행됨
 
 	virtual void DoShootingEnd();// 왼쪽 마우스 뗐을 때 실행됨
+
 
 
 	// 나중에 처리해야함 
@@ -142,7 +145,7 @@ protected:
 	float AimFOV = 65.f; // 조준 시야각 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float DefaultArmLength = 300.f; //원래 카메라와의 거리
+	float DefaultArmLength = 400.f; //원래 카메라와의 거리
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 	float AimArmLength = 200.f; // 조준시 카메라와의 거리 
@@ -170,6 +173,23 @@ protected:
 	//시간 바뀔 때 관련 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerSetting)
 	bool Is_Rewind = false;
+
+	//tab을 누르고 있는지 (시계를 보고 있는지)
+	UPROPERTY(EditAnywhere, BluePrintReadWrite) //추가함
+	bool IsLookTimer = false;
+
+	//플레이어 체력 관련 설정
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)
+	int PlayerHp = 100;
+
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)
+	bool PlayerDie = false;
+
+public : 
+	UFUNCTION(BlueprintCallable)
+	void PlayerHPDown();
+
+
 
 private:
 	// Rewind Core
