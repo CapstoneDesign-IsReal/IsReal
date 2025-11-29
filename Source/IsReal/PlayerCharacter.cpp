@@ -12,6 +12,7 @@
 #include "NiagaraSystem.h"
 #include "Blueprint/UserWidget.h"
 #include "Interactable.h"
+#include "WeaponSystem.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -34,11 +35,6 @@ APlayerCharacter::APlayerCharacter() // �ʱ�ȭ �ϱ�
 	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
 	CameraComp->bUsePawnControlRotation = false;
 
-
-
-
-	// �� �޽� ���� ���� �ʱ�ȭ�ϱ�
-
 	//ConstructorHelpers::FObjectFinder<UStaticMesh> rifleMesh(TEXT("/Game/Fab/Free_Gun_Packs/Meshes/AK47_Body.AK47_Body"));
 	//gunMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GunMeshComp"));
 	////GunMeshComp��� �̸����� ���ο� SkeletalMeshComponent�� �����. 
@@ -53,7 +49,6 @@ APlayerCharacter::APlayerCharacter() // �ʱ�ȭ �ϱ�
 	//	//�� �޽ø� ĳ���� ��ü�� RifleSocket�̶�� ���� ���Ϻκп� �ٿ��� 
 	//}
 
-	// �� ���̴°� ��������Ʈ�� ���̰� �׸��� �� �� ��ġ�� �������� 
 
 }
 
@@ -96,6 +91,13 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 }
 
+void  APlayerCharacter::PlayerHPDown() {
+	PlayerHp = PlayerHp - 10;
+	if (PlayerHp == 0) {
+		PlayerDie = true;
+	}
+}
+
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -103,15 +105,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	auto PlayerInput = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 	if (PlayerInput)
 	{
-		PlayerInput->BindAction(ia_Look, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
-		PlayerInput->BindAction(ia_Move, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
-
-		PlayerInput->BindAction(ia_Jump, ETriggerEvent::Started, this, &APlayerCharacter::InputJump);
 
 		PlayerInput->BindAction(ia_Rewind, ETriggerEvent::Started, this, &APlayerCharacter::Rewind);
 
-		PlayerInput->BindAction(ia_ToggleClock, ETriggerEvent::Started, this, &APlayerCharacter::OnTapStarted);
-		PlayerInput->BindAction(ia_ToggleClock, ETriggerEvent::Completed, this, &APlayerCharacter::OnTapCompleted);
+
+		PlayerInput->BindAction(ia_ToggleClock, ETriggerEvent::Started, this, &APlayerCharacter::ToggleClock);
 
 		PlayerInput->BindAction(AimAction, ETriggerEvent::Started, this, &APlayerCharacter::DoAimStart);
 		PlayerInput->BindAction(AimAction, ETriggerEvent::Completed, this, &APlayerCharacter::DoAimEnd);
@@ -119,36 +117,13 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		PlayerInput->BindAction(ShootingAction, ETriggerEvent::Started, this, &APlayerCharacter::DoShootingStart);
 		PlayerInput->BindAction(ShootingAction, ETriggerEvent::Completed, this, &APlayerCharacter::DoShootingEnd);
 
+		PlayerInput->BindAction(ia_Reload, ETriggerEvent::Started, this, &APlayerCharacter::Reload);
+
 		PlayerInput->BindAction(ia_Interact, ETriggerEvent::Started, this, &APlayerCharacter::PInteract);
 	}
 
 }
 
-void APlayerCharacter::Look(const FInputActionValue& inputValue)
-{
-	FVector2D value = inputValue.Get<FVector2D>();
-	AddControllerYawInput(value.X);
-	AddControllerPitchInput(value.Y);
-}
-
-void APlayerCharacter::Move(const FInputActionValue& inputValue)
-{
-	FVector2D value = inputValue.Get<FVector2D>();
-
-	const FRotator ControlRot = Controller->GetControlRotation();
-	const FRotator YawRot(0.f, ControlRot.Yaw, 0.f);
-
-	const FVector ForwardDir = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
-	const FVector RightDir = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
-
-	AddMovementInput(ForwardDir, value.X);
-	AddMovementInput(RightDir, value.Y);
-}
-
-void APlayerCharacter::InputJump(const FInputActionValue& inputValue)
-{
-	Jump();
-}
 
 void APlayerCharacter::Rewind(const FInputActionValue& inputValue)
 {
@@ -157,22 +132,22 @@ void APlayerCharacter::Rewind(const FInputActionValue& inputValue)
 
 		if (Is_Rewind == false)
 		{
-			RewindCoolTime = 10.0f; // ���⿣ ���� ������ �ϳ� �ּ� �����۰����� ������ ü���ð� �þ�� �� �� ����
+			RewindCoolTime = 10.0f; // 여기엔 추후 변수를 하나 둬서 아이템같은거 먹으면 체류시간 늘어나게 할 수 있음
 			GetWorldTimerManager().SetTimer(RewindTimerHandle, this, &APlayerCharacter::RewindCooldown, 1.0f, true);
 
-			// ���ŷ� ����
+			// 과거로 갈때
 			Is_Rewind = true;
 			RewindCore -= 100;
 			if (RewindVFX)
 			{
-				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, CurrentLocation, GetActorRotation()); // ��ġ �̵� �� VFX
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, CurrentLocation, GetActorRotation()); // 위치 이동 전 VFX
 			}
 
 			FVector NewLocation = CurrentLocation + FVector(0.f, 0.f, 10000.f);
 			SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
 			UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
 
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, NewLocation, GetActorRotation());  // ��ġ �̵� �� VFX
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, NewLocation, GetActorRotation());  // 위치 이동 후 VFX
 		}
 	}
 	else {
@@ -184,7 +159,7 @@ void APlayerCharacter::RewindCooldown()
 {
 	RewindCoolTime--;
 
-	UKismetSystemLibrary::PrintString(						// ��ٿ� �����ִ� �ؽ�Ʈ(��������)
+	UKismetSystemLibrary::PrintString(						// 쿨다운 보여주는 텍스트(지워도됨)
 		GetWorld(),
 		FString::Printf(TEXT("CoolDown.. : %.1f"), RewindCoolTime)
 		, true, true, FLinearColor::Green, 2.0f);
@@ -193,7 +168,7 @@ void APlayerCharacter::RewindCooldown()
 		GetWorldTimerManager().ClearTimer(RewindTimerHandle);
 		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("To Present!"), true, true, FLinearColor::Green, 2.0f);
 
-		// ����� �ö�
+		// 현재로 올때
 		Is_Rewind = false;
 
 		FVector CurrentLocation = GetActorLocation();
@@ -202,38 +177,41 @@ void APlayerCharacter::RewindCooldown()
 		SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
 		UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
 
-		// ���⼭ Ŭ���� ���ο� ���� �ھ ȸ���ϴ� ��� �߰� �ؾ��ҵ�.
-		//	if Ŭ���� ������
-		//		��� �ڵ� 100 ȸ��
-		//	if else Ŭ���� ���� ������ ��
-		//		���׾��� - �����ſ� ����(50)��ŭ �ھ� ��ȯ
-		//		�׾��� - �������� ���� �ھ� loss
 	}
 }
 
-void APlayerCharacter::OnTapStarted(const FInputActionValue& inputValue)
+
+void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 {
+	// 위젯 생성 (없으면 생성)
 	if (!ClockWidgetInstance && ClockWidgetClass)
 	{
 		ClockWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), ClockWidgetClass);
 	}
 
-	if (ClockWidgetInstance && !ClockWidgetInstance->IsInViewport())
+	// 토글: 열려 있으면 → 닫고 / 안 열렸으면 → 열기
+	if (ClockWidgetInstance)
 	{
-		ClockWidgetInstance->AddToViewport();
-		UE_LOG(LogTemp, Warning, TEXT("Clock UI Opened"));
+		if (IsLookTimer)
+		{
+			// 닫기
+			ClockWidgetInstance->RemoveFromParent();
+			SpringArmComp->TargetArmLength = 400;
+			UE_LOG(LogTemp, Warning, TEXT("Clock UI Closed"));
+		}
+		else
+		{
+			// 열기
+			ClockWidgetInstance->AddToViewport();
+			SpringArmComp->TargetArmLength = 250;
+			UE_LOG(LogTemp, Warning, TEXT("Clock UI Opened"));
+		}
+
+		// 상태 반전
+		IsLookTimer = !IsLookTimer;
 	}
 }
 
-void APlayerCharacter::OnTapCompleted(const FInputActionValue& inputValue)
-{
-	if (ClockWidgetInstance && ClockWidgetInstance->IsInViewport())
-	{
-		ClockWidgetInstance->RemoveFromParent();
-		ClockWidgetInstance = nullptr;
-		UE_LOG(LogTemp, Warning, TEXT("Clock UI Closed"));
-	}
-}
 
 void APlayerCharacter::DoAimStart()
 {
@@ -284,101 +262,56 @@ void APlayerCharacter::DoAimEnd()
 
 void APlayerCharacter::DoShootingStart()
 {
-	IsShooting = true;
+	// 가지고 있는 무기에 따라 fire가 다르게 나감
+	if (CurrentWeapon && IsHasGun) {
+		IsShooting = true;
 
-	// �ܹ߿�: ��ư ���� ���� ��� �� �� �߻�
-	FireLineTrace();
-
-	// �����: ���� �ֱ�� �ڵ� �߻� ���� (0.1�ʸ���)
-	GetWorldTimerManager().SetTimer(AutoFireTimer, this, &APlayerCharacter::FireLineTrace, 0.1f, true);
-
-	// �𸮾��� Ÿ�̸� �Ŵ����� �̿��� 0.1�ʸ��� FireLineTrace()�� �ݺ� �����Ų��.
-	// �� 3�ʵ��� ������ �갡 �ڵ����� 30���� ��������ִ°��� 
-
-	// ���⼭ true�� �ݺ� �÷����̴�. // this�� ������ ��ü(�Լ��� ���� Ŭ����)
-	// 3��°�� �ֱ������� �ݺ��� �Լ� ������
-	// AutoFireTimer��� �ڵ�(�ĺ���)�� ����
-
+		switch (CurrentWeapon->GetWeaponType()) {
+		case EWeaponType::EWT_Rifle: {
+			if (CurrentWeapon->GetWeaponAmmo() > 0) {
+				CurrentWeapon->WeaponFire();
+				UE_LOG(LogTemp, Warning, TEXT("(PlayerCharacter-DoShootingStart) Current Ammo : %d"), CurrentWeapon->GetWeaponAmmo());
+			}
+			else {
+				CurrentWeapon->WeaponStopFire();
+			}
+			break;
+		}
+		case EWeaponType::EWT_Pistol: {
+			if (CurrentWeapon->GetWeaponAmmo() > 0) {
+				CurrentWeapon->WeaponFire();
+				UE_LOG(LogTemp, Warning, TEXT("(PlayerCharacter-DoShootingStart) Current Ammo : %d"), CurrentWeapon->GetWeaponAmmo());
+			}
+			else {
+				CurrentWeapon->WeaponStopFire();
+			}
+			break;
+		}
+		default:
+			break;
+		}
+	}
 }
 
 void APlayerCharacter::DoShootingEnd()
 {
-	IsShooting = false;
+	if (CurrentWeapon) {
+		IsShooting = false;
 
-	// ��ư ���� �� �ݺ� ���߱�
-
-	GetWorldTimerManager().ClearTimer(AutoFireTimer);
-
-	// ���� ����(World)���� �۵� ���� Ÿ�̸� �Ŵ��� ��ü�� ������. �� ��ü�� ��� Ÿ�̸Ӹ� ������.
-	// ClearTimer�� ������ Ÿ�̸ӿ� ���õ� �ݺ� ȣ���� �ߴ���.
-	// ���� ������ �ĺ���(�ڵ�) Ÿ�̸Ӹ� ���ߴ°���.
+		CurrentWeapon->WeaponStopFire();
+	}
 
 }
-void APlayerCharacter::FireLineTrace()
-{
-	if (IsHasGun) {
-		FVector Start = CameraComp->GetComponentLocation();
-		FVector ForwardVector = CameraComp->GetForwardVector();
-		FVector End = Start + (ForwardVector * 20000.0f);
 
-		FHitResult HitResult;
-		FCollisionQueryParams Params;
-		Params.AddIgnoredActor(this);
-
-		bool Hit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params);
-
-		FVector TargetPoint = End; // �⺻�� (���� ������ �� ����)
-		if (Hit) {
-			TargetPoint = HitResult.ImpactPoint;
-			DrawDebugLine(GetWorld(), Start, HitResult.ImpactPoint, FColor::Red, false, 0.05f, 0, 1.5f);
-			DrawDebugPoint(GetWorld(), HitResult.ImpactPoint, 10.0f, FColor::Yellow, false, 0.1f);
-
-			AActor* HitActor = HitResult.GetActor();
-			if (HitActor)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *HitActor->GetName());
-			}
-		}
-		else
-		{
-			DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 0.05f, 0, 1.5f);
-		}
-		if (gunMeshComp) {
-			FVector MuzzleLocation = gunMeshComp->GetSocketLocation(TEXT("WeaponSocket"));
-			//FRotator MuzzleRotation = gunMeshComp->GetSocketRotation(TEXT("WeaponSocket"));
-
-			// ī�޶� ������ �״�� ��� (�÷��̾ ������ ��������)
-			//FVector ShootDirection = ForwardVector;
-			FVector EndFromMuzzle = Start + (ForwardVector * 20000.0f);
-
-			FHitResult MuzzleHit;
-			FCollisionQueryParams MuzzleParams;
-			MuzzleParams.AddIgnoredActor(this); // Params.AddIgnoredActor(this): �ڱ� �ڽ��� ����.
-
-			bool MuzzleTraceHit = GetWorld()->LineTraceSingleByChannel(
-				MuzzleHit, MuzzleLocation, EndFromMuzzle, ECC_Visibility, MuzzleParams
-			);
-			//ECC_Visibility : �����̴� ��ü�� ä�θ� ����
-
-			if (MuzzleTraceHit)
-			{
-				DrawDebugLine(GetWorld(), MuzzleLocation, TargetPoint, FColor::Green, false, 0.05f, 0, 1.5f);
-				DrawDebugPoint(GetWorld(), TargetPoint, 10.0f, FColor::Cyan, false, 0.1f);
-
-				AActor* HitActor2 = MuzzleHit.GetActor();
-				if (HitActor2)
-				{
-					UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *HitActor2->GetName());
-				}
-			}
-			else
-			{
-				DrawDebugLine(GetWorld(), MuzzleLocation, EndFromMuzzle, FColor::Green, false, 0.05f, 0, 1.5f);
-			}
-		}
+void APlayerCharacter::Reload(const FInputActionValue& inputValue)
+{	// 추후에 isReloading 같은 변수를 통해 재장전할때 발사 못하게 막아야함
+	if (CurrentWeapon && IsHasGun) {
+		CurrentWeapon->WeaponReload();
 	}
 }
-void APlayerCharacter::PInteract(const FInputActionValue & inputValue) {
+
+
+void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 	FVector Start = CameraComp->GetComponentLocation();
 	FVector End = Start + (CameraComp->GetForwardVector() * 500.f);
 
@@ -395,10 +328,26 @@ void APlayerCharacter::PInteract(const FInputActionValue & inputValue) {
 
 	if (HitActor->Implements<UInteractable>()) {
 		EInteractionType InteractionType = IInteractable::Execute_GetInteractionType(HitActor);
-		if (InteractionType == EInteractionType::Door) {
+
+		switch (InteractionType) {
+		case EInteractionType::Door: {
 			IInteractable::Execute_Interact(HitActor, this);
+			break;
 		}
-			//IInteractable::Execute_Interact(HitActor, this);  // ��� �� ���ٷ� ��������� �� Type üũ�� �̷� ����� �ִٴ� �� �����ֱ� ����(���ο�)
+		case EInteractionType::Gun: {
+			IInteractable::Execute_Interact(HitActor, this);
+			AWeaponSystem* Weapon = Cast<AWeaponSystem>(HitActor);
+			Weapon->SetOwner(this);
+			UE_LOG(LogTemp, Warning, TEXT("gun type: %s"),
+				*StaticEnum<EWeaponType>()->GetNameStringByValue((int64)Weapon->GetWeaponType()));
+			CurrentWeapon = Weapon;
+			//IsHasGun = true; // 이건 추후에 BP에서 설정안하게 하면 추가하면됨
+			// 그리고 맨위에 weaponsocket같은거 attach여기서 하면될거같은데
+			break;
+		}
+		default:
+			break;
+		}
 	}
 }
 
