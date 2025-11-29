@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -21,12 +21,14 @@ public:
 	APlayerCharacter();
 
 public:
-	// Ä«¸Ş¶ó Weaponsystem¿¡¼­ Á¢±ÙÇØ¾ß ÇØ¼­ publicÀ¸·Î º¯°æ 22/11/19
+	// ì¹´ë©”ë¼ Weaponsystemì—ì„œ ì ‘ê·¼í•´ì•¼ í•´ì„œ publicìœ¼ë¡œ ë³€ê²½ 22/11/19
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UCameraComponent* CameraComp;
 
+
+
 protected:
-	// ¿£ÁøÀÌ ÀÚµ¿À¸·Î È£Ãâ
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -36,142 +38,148 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	// ÄÄÆ÷³ÍÆ®µé
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½
 
-	// ½ºÇÁ¸µ¾Ï
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class USpringArmComponent* SpringArmComp;
 
 
 
-	//¹«±â ÄÄÆ÷³ÍÆ®  // ÀÌ°Å WeaponsystemÀ¸·Î ¿Å±è  25/11/16 (ÄÚµå ¸®ÆÑÅä¸µ)
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GunMesh)
 	class UStaticMeshComponent* gunMeshComp;
 
 
-	// ÃÑ ½ò ¶§ Å©·Î½ºÇì¾î À§Á¬ 
+	// ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ Å©ï¿½Î½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	TSubclassOf<UUserWidget> AimCrossHairWidgetClass; //À§Á¬ ºí·çÇÁ¸°Æ® Å¬·¡½º¸¦ ÀúÀåÇÒ °´Ã¼º¯¼ö°í 
+	TSubclassOf<UUserWidget> AimCrossHairWidgetClass; //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	UUserWidget* AimCrossHairWidget; //½ÇÁ¦·Î È­¸é¿¡ Ç¥½ÃµÉ À§Á¬ ÀÎ½ºÅÏ½º(½ÇÃ¼)¸¦ ÀúÀåÇÒ °´Ã¼º¯¼ö 
+	UUserWidget* AimCrossHairWidget; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È­ï¿½é¿¡ Ç¥ï¿½Ãµï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Î½ï¿½ï¿½Ï½ï¿½(ï¿½ï¿½Ã¼)ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½ 
 
 
-	// Æò»ó½Ã Å©·Î½º Çì¾î À§Á¬ 
+	// ï¿½ï¿½ï¿½ï¿½ Å©ï¿½Î½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> NormalCrossHairWidgetClass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	UUserWidget* NormalCrossHairWidget;
 
 
-	// ½Ã°è UI
+	// ï¿½Ã°ï¿½ UI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> ClockWidgetClass;
-	// ½Ã°è UI ÀÎ½ºÅÏ½º
+	// ï¿½Ã°ï¿½ UI ï¿½Î½ï¿½ï¿½Ï½ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	UUserWidget* ClockWidgetInstance;
-	// µÇ°¨±â VFX
+	// ï¿½Ç°ï¿½ï¿½ï¿½ VFX
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
 	UNiagaraSystem* RewindVFX;
 
 
 
-	// ÀÎÇ² ¸ÅÇÎ °ü·Ã 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// ÀÎÇ²¸ÅÇÎÄÁÅØ½ºÆ®
+	// ï¿½ï¿½Ç² ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// ï¿½ï¿½Ç²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø½ï¿½Æ®
 		class UInputMappingContext* imc_TPS;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// wasd (ÀÌµ¿)
-		class UInputAction* ia_Move;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// ½ºÆäÀÌ½º¹Ù (Á¡ÇÁ)
-		class UInputAction* ia_Jump;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// ¸¶¿ì½º (½Ã¾ß)
-		class UInputAction* ia_Look;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// T (½Ã°£ ÀÌµ¿ÇÏ±â)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// T (ï¿½Ã°ï¿½ ï¿½Ìµï¿½ï¿½Ï±ï¿½)
 		class UInputAction* ia_Rewind;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// TabÅ° (½Ã°£À§Á¬ ³ª¿À±â)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// TabÅ° (ï¿½Ã°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
 		class UInputAction* ia_ToggleClock;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input") // R (ÀçÀåÀü)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input") // R (ì¬ì¥ì „)
 		class UInputAction* ia_Reload;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* ia_Interact;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// ¿À¸¥ÂÊ ¸¶¿ì½º (Á¶ÁØ)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ì½º (ï¿½ï¿½ï¿½ï¿½)
 		class UInputAction* AimAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// ¿ŞÂÊ ¸¶¿ì½º (ÃÑ½î±â)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ì½º (ï¿½Ñ½ï¿½ï¿½)
 		class UInputAction* ShootingAction;
 
 
 
-	// ÀÎÇ² ¸ÅÇÎ¿¡ ÀÇÇØ ½ÇÇà µÉ ÇÔ¼ö 
-	void Move(const struct FInputActionValue& inputValue);
+	// ï¿½ï¿½Ç² ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ô¼ï¿½ 
 
-	void InputJump(const struct FInputActionValue& inputValue);
 
-	void Look(const struct FInputActionValue& inputValue);
-
-	void Rewind(const struct FInputActionValue& inputValue); //T ´­·¶À» ¶§ ½ÇÇàµÊ 
+	void Rewind(const struct FInputActionValue& inputValue); //T ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ 
 
 	void PInteract(const struct FInputActionValue& inputValue);
 
-	void OnTapStarted(const FInputActionValue& Value); // Tab ´­·¶À» ¶§ ½ÇÇàµÊ
-	void OnTapCompleted(const FInputActionValue& Value); // Tab ¶ÃÀ» ¶§ ½ÇÇàµÊ
+	void ToggleClock(const FInputActionValue& Value); //ï¿½ß°ï¿½ï¿½ï¿½
 
-	void Reload(const struct FInputActionValue& inputValue); // R ´­·¶À» ¶§ ½ÇÇàµÊ
+	void Reload(const struct FInputActionValue& inputValue); // R ëˆŒë €ì„ ë•Œ ì‹¤í–‰ë¨
 
-	virtual void DoAimStart();// ¿À¸¥ÂÊ ¸¶¿ì½º ´­·¶À» ¶§ ½ÇÇàµÊ
+	virtual void DoAimStart();// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ì½º ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
 
-	virtual void DoAimEnd();// ¿À¸¥ÂÊ ¶ÃÀ» ¶§ ½ÇÇàµÊ
+	virtual void DoAimEnd();// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
 
-	virtual void DoShootingStart();// ¿ŞÂÊ ¸¶¿ì½º ´­·¶À» ¶§ ½ÇÇàµÊ
+	virtual void DoShootingStart();// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ì½º ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
 
-	virtual void DoShootingEnd();// ¿ŞÂÊ ¸¶¿ì½º ¶ÃÀ» ¶§ ½ÇÇàµÊ
+	virtual void DoShootingEnd();// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ì½º ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
 
-	// ³ªÁß¿¡ Ã³¸®ÇØ¾ßÇÔ 
+
+
+	// ï¿½ï¿½ï¿½ß¿ï¿½ Ã³ï¿½ï¿½ï¿½Ø¾ï¿½ï¿½ï¿½ 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim")
-	bool IsHasGun = false; // ÃÑÀ» µé°í ÀÖ´ÂÁö.
+	bool IsHasGun = false; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½.
 	// weapon system
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AWeaponSystem* CurrentWeapon;
 
-	// Á¶ÁØ °ü·Ã 
+
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float DefaultFOV = 90.f; //¿ø·¡ ½Ã¾ß°¢
+	float DefaultFOV = 90.f; //ï¿½ï¿½ï¿½ï¿½ ï¿½Ã¾ß°ï¿½
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float AimFOV = 65.f; // Á¶ÁØ ½Ã¾ß°¢ 
+	float AimFOV = 65.f; // ï¿½ï¿½ï¿½ï¿½ ï¿½Ã¾ß°ï¿½ 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float DefaultArmLength = 300.f; //¿ø·¡ Ä«¸Ş¶ó¿ÍÀÇ °Å¸®
+	float DefaultArmLength = 400.f; //ï¿½ï¿½ï¿½ï¿½ Ä«ï¿½Ş¶ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float AimArmLength = 200.f; // Á¶ÁØ½Ã Ä«¸Ş¶ó¿ÍÀÇ °Å¸® 
+	float AimArmLength = 200.f; // ï¿½ï¿½ï¿½Ø½ï¿½ Ä«ï¿½Ş¶ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim")
-	bool isAiming = false; // Á¶ÁØÀ» ÇÏ°í ÀÖ´ÂÁö 
+	bool isAiming = false; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï°ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ 
 
 
 
-	// ¸¶¿ì½º ¿ŞÂÊ¹öÆ°À¸·Î ÃÑ ½î±â °ü·Ã
+	// ï¿½ï¿½ï¿½ì½º ï¿½ï¿½ï¿½Ê¹ï¿½Æ°ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-	bool IsShooting = false; //ÃÑ ½î°í ÀÖ´ÂÁö
+	FTimerHandle AutoFireTimer; // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½Ì¸ï¿½ ï¿½Úµé·¯ 
 
-	//ÀÌ°Å ÇÊ¿ä¾ø´Â°Å ¾Æ´Ñ°¡?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-	float FireRange = 3000.f; // ÃÑ ³ª°¡´Â °Å¸® 
+	bool IsShooting = false; //ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	float FireRange = 3000.f; // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ 
 
 
-
-
-	//½Ã°£ ¹Ù²ğ ¶§ °ü·Ã 
+	//ï¿½Ã°ï¿½ ï¿½Ù²ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerSetting)
 	bool Is_Rewind = false;
+
+	//tabï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ (ï¿½Ã°è¸¦ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½)
+	UPROPERTY(EditAnywhere, BluePrintReadWrite) //ï¿½ß°ï¿½ï¿½ï¿½
+		bool IsLookTimer = false;
+
+	//ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)
+	int PlayerHp = 100;
+
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)
+	bool PlayerDie = false;
+
+public:
+	UFUNCTION(BlueprintCallable)
+	void PlayerHPDown();
+
+
 
 private:
 	// Rewind Core

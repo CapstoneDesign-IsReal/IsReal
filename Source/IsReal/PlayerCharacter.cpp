@@ -35,19 +35,19 @@ APlayerCharacter::APlayerCharacter() // �ʱ�ȭ �ϱ�
 	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
 	CameraComp->bUsePawnControlRotation = false;
 
-	ConstructorHelpers::FObjectFinder<UStaticMesh> rifleMesh(TEXT("/Game/Fab/Free_Gun_Packs/Meshes/AK47_Body.AK47_Body"));
-	gunMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GunMeshComp"));
-	//GunMeshComp��� �̸����� ���ο� SkeletalMeshComponent�� �����. 
-	gunMeshComp->SetupAttachment(GetMesh());
-	// �� �� �޽ø� ��ü �޽ÿ� �ٿ���   , GetMesh()�� ĳ������ �� ���̷�Ż �޽� (��������Ʈ���� �پ�����)
+	//ConstructorHelpers::FObjectFinder<UStaticMesh> rifleMesh(TEXT("/Game/Fab/Free_Gun_Packs/Meshes/AK47_Body.AK47_Body"));
+	//gunMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GunMeshComp"));
+	////GunMeshComp��� �̸����� ���ο� SkeletalMeshComponent�� �����. 
+	//gunMeshComp->SetupAttachment(GetMesh());
+	//// �� �� �޽ø� ��ü �޽ÿ� �ٿ���   , GetMesh()�� ĳ������ �� ���̷�Ż �޽� (��������Ʈ���� �پ�����)
 
-	if (rifleMesh.Succeeded())
-	{
-		gunMeshComp->SetStaticMesh(rifleMesh.Object); //gunMeshComp�� AK47_Body �� ����
-		// �߰�
-		gunMeshComp->SetupAttachment(GetMesh(), TEXT("RifleSocket"));
-		//�� �޽ø� ĳ���� ��ü�� RifleSocket�̶�� ���� ���Ϻκп� �ٿ��� 
-	}
+	//if (rifleMesh.Succeeded())
+	//{
+	//	gunMeshComp->SetStaticMesh(rifleMesh.Object); //gunMeshComp�� AK47_Body �� ����
+	//	// �߰�
+	//	gunMeshComp->SetupAttachment(GetMesh(), TEXT("RifleSocket"));
+	//	//�� �޽ø� ĳ���� ��ü�� RifleSocket�̶�� ���� ���Ϻκп� �ٿ��� 
+	//}
 
 
 }
@@ -91,6 +91,13 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 }
 
+void  APlayerCharacter::PlayerHPDown() {
+	PlayerHp = PlayerHp - 10;
+	if (PlayerHp == 0) {
+		PlayerDie = true;
+	}
+}
+
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -98,15 +105,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	auto PlayerInput = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 	if (PlayerInput)
 	{
-		PlayerInput->BindAction(ia_Look, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
-		PlayerInput->BindAction(ia_Move, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
-
-		PlayerInput->BindAction(ia_Jump, ETriggerEvent::Started, this, &APlayerCharacter::InputJump);
 
 		PlayerInput->BindAction(ia_Rewind, ETriggerEvent::Started, this, &APlayerCharacter::Rewind);
 
-		PlayerInput->BindAction(ia_ToggleClock, ETriggerEvent::Started, this, &APlayerCharacter::OnTapStarted);
-		PlayerInput->BindAction(ia_ToggleClock, ETriggerEvent::Completed, this, &APlayerCharacter::OnTapCompleted);
+
+		PlayerInput->BindAction(ia_ToggleClock, ETriggerEvent::Started, this, &APlayerCharacter::ToggleClock);
 
 		PlayerInput->BindAction(AimAction, ETriggerEvent::Started, this, &APlayerCharacter::DoAimStart);
 		PlayerInput->BindAction(AimAction, ETriggerEvent::Completed, this, &APlayerCharacter::DoAimEnd);
@@ -121,31 +124,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
-void APlayerCharacter::Look(const FInputActionValue& inputValue)
-{
-	FVector2D value = inputValue.Get<FVector2D>();
-	AddControllerYawInput(value.X);
-	AddControllerPitchInput(value.Y);
-}
-
-void APlayerCharacter::Move(const FInputActionValue& inputValue)
-{
-	FVector2D value = inputValue.Get<FVector2D>();
-
-	const FRotator ControlRot = Controller->GetControlRotation();
-	const FRotator YawRot(0.f, ControlRot.Yaw, 0.f);
-
-	const FVector ForwardDir = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
-	const FVector RightDir = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
-
-	AddMovementInput(ForwardDir, value.X);
-	AddMovementInput(RightDir, value.Y);
-}
-
-void APlayerCharacter::InputJump(const FInputActionValue& inputValue)
-{
-	Jump();
-}
 
 void APlayerCharacter::Rewind(const FInputActionValue& inputValue)
 {
@@ -202,29 +180,38 @@ void APlayerCharacter::RewindCooldown()
 	}
 }
 
-void APlayerCharacter::OnTapStarted(const FInputActionValue& inputValue)
+
+void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 {
+	// 위젯 생성 (없으면 생성)
 	if (!ClockWidgetInstance && ClockWidgetClass)
 	{
 		ClockWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), ClockWidgetClass);
 	}
 
-	if (ClockWidgetInstance && !ClockWidgetInstance->IsInViewport())
+	// 토글: 열려 있으면 → 닫고 / 안 열렸으면 → 열기
+	if (ClockWidgetInstance)
 	{
-		ClockWidgetInstance->AddToViewport();
-		UE_LOG(LogTemp, Warning, TEXT("Clock UI Opened"));
+		if (IsLookTimer)
+		{
+			// 닫기
+			ClockWidgetInstance->RemoveFromParent();
+			SpringArmComp->TargetArmLength = 400;
+			UE_LOG(LogTemp, Warning, TEXT("Clock UI Closed"));
+		}
+		else
+		{
+			// 열기
+			ClockWidgetInstance->AddToViewport();
+			SpringArmComp->TargetArmLength = 250;
+			UE_LOG(LogTemp, Warning, TEXT("Clock UI Opened"));
+		}
+
+		// 상태 반전
+		IsLookTimer = !IsLookTimer;
 	}
 }
 
-void APlayerCharacter::OnTapCompleted(const FInputActionValue& inputValue)
-{
-	if (ClockWidgetInstance && ClockWidgetInstance->IsInViewport())
-	{
-		ClockWidgetInstance->RemoveFromParent();
-		ClockWidgetInstance = nullptr;
-		UE_LOG(LogTemp, Warning, TEXT("Clock UI Closed"));
-	}
-}
 
 void APlayerCharacter::DoAimStart()
 {
@@ -280,28 +267,28 @@ void APlayerCharacter::DoShootingStart()
 		IsShooting = true;
 
 		switch (CurrentWeapon->GetWeaponType()) {
-			case EWeaponType::EWT_Rifle:{
-				if (CurrentWeapon->GetWeaponAmmo() > 0) {
-					CurrentWeapon->WeaponFire();
-					UE_LOG(LogTemp, Warning, TEXT("(PlayerCharacter-DoShootingStart) Current Ammo : %d"), CurrentWeapon->GetWeaponAmmo());
-				}
-				else {
-					CurrentWeapon->WeaponStopFire();
-				}
-				break;
+		case EWeaponType::EWT_Rifle: {
+			if (CurrentWeapon->GetWeaponAmmo() > 0) {
+				CurrentWeapon->WeaponFire();
+				UE_LOG(LogTemp, Warning, TEXT("(PlayerCharacter-DoShootingStart) Current Ammo : %d"), CurrentWeapon->GetWeaponAmmo());
 			}
-			case EWeaponType::EWT_Pistol: {
-				if (CurrentWeapon->GetWeaponAmmo() > 0) {
-					CurrentWeapon->WeaponFire();
-					UE_LOG(LogTemp, Warning, TEXT("(PlayerCharacter-DoShootingStart) Current Ammo : %d"), CurrentWeapon->GetWeaponAmmo());
-				}
-				else {
-					CurrentWeapon->WeaponStopFire();
-				}
-				break;
+			else {
+				CurrentWeapon->WeaponStopFire();
 			}
-			default:
-				break;
+			break;
+		}
+		case EWeaponType::EWT_Pistol: {
+			if (CurrentWeapon->GetWeaponAmmo() > 0) {
+				CurrentWeapon->WeaponFire();
+				UE_LOG(LogTemp, Warning, TEXT("(PlayerCharacter-DoShootingStart) Current Ammo : %d"), CurrentWeapon->GetWeaponAmmo());
+			}
+			else {
+				CurrentWeapon->WeaponStopFire();
+			}
+			break;
+		}
+		default:
+			break;
 		}
 	}
 }
@@ -313,7 +300,7 @@ void APlayerCharacter::DoShootingEnd()
 
 		CurrentWeapon->WeaponStopFire();
 	}
-	
+
 }
 
 void APlayerCharacter::Reload(const FInputActionValue& inputValue)
@@ -324,7 +311,7 @@ void APlayerCharacter::Reload(const FInputActionValue& inputValue)
 }
 
 
-void APlayerCharacter::PInteract(const FInputActionValue & inputValue) {
+void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 	FVector Start = CameraComp->GetComponentLocation();
 	FVector End = Start + (CameraComp->GetForwardVector() * 500.f);
 
@@ -343,23 +330,23 @@ void APlayerCharacter::PInteract(const FInputActionValue & inputValue) {
 		EInteractionType InteractionType = IInteractable::Execute_GetInteractionType(HitActor);
 
 		switch (InteractionType) {
-			case EInteractionType::Door: {
-				IInteractable::Execute_Interact(HitActor, this);
-				break;
-			}
-			case EInteractionType::Gun: {
-				IInteractable::Execute_Interact(HitActor, this);
-				AWeaponSystem* Weapon = Cast<AWeaponSystem>(HitActor);
-				Weapon->SetOwner(this);
-				UE_LOG(LogTemp, Warning, TEXT("gun type: %s"),
-					*StaticEnum<EWeaponType>()->GetNameStringByValue((int64)Weapon->GetWeaponType()));
-				CurrentWeapon = Weapon;
-				//IsHasGun = true; // 이건 추후에 BP에서 설정안하게 하면 추가하면됨
-				// 그리고 맨위에 weaponsocket같은거 attach여기서 하면될거같은데
-				break;
-			}
-			default:
-				break;
+		case EInteractionType::Door: {
+			IInteractable::Execute_Interact(HitActor, this);
+			break;
+		}
+		case EInteractionType::Gun: {
+			IInteractable::Execute_Interact(HitActor, this);
+			AWeaponSystem* Weapon = Cast<AWeaponSystem>(HitActor);
+			Weapon->SetOwner(this);
+			UE_LOG(LogTemp, Warning, TEXT("gun type: %s"),
+				*StaticEnum<EWeaponType>()->GetNameStringByValue((int64)Weapon->GetWeaponType()));
+			CurrentWeapon = Weapon;
+			//IsHasGun = true; // 이건 추후에 BP에서 설정안하게 하면 추가하면됨
+			// 그리고 맨위에 weaponsocket같은거 attach여기서 하면될거같은데
+			break;
+		}
+		default:
+			break;
 		}
 	}
 }
