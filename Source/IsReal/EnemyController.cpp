@@ -7,6 +7,10 @@
 #include "Perception/AISenseConfig_Hearing.h"
 #include "Perception/AISenseConfig_Damage.h"
 #include "Perception/AIPerceptionTypes.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
+
+
 
 //Constructor
 AEnemyController::AEnemyController()
@@ -40,8 +44,9 @@ void AEnemyController::PerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 		AIStimulus = CanSenseActor(UpdatedActor, EAIPerceptionSense::EPS_Sight);
 		if (AIStimulus.WasSuccessfullySensed()) //if Enemy Sense something by sight
 		{
-			UE_LOG(LogTemp, Warning, TEXT("이것은 노란색 경고 메시지입니다."));
-			MoveToActor(UpdatedActor);
+			UE_LOG(LogTemp, Warning, TEXT("Chase Start"));
+			//MoveToActor(UpdatedActor);
+			HandleSensedSight(UpdatedActor);
 		}
 		AIStimulus = CanSenseActor(UpdatedActor, EAIPerceptionSense::EPS_Hearing);
 		if (AIStimulus.WasSuccessfullySensed()) //if Enemy Sense something by Hearing
@@ -100,4 +105,16 @@ FAIStimulus AEnemyController::CanSenseActor(AActor* Actor, EAIPerceptionSense AI
 
 	}
 	return ResultStimulus;
+}
+
+void AEnemyController::HandleSensedSight(AActor* Actor)
+{
+	UBlackboardComponent* BlackboardComp = GetBlackboardComponent();
+	if (!BlackboardComp) {
+		UE_LOG(LogTemp, Warning, TEXT("<Perception Process Error>: No BlackBoard"));
+		return;
+	}
+	//Setting Blackboard Key value to Move Enemy
+	BlackboardComp->SetValueAsObject(TEXT("sensedTarget"), Actor);
+	BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Chase));
 }

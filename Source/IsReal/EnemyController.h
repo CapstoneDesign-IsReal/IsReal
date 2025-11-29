@@ -11,7 +11,7 @@
  *
  */
 
- //enum class to know Enemy's perception state
+//enum class to know Enemy's perception state
 UENUM()
 enum class EAIPerceptionSense : uint8
 {
@@ -20,6 +20,14 @@ enum class EAIPerceptionSense : uint8
 	EPS_Hearing UMETA(DisplayName = "Hearing"),
 	EPS_Damage UMETA(DisplayName = "Damage"),
 	EPS_MAX UMETA(DisplayName = "MAX")
+};
+
+UENUM()
+enum class EEnemyState : uint8
+{
+	Idle UMETA(DisplayName = "Idle"),
+	Chase UMETA(DisplayName = "Chase"),
+	Attack UMETA(DisplayName = "Attack")
 };
 
 UCLASS(Blueprintable)
@@ -40,4 +48,7 @@ protected:
 
 	UFUNCTION()
 	FAIStimulus CanSenseActor(AActor* Actor, EAIPerceptionSense AIPerceptionSense);
+
+	UFUNCTION()
+	void HandleSensedSight(AActor* Actor);
 };
