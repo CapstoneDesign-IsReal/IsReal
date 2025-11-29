@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 
 class UNiagaraSystem;
+class AWeaponSystem;
 
 #include "PlayerCharacter.generated.h"
 
@@ -19,8 +20,15 @@ public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
 
+public:
+	// 카메라 Weaponsystem에서 접근해야 해서 public으로 변경 22/11/19
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UCameraComponent* CameraComp;
+
+
+
 protected:
-	// 엔진이 자동으로 호출
+	// ?????? ??????? ???
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -30,162 +38,144 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	// 컴포넌트들
+	// ?????????
 
-	// 스프링암
+	// ????????
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class USpringArmComponent* SpringArmComp;
-	// 카메라
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UCameraComponent* CameraComp;
 
 
-	// 무기 컴포넌트 
+
+	// ???? ??????? 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GunMesh)
 	class UStaticMeshComponent* gunMeshComp;
 
 
-	// 총 쏠 때 크로스헤어 위젯 
+	// ?? ?? ?? ??ν???? ???? 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	TSubclassOf<UUserWidget> AimCrossHairWidgetClass; //위젯 블루프린트 클래스를 저장할 객체변수고 
+	TSubclassOf<UUserWidget> AimCrossHairWidgetClass; //???? ????????? ??????? ?????? ????????? 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	UUserWidget* AimCrossHairWidget; //실제로 화면에 표시될 위젯 인스턴스(실체)를 저장할 객체변수 
+	UUserWidget* AimCrossHairWidget; //?????? ??? ???? ???? ?ν????(???)?? ?????? ??????? 
 
 
-	// 평상시 크로스 헤어 위젯 
+	// ???? ??ν? ??? ???? 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> NormalCrossHairWidgetClass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	UUserWidget* NormalCrossHairWidget;
 
 
-	// 시계 UI
+	// ?ð? UI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> ClockWidgetClass;
-	// 시계 UI 인스턴스
+	// ?ð? UI ?ν????
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	UUserWidget* ClockWidgetInstance;
-	// 되감기 VFX
+	// ????? VFX
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
 	UNiagaraSystem* RewindVFX;
 
 
 
-	// 인풋 매핑 관련 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// 인풋매핑컨텍스트
+	// ??? ???? ???? 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// ?????????????
 		class UInputMappingContext* imc_TPS;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// wasd (이동)
-	//	class UInputAction* ia_Move;
-
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// 스페이스바 (점프)
-	//	class UInputAction* ia_Jump;
-
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// 마우스 (시야)
-	//	class UInputAction* ia_Look;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// T (시간 이동하기)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// T (?ð? ??????)
 		class UInputAction* ia_Rewind;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// Tab키 (시간위젯 나오기)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// Tab? (?ð????? ??????)
 		class UInputAction* ia_ToggleClock;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input") // R (재장전)
+		class UInputAction* ia_Reload;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* ia_Interact;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// 오른쪽 마우스 (조준)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// ?????? ???콺 (????)
 		class UInputAction* AimAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// 왼쪽 마우스 (총쏘기)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// ???? ???콺 (????)
 		class UInputAction* ShootingAction;
 
 
 
-	// 인풋 매핑에 의해 실행 될 함수 
+	// ??? ???ο? ???? ???? ?? ??? 
 
-	/*void Move(const struct FInputActionValue& inputValue);
 
-	void InputJump(const struct FInputActionValue& inputValue);
-
-	void Look(const struct FInputActionValue& inputValue);*/
-
-	void Rewind(const struct FInputActionValue& inputValue); //T 눌렀을 때 실행됨 
+	void Rewind(const struct FInputActionValue& inputValue); //T ?????? ?? ????? 
 
 	void PInteract(const struct FInputActionValue& inputValue);
 
-	//void OnTapStarted(const FInputActionValue& Value); // Tab 눌렀을 때 실행됨   
-	//void OnTapCompleted(const FInputActionValue& Value); // Tab 뗐을 때 실행됨
+	void ToggleClock(const FInputActionValue& Value); //?????
 
-	void ToggleClock(const FInputActionValue& Value); //추가함
+	void Reload(const struct FInputActionValue& inputValue); // R 눌렀을 때 실행됨
 
+	virtual void DoAimStart();// ?????? ???콺 ?????? ?? ?????
 
+	virtual void DoAimEnd();// ?????? ???? ?? ?????
 
-	virtual void DoAimStart();// 오른쪽 마우스 눌렀을 때 실행됨
+	virtual void DoShootingStart();// ???? ???콺 ?????? ?? ?????
 
-	virtual void DoAimEnd();// 오른쪽 뗐을 때 실행됨
-
-	virtual void DoShootingStart();// 왼쪽 마우스 눌렀을 때 실행됨
-
-	virtual void DoShootingEnd();// 왼쪽 마우스 뗐을 때 실행됨
+	virtual void DoShootingEnd();// ???? ???콺 ???? ?? ?????
 
 
 
-	// 나중에 처리해야함 
+	// ????? ???????? 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim")
-	bool IsHasGun = false; // 총을 들고 있는지.
+	bool IsHasGun = false; // ???? ??? ?????.
+	// weapon system
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	AWeaponSystem* CurrentWeapon;
 
 
-
-	// 조준 관련 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float DefaultFOV = 90.f; //원래 시야각
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float AimFOV = 65.f; // 조준 시야각 
+	// ???? ???? 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float DefaultArmLength = 400.f; //원래 카메라와의 거리
+	float DefaultFOV = 90.f; //???? ?þ??
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float AimArmLength = 200.f; // 조준시 카메라와의 거리 
+	float AimFOV = 65.f; // ???? ?þ?? 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	float DefaultArmLength = 400.f; //???? ??????? ???
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	float AimArmLength = 200.f; // ????? ??????? ??? 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim")
-	bool isAiming = false; // 조준을 하고 있는지 
+	bool isAiming = false; // ?????? ??? ????? 
 
 
 
-	// 마우스 왼쪽버튼으로 총 쏘기 관련
+	// ???콺 ?????????? ?? ??? ????
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-	FTimerHandle AutoFireTimer; // 총 연속 쏘기 관리할 타이머 핸들러 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-	bool IsShooting = false; //총 쏘고 있는지
+	FTimerHandle AutoFireTimer; // ?? ???? ??? ?????? ???? ??? 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-	float FireRange = 3000.f; // 총 나가는 거리 
+	bool IsShooting = false; //?? ??? ?????
 
-	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void FireLineTrace(); // 라인트레이스로 총 구현할 함수 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	float FireRange = 3000.f; // ?? ?????? ??? 
 
 
-
-	//시간 바뀔 때 관련 
+	//?ð? ??? ?? ???? 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerSetting)
 	bool Is_Rewind = false;
 
-	//tab을 누르고 있는지 (시계를 보고 있는지)
-	UPROPERTY(EditAnywhere, BluePrintReadWrite) //추가함
-	bool IsLookTimer = false;
+	//tab?? ?????? ????? (?ð? ???? ?????)
+	UPROPERTY(EditAnywhere, BluePrintReadWrite) //?????
+		bool IsLookTimer = false;
 
-	//플레이어 체력 관련 설정
+	//?÷???? ??? ???? ????
 	UPROPERTY(EditAnywhere, BluePrintReadWrite)
 	int PlayerHp = 100;
 
 	UPROPERTY(EditAnywhere, BluePrintReadWrite)
 	bool PlayerDie = false;
 
-public : 
+public:
 	UFUNCTION(BlueprintCallable)
 	void PlayerHPDown();
 
