@@ -13,3 +13,5 @@ Content/DownloadAsset/
 *.suo
 *.xcodeproj
 *.xcworkspace
+Content/DownloadAsset/
+Content/EnemyAnimation/
