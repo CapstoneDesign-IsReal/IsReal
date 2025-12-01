@@ -345,6 +345,11 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			// 그리고 맨위에 weaponsocket같은거 attach여기서 하면될거같은데
 			break;
 		}
+		case EInteractionType::Monitor: {
+			IInteractable::Execute_Interact(HitActor, this);
+			break;
+		}
+
 		default:
 			break;
 		}
