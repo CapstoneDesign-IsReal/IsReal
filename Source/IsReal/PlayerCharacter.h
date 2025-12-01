@@ -168,17 +168,17 @@ protected:
 	UPROPERTY(EditAnywhere, BluePrintReadWrite) //�߰���
 		bool IsLookTimer = false;
 
-	//�÷��̾� ü�� ���� ����
+	//Player Current HP
 	UPROPERTY(EditAnywhere, BluePrintReadWrite)
-	int PlayerHp = 100;
+	float PlayerHP = 100.0;
 
 	UPROPERTY(EditAnywhere, BluePrintReadWrite)
 	bool PlayerDie = false;
 
+	// getters and setters for Player HP
 public:
-	UFUNCTION(BlueprintCallable)
-	void PlayerHPDown();
-
+	float GetPlayerHP();
+	void SetPlayerHP(float HP);
 
 
 private:

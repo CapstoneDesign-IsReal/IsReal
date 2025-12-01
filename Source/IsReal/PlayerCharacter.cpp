@@ -91,12 +91,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 }
 
-void  APlayerCharacter::PlayerHPDown() {
-	PlayerHp = PlayerHp - 10;
-	if (PlayerHp == 0) {
-		PlayerDie = true;
-	}
-}
 
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -310,6 +304,9 @@ void APlayerCharacter::Reload(const FInputActionValue& inputValue)
 	}
 }
 
+// getters and setters for PlayerHP
+float APlayerCharacter::GetPlayerHP() { return PlayerHP; }
+void APlayerCharacter::SetPlayerHP(float HP) { PlayerHP = HP; }
 
 void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 	FVector Start = CameraComp->GetComponentLocation();
