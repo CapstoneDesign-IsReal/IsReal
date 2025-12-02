@@ -34,6 +34,6 @@ EBTNodeResult::Type UTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uin
 	if (!target)
 		return EBTNodeResult::Failed;
 
-	currentEnemy->Attack(target);
+	//currentEnemy->Attack(target);
 	return EBTNodeResult::Succeeded;
 }

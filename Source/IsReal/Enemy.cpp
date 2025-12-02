@@ -3,6 +3,9 @@
 
 #include "Enemy.h"
 #include "EnemyController.h"
+#include "PlayerCharacter.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -35,11 +38,12 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void AEnemy::Attack(APawn* target)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Attack Called"));
-	/*
-	Attack implement
-	target HP_getter() -= AttackDamage;
-	animinstance ¼öÁ¤
-	*/
+	//Attack implement
+	auto player = Cast<APlayerCharacter>(target);
+	float player_HP = player->GetPlayerHP();
+	player_HP = player_HP - AttackDamage;
+	player->SetPlayerHP(player_HP);
+	UE_LOG(LogTemp, Warning, TEXT("Current HP: %f"), player_HP);
 }
 
 float AEnemy::getAttackRange()
@@ -67,4 +71,20 @@ void AEnemy::Chase(APawn* target)
 	auto EnemyController = Cast<AEnemyController>(GetController());
 
 	EnemyController->MoveToActor(target, 90.0f);
+}
+
+void AEnemy::Hit(int damage)
+{
+	auto EnemyController = Cast<AEnemyController>(GetController());
+
+	UBlackboardComponent* BlackboardComp = EnemyController->GetBlackboardComponent();
+	if (!BlackboardComp) {
+		UE_LOG(LogTemp, Warning, TEXT("<Perception Process Error>: No BlackBoard"));
+		return;
+	}
+
+	HP = HP - damage;
+	if (HP < damage) {
+		BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Die));
+	}
 }

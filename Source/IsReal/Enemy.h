@@ -25,7 +25,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Enemy Params")
 	float HP = 200;
 	UPROPERTY(EditAnywhere, Category = "Enemy Params")
-	float AttackDamage = 100;
+	float AttackDamage = 40;
 	UPROPERTY(EditAnywhere, Category = "Enemy Params")
 	float AttackRange = 200.0f;
 	UPROPERTY(EditAnywhere, Category = "Enemy Params")
@@ -43,9 +43,13 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	// Attack 'target'
+	UFUNCTION(BlueprintCallable)
 	void Attack(APawn* target);
 	float getAttackRange();
 	float getAttackCoolTime();
 	void AttackCountdown();
 	void Chase(APawn* target);
+
+	UFUNCTION(BlueprintCallable)
+	void Hit(int damage);
 };
