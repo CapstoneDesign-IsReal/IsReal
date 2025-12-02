@@ -18,8 +18,6 @@ AEnemyController::AEnemyController()
 {
 	AIPerception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
 	SetPerceptionComponent(*AIPerception);
-
-	SetGenericTeamId(FGenericTeamId(1));
 }
 
 void AEnemyController::AttackDecision(APawn* target)

@@ -41,7 +41,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	UStaticMeshComponent* GetPistolMesh() const { return Pistol1; }
 
-	
+
 
 protected:
 	// ������ �ڵ����� ȣ��

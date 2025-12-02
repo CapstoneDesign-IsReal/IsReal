@@ -53,5 +53,5 @@ protected:
 	UFUNCTION()
 	void HandleSensedSight(AActor* Actor);
 
-	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
+	
 };

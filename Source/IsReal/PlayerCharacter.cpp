@@ -137,7 +137,7 @@ void APlayerCharacter::Rewind(const FInputActionValue& inputValue)
 
 		if (Is_Rewind == false)
 		{
-			RewindCoolTime = 10.0f; // 여기엔 추후 변수를 하나 둬서 아이템같은거 먹으면 체류시간 늘어나게 할 수 있음
+			RewindCoolTime = 60.0f; // 여기엔 추후 변수를 하나 둬서 아이템같은거 먹으면 체류시간 늘어나게 할 수 있음
 			GetWorldTimerManager().SetTimer(RewindTimerHandle, this, &APlayerCharacter::RewindCooldown, 1.0f, true);
 
 			// 과거로 갈때
@@ -180,6 +180,7 @@ void APlayerCharacter::RewindCooldown()
 
 		FVector NewLocation = CurrentLocation - FVector(0.f, 0.f, 10000.f);
 		SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, NewLocation, GetActorRotation());
 		UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
 
 	}
@@ -362,6 +363,5 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 		}
 	}
 }
-
 
 

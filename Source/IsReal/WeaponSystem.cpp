@@ -77,7 +77,7 @@ void AWeaponSystem::FireLineTrace()
 
 	FHitResult HitResult;
 	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
+	Params.AddIgnoredActor(PC);
 
 	bool Hit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params);
 
@@ -123,6 +123,7 @@ void AWeaponSystem::FireLineTrace()
 
 		FHitResult MuzzleHit;
 		FCollisionQueryParams MuzzleParams;
+		MuzzleParams.AddIgnoredActor(PC);
 		MuzzleParams.AddIgnoredActor(this); // Params.AddIgnoredActor(this): �ڱ� �ڽ��� ����.
 
 		bool MuzzleTraceHit = GetWorld()->LineTraceSingleByChannel(
@@ -144,12 +145,12 @@ void AWeaponSystem::FireLineTrace()
 				if (Enemy)
 				{
 					UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *Enemy->GetName());
-					//Enemy->Hit(10);    // 데미지 10 주기
+					Enemy->Hit(10);    // 데미지 10 주기
 				}
 			}
 		}
 		else
 		{
-			DrawDebugLine(GetWorld(), MuzzleLocation, EndFromMuzzle, FColor::Green, false, 0.05f, 0, 1.5f);
+			DrawDebugLine(GetWorld(), MuzzleLocation, EndFromMuzzle, FColor::Red, false, 0.05f, 0, 1.5f);
 		}
 	}
