@@ -26,6 +26,22 @@ public:
 	class UCameraComponent* CameraComp;
 
 
+	// ���� ������Ʈ 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GunMesh)
+	class UStaticMeshComponent* gunMeshComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GunMesh) // To use WeaponSystem
+		class UStaticMeshComponent* Rifle1;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GunMesh) // @@
+		class UStaticMeshComponent* Pistol1;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	UStaticMeshComponent* GetRifleMesh() const { return Rifle1; }
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	UStaticMeshComponent* GetPistolMesh() const { return Pistol1; }
+
+	
 
 protected:
 	// ������ �ڵ����� ȣ��
@@ -46,9 +62,8 @@ protected:
 
 
 
-	// ���� ������Ʈ 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GunMesh)
-	class UStaticMeshComponent* gunMeshComp;
+
+
 
 
 	// �� �� �� ũ�ν���� ���� 
