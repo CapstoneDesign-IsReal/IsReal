@@ -19,6 +19,9 @@ EBTNodeResult::Type UTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uin
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
 	AEnemy* currentEnemy = Cast<AEnemy>(OwnerComp.GetAIOwner()->GetCharacter());
+	AEnemyController* currentController = Cast<AEnemyController>(OwnerComp.GetAIOwner());
+
+	currentController->StopMovement();
 
 	//exception
 	if (currentEnemy == nullptr)
