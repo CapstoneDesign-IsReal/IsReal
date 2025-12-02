@@ -2,6 +2,7 @@
 
 
 #include "EnemyController.h"
+#include "PlayerCharacter.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AISenseConfig_Hearing.h"
@@ -17,6 +18,8 @@ AEnemyController::AEnemyController()
 {
 	AIPerception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
 	SetPerceptionComponent(*AIPerception);
+
+	SetGenericTeamId(FGenericTeamId(1));
 }
 
 void AEnemyController::AttackDecision(APawn* target)
@@ -115,6 +118,13 @@ void AEnemyController::HandleSensedSight(AActor* Actor)
 		return;
 	}
 	//Setting Blackboard Key value to Move Enemy
-	BlackboardComp->SetValueAsObject(TEXT("sensedTarget"), Actor);
-	BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Chase));
+	APlayerCharacter* target = Cast<APlayerCharacter>(Actor);
+	if (target) {
+		BlackboardComp->SetValueAsObject(TEXT("sensedTarget"), Actor);
+		BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Chase));
+	}
+	else
+	{
+		return;
+	}
 }

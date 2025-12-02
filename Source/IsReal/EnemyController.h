@@ -27,7 +27,8 @@ enum class EEnemyState : uint8
 {
 	Idle UMETA(DisplayName = "Idle"),
 	Chase UMETA(DisplayName = "Chase"),
-	Attack UMETA(DisplayName = "Attack")
+	Attack UMETA(DisplayName = "Attack"),
+	Die UMETA(DisplayName = "Die")
 };
 
 UCLASS(Blueprintable)
@@ -51,4 +52,6 @@ protected:
 
 	UFUNCTION()
 	void HandleSensedSight(AActor* Actor);
+
+	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
 };

@@ -37,13 +37,15 @@ EBTNodeResult::Type UTChase::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint
 
 	float dist = BlackboardComp->GetValueAsFloat(distanceKey.SelectedKeyName);
 	AEnemy* SelfActor = Cast<AEnemy>(BlackboardComp->GetValueAsObject(TEXT("SelfActor")));
+
 	//do attack
 	if (dist < SelfActor->getAttackRange())
 	{
 		BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Attack));
 	}
-	//elas keep chase
-	currentEnemy->Chase(target);
-
+	else                    //else keep chase
+	{
+		currentEnemy->Chase(target);
+	}
 	return EBTNodeResult::Succeeded;
 }
