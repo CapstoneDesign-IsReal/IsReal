@@ -4,12 +4,14 @@
 #include "WeaponSystem.h"
 #include "PlayerCharacter.h"
 #include "Camera/CameraComponent.h"
+#include "Enemy.h"
 
 // Sets default values
 AWeaponSystem::AWeaponSystem()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
 
 }
 
@@ -60,6 +62,10 @@ void AWeaponSystem::FireLineTrace()
 		StartVector = PC->CameraComp->GetComponentLocation();
 		FwDirection = PC->CameraComp->GetForwardVector();
 	}
+	if (!PC)
+	{
+		return;
+	}
 
 	FVector Start = StartVector;
 	FVector ForwardVector = FwDirection;
@@ -74,26 +80,42 @@ void AWeaponSystem::FireLineTrace()
 	FVector TargetPoint = End; // �⺻�� (���� ������ �� ����)
 	if (Hit) {
 		TargetPoint = HitResult.ImpactPoint;
-		DrawDebugLine(GetWorld(), Start, HitResult.ImpactPoint, FColor::Red, false, 0.05f, 0, 1.5f);
-		DrawDebugPoint(GetWorld(), HitResult.ImpactPoint, 10.0f, FColor::Yellow, false, 0.1f);
+		//DrawDebugLine(GetWorld(), Start, HitResult.ImpactPoint, FColor::Red, false, 0.05f, 0, 1.5f);
+		//DrawDebugPoint(GetWorld(), HitResult.ImpactPoint, 10.0f, FColor::Blue, false, 0.1f);
 
 		AActor* HitActor = HitResult.GetActor();
 		if (HitActor)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *HitActor->GetName());
+			//UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *HitActor->GetName());
 		}
 	}
 	else
 	{
-		DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 0.05f, 0, 1.5f);
+		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 0.05f, 0, 1.5f);
 	}
-	if (gunMeshComp) {
-		FVector MuzzleLocation = gunMeshComp->GetSocketLocation(TEXT("WeaponSocket"));
+
+
+	RifleMesh = PC->GetRifleMesh();
+	PistolMesh = PC->GetPistolMesh();
+
+	CurrentGun = nullptr;
+
+	if (_weapontype == EWeaponType::EWT_Rifle)
+	{
+		CurrentGun = RifleMesh;
+	}
+	else if (_weapontype == EWeaponType::EWT_Pistol)
+	{
+		CurrentGun = PistolMesh;
+	}
+	if (!CurrentGun) return;
+
+		FVector MuzzleLocation = CurrentGun->GetSocketLocation(TEXT("WeaponSokect"));
 		//FRotator MuzzleRotation = gunMeshComp->GetSocketRotation(TEXT("WeaponSocket"));
 
 		// ī�޶� ������ �״�� ��� (�÷��̾ ������ ��������)
 		//FVector ShootDirection = ForwardVector;
-		FVector EndFromMuzzle = Start + (ForwardVector * 20000.0f);
+		FVector EndFromMuzzle = TargetPoint;
 
 		FHitResult MuzzleHit;
 		FCollisionQueryParams MuzzleParams;
@@ -106,14 +128,20 @@ void AWeaponSystem::FireLineTrace()
 
 		if (MuzzleTraceHit)
 		{
-			DrawDebugLine(GetWorld(), MuzzleLocation, TargetPoint, FColor::Green, false, 0.05f, 0, 1.5f);
-			DrawDebugPoint(GetWorld(), TargetPoint, 10.0f, FColor::Cyan, false, 0.1f);
+			DrawDebugLine(GetWorld(), MuzzleLocation, TargetPoint, FColor::Red, false, 0.05f, 0, 1.5f);
+			DrawDebugPoint(GetWorld(), TargetPoint, 10.0f, FColor::Blue, false, 0.1f);
 
 			AActor* HitActor2 = MuzzleHit.GetActor();
 			if (HitActor2)
 			{
-				UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *HitActor2->GetName());
+				//UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *HitActor2->GetName());
 				// 여기서 적 체력 처리
+				AEnemy* Enemy = Cast<AEnemy>(HitActor2);
+				if (Enemy)
+				{
+					UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *Enemy->GetName());
+					//Enemy->Hit(10);    // 데미지 10 주기
+				}
 			}
 		}
 		else
@@ -121,4 +149,3 @@ void AWeaponSystem::FireLineTrace()
 			DrawDebugLine(GetWorld(), MuzzleLocation, EndFromMuzzle, FColor::Green, false, 0.05f, 0, 1.5f);
 		}
 	}
-}

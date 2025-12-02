@@ -46,6 +46,10 @@ private:
 
 	FVector StartVector;
 	FVector FwDirection;
+	;
+	UStaticMeshComponent* RifleMesh;
+	UStaticMeshComponent* PistolMesh;
+	UStaticMeshComponent* CurrentGun; //현재 총이 메시 어떤건지 담을 변수 
 
 public:
 	// Weapon Type setters and getters
