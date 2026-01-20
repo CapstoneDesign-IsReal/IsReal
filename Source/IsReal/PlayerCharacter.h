@@ -7,6 +7,7 @@
 
 class UNiagaraSystem;
 class AWeaponSystem;
+class UCoreSystem;
 
 #include "PlayerCharacter.generated.h"
 
@@ -86,10 +87,6 @@ protected:
 	// �ð� UI �ν��Ͻ�
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	UUserWidget* ClockWidgetInstance;
-	// �ǰ��� VFX
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
-	UNiagaraSystem* RewindVFX;
-
 
 
 	// ��ǲ ���� ���� 
@@ -144,6 +141,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AWeaponSystem* CurrentWeapon;
 
+	// core system
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Core");
+	TObjectPtr<UCoreSystem> CoreSystemComp;
 
 	// ���� ���� 
 
@@ -174,11 +174,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float FireRange = 3000.f; // �� ������ �Ÿ� 
 
-
-	//�ð� �ٲ� �� ���� 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerSetting)
-	bool Is_Rewind = false;
-
 	//tab�� ������ �ִ��� (�ð踦 ���� �ִ���)
 	UPROPERTY(EditAnywhere, BluePrintReadWrite) //�߰���
 		bool IsLookTimer = false;
@@ -194,15 +189,5 @@ protected:
 public:
 	float GetPlayerHP();
 	void SetPlayerHP(float HP);
-
-
-private:
-	// Rewind Core
-	int RewindCore = 300;
-	// Rewind Cooldown
-	float RewindCoolTime;
-	FTimerHandle RewindTimerHandle;
-	// Rewind Cooldown function
-	void RewindCooldown();
 
 };

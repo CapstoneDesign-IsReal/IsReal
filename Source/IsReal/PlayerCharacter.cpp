@@ -13,6 +13,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Interactable.h"
 #include "WeaponSystem.h"
+#include "CoreSystem.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -58,7 +59,8 @@ APlayerCharacter::APlayerCharacter() // �ʱ�ȭ �ϱ�
 	Rifle1->SetupAttachment(GetMesh(), TEXT("Rifle")); //캐릭터 스켈레톤 매시의 라이플이라는 소켓에 장착
 	Pistol1->SetupAttachment(GetMesh(), TEXT("Pistol"));// 캐릭터 스켈레톤 매시의 피스톨이라는 소켓에 장착
 
-
+	// core system Component
+	CoreSystemComp = CreateDefaultSubobject<UCoreSystem>(TEXT("CoreSystemComp"));
 }
 
 // Called when the game starts or when spawned
@@ -132,60 +134,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void APlayerCharacter::Rewind(const FInputActionValue& inputValue)
 {
-	FVector CurrentLocation = GetActorLocation();
-	if (RewindCore > 0 && !(GetWorldTimerManager().IsTimerActive(RewindTimerHandle))) {
-
-		if (Is_Rewind == false)
-		{
-			RewindCoolTime = 60.0f; // 여기엔 추후 변수를 하나 둬서 아이템같은거 먹으면 체류시간 늘어나게 할 수 있음
-			GetWorldTimerManager().SetTimer(RewindTimerHandle, this, &APlayerCharacter::RewindCooldown, 1.0f, true);
-
-			// 과거로 갈때
-			Is_Rewind = true;
-			RewindCore -= 100;
-			if (RewindVFX)
-			{
-				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, CurrentLocation, GetActorRotation()); // 위치 이동 전 VFX
-			}
-
-			FVector NewLocation = CurrentLocation + FVector(0.f, 0.f, 10000.f);
-			SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
-			UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
-
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, NewLocation, GetActorRotation());  // 위치 이동 후 VFX
-		}
-	}
-	else {
-		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Can't Rewind"), true, true, FLinearColor::Green, 2.0f);
+	if (CoreSystemComp) 
+	{
+		CoreSystemComp->TryReWind();
 	}
 }
-
-void APlayerCharacter::RewindCooldown()
-{
-	RewindCoolTime--;
-
-	UKismetSystemLibrary::PrintString(						// 쿨다운 보여주는 텍스트(지워도됨)
-		GetWorld(),
-		FString::Printf(TEXT("CoolDown.. : %.1f"), RewindCoolTime)
-		, true, true, FLinearColor::Green, 2.0f);
-
-	if (RewindCoolTime <= 0) {
-		GetWorldTimerManager().ClearTimer(RewindTimerHandle);
-		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("To Present!"), true, true, FLinearColor::Green, 2.0f);
-
-		// 현재로 올때
-		Is_Rewind = false;
-
-		FVector CurrentLocation = GetActorLocation();
-
-		FVector NewLocation = CurrentLocation - FVector(0.f, 0.f, 10000.f);
-		SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, NewLocation, GetActorRotation());
-		UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
-
-	}
-}
-
 
 void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 {
@@ -268,7 +221,7 @@ void APlayerCharacter::DoAimEnd()
 
 void APlayerCharacter::DoShootingStart()
 {
-	// 가지고 있는 무기에 따라 fire가 다르게 나감
+	// 가지고 있는 무기에 따라 fire가 다르게 나감 // 근데 굳이 switch문 안써도 될거같음
 	if (CurrentWeapon && IsHasGun) {
 		IsShooting = true;
 
@@ -318,7 +271,12 @@ void APlayerCharacter::Reload(const FInputActionValue& inputValue)
 
 // getters and setters for PlayerHP
 float APlayerCharacter::GetPlayerHP() { return PlayerHP; }
-void APlayerCharacter::SetPlayerHP(float HP) { PlayerHP = HP; }
+void APlayerCharacter::SetPlayerHP(float HP) {
+	PlayerHP = HP;
+	if (PlayerHP <= 0) {
+		PlayerDie = true;
+	}
+}
 
 void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 	FVector Start = CameraComp->GetComponentLocation();
