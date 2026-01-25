@@ -23,7 +23,8 @@ void UCoreSystem::BeginPlay()
 
 	RewindCore = MaxRewindCore;
 	Is_Rewind = false;
-	RewindCoolTime = 60.0f;
+	RewindCoolTime = 60.0f; // 총 쿨다운 시간
+	CurruntRewindCoolTime = 0.0f; // 현재 쿨다운 시간
 
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
 }
@@ -65,19 +66,20 @@ void UCoreSystem::TryReWind()
 
 void UCoreSystem::RewindCooldown()
 {
-	RewindCoolTime--;
+	CurruntRewindCoolTime++;
 
 	UKismetSystemLibrary::PrintString(						// 쿨다운 보여주는 텍스트(지워도됨)
 		GetWorld(),
-		FString::Printf(TEXT("CoolDown.. : %.1f"), RewindCoolTime)
+		FString::Printf(TEXT("CoolDown.. : %.1f"), RewindCoolTime-CurruntRewindCoolTime)
 		, true, true, FLinearColor::Green, 2.0f);
 
-	if (RewindCoolTime <= 0) {
+	if (CurruntRewindCoolTime == RewindCoolTime) {
 		GetWorld()->GetTimerManager().ClearTimer(RewindTimerHandle);
 		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("To Present!"), true, true, FLinearColor::Green, 2.0f);
 
 		// 현재로 올때
 		Is_Rewind = false;
+		CurruntRewindCoolTime = 0.0f;
 
 		FVector CurrentLocation = OwnerCharacter->GetActorLocation();
 

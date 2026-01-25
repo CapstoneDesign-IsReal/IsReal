@@ -39,7 +39,36 @@ void AWeaponSystem::WeaponStopFire()
 }
 void AWeaponSystem::WeaponReload()
 {
-	// Implement in child classes
+	if (TotalAmmo <= 0) 
+	{	// 추후 사운드 이펙트 추가 - 총알 없다는 경고
+		UE_LOG(LogTemp, Warning, TEXT("No More Ammo to Reload!"));
+		return;
+	}
+
+	if (!(GetWorld()->GetTimerManager().IsTimerActive(ReloadTimerHandle)))
+	{
+		if (isReloading == false)
+		{
+			isReloading = true;
+			// 리로드 쿨타임 타이머 시작
+			GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &AWeaponSystem::WeaponReloadCooldown, ReloadCoolTime, false);
+
+			// 필요한 총알 수 계산
+			int NeededAmmo = MaxAmmo - CurrentAmmo;
+			if (NeededAmmo <= 0) return; // 이미 총알이 가득 찬 경우
+
+			int LoadedAmmo = FMath::Min(NeededAmmo, TotalAmmo); // 실제로 장전할 총알 수
+
+			CurrentAmmo += LoadedAmmo; // 현재 총알 수 증가
+			TotalAmmo -= LoadedAmmo;
+		}
+	}	
+}
+void AWeaponSystem::WeaponReloadCooldown()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Reload Complete!"));
+	GetWorld()->GetTimerManager().ClearTimer(ReloadTimerHandle);
+	isReloading = false;
 }
 
 // Weapon Type setters and getters
@@ -52,9 +81,11 @@ void AWeaponSystem::SetWeaponAmmo(int ammo) { CurrentAmmo = ammo; }
 
 int AWeaponSystem::GetWeaponAmmo() { return CurrentAmmo; }
 
+bool AWeaponSystem::IsReloading(){ return isReloading; }
+
 void AWeaponSystem::FireLineTrace()
 {
-	if(CurrentAmmo <= 0){
+	if (CurrentAmmo <= 0) {
 		UE_LOG(LogTemp, Warning, TEXT("No Ammo!"));
 		return;
 	}
@@ -62,7 +93,7 @@ void AWeaponSystem::FireLineTrace()
 	CurrentAmmo--;
 
 	APlayerCharacter* PC = Cast<APlayerCharacter>(GetOwner());
-	if (PC){
+	if (PC) {
 		StartVector = PC->CameraComp->GetComponentLocation();
 		FwDirection = PC->CameraComp->GetForwardVector();
 	}
@@ -84,14 +115,9 @@ void AWeaponSystem::FireLineTrace()
 	FVector TargetPoint = End; // �⺻�� (���� ������ �� ����)
 	if (Hit) {
 		TargetPoint = HitResult.ImpactPoint;
-		//DrawDebugLine(GetWorld(), Start, HitResult.ImpactPoint, FColor::Red, false, 0.05f, 0, 1.5f);
-		//DrawDebugPoint(GetWorld(), HitResult.ImpactPoint, 10.0f, FColor::Blue, false, 0.1f);
 
 		AActor* HitActor = HitResult.GetActor();
-		if (HitActor)
-		{
-			//UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *HitActor->GetName());
-		}
+
 	}
 	else
 	{
@@ -114,11 +140,8 @@ void AWeaponSystem::FireLineTrace()
 	}
 	if (!CurrentGun) return;
 
-	FVector MuzzleLocation = CurrentGun->GetSocketLocation(TEXT("WeaponSokect"));
+	FVector MuzzleLocation = CurrentGun->GetSocketLocation(TEXT("WeaponSokect"));  // ? 오타?
 	//FRotator MuzzleRotation = gunMeshComp->GetSocketRotation(TEXT("WeaponSocket"));
-
-	// ī�޶� ������ �״�� ��� (�÷��̾ ������ ��������)
-	//FVector ShootDirection = ForwardVector;
 
 	float Range = 20000.0f;
 	FVector Dir = (TargetPoint - MuzzleLocation).GetSafeNormal(); // GetSafeNormal(): To make normalized vector
@@ -137,16 +160,16 @@ void AWeaponSystem::FireLineTrace()
 	if (MuzzleTraceHit)
 	{
 		DrawDebugLine(GetWorld(), MuzzleLocation, TargetPoint, FColor::Red, false, 0.05f, 0, 1.5f);
-		DrawDebugPoint(GetWorld(), TargetPoint, 10.0f, FColor::Blue, false, 0.1f);
+
 
 		AActor* HitActor2 = MuzzleHit.GetActor();
 		if (HitActor2)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *HitActor2->GetName());
 			// 여기서 적 체력 처리
 			AEnemy* Enemy = Cast<AEnemy>(HitActor2);
 			if (Enemy)
 			{
+				DrawDebugPoint(GetWorld(), TargetPoint, 10.0f, FColor::Blue, false, 0.1f); // 적군을 맞추면 파란 점 찍힘
 				UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *Enemy->GetName());
 				Enemy->Hit(Damage);    // 총기 별 데미지 주기
 			}

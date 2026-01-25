@@ -41,6 +41,7 @@ private:
 	int MaxRewindCore = 300;
 	// Rewind Cooldown
 	float RewindCoolTime;
+	float CurruntRewindCoolTime;
 	FTimerHandle RewindTimerHandle;
 	// Rewind Cooldown function
 	void RewindCooldown();

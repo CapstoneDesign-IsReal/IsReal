@@ -24,17 +24,21 @@ class ISREAL_API AWeaponSystem : public AActor
 	
 protected:
 	// Weapon System Variables
+	// 총기 데미지
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon System")
 	int Damage;
+	// 현재 장전된 총알 갯수
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon System")
 	int CurrentAmmo;
+	// 총기 별 최대 장전 가능 총알 갯수
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon System")
 	int MaxAmmo;
+	// 발사 속도
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon System")
 	float FireRate;
-
-
-	
+	// 남은 총알 갯수
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon System")
+	float TotalAmmo;
 
 	// 무기 컴포넌트 // 이거 Weaponsystem으로 가져옴  25/11/16 (코드 리팩토링) 이건 삭제할지 안할지 물어봐야함
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GunMesh)
@@ -51,6 +55,13 @@ private:
 	UStaticMeshComponent* PistolMesh;
 	UStaticMeshComponent* CurrentGun; //현재 총이 메시 어떤건지 담을 변수 
 
+	// Reload State
+	bool isReloading = false;
+	FTimerHandle ReloadTimerHandle;
+	void WeaponReloadCooldown();
+protected:
+	float ReloadCoolTime;
+
 public:
 	// Weapon Type setters and getters
 	void SetWeaponType(EWeaponType NewType);
@@ -58,6 +69,8 @@ public:
 	// Weapon Ammo setters and getters
 	void SetWeaponAmmo(int ammo);
 	int GetWeaponAmmo();
+	// IsReloading getter
+	bool IsReloading();
 
 	// Weapon System Functions
 	virtual void WeaponFire();

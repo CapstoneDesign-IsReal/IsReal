@@ -221,8 +221,12 @@ void APlayerCharacter::DoAimEnd()
 
 void APlayerCharacter::DoShootingStart()
 {
+	// 재장전 중일 때는 발사 못하게 막기
+	if (!CurrentWeapon) return;
+	if (CurrentWeapon->IsReloading()) return;
+
 	// 가지고 있는 무기에 따라 fire가 다르게 나감 // 근데 굳이 switch문 안써도 될거같음
-	if (CurrentWeapon && IsHasGun) {
+	if (IsHasGun) {
 		IsShooting = true;
 
 		switch (CurrentWeapon->GetWeaponType()) {
