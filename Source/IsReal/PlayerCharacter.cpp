@@ -49,6 +49,15 @@ APlayerCharacter::APlayerCharacter() // �ʱ�ȭ �ϱ�
 	//	//�� �޽ø� ĳ���� ��ü�� RifleSocket�̶�� ���� ���Ϻκп� �ٿ��� 
 	//}
 
+	Rifle1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RifleMesh"));
+	Rifle1->SetupAttachment(GetMesh()); //여기까지하면 블루프린트에 생김 
+
+	Pistol1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PistolMesh"));
+	Pistol1->SetupAttachment(GetMesh()); //여기까지 하면 블루프린트에 생김 
+
+	Rifle1->SetupAttachment(GetMesh(), TEXT("Rifle")); //캐릭터 스켈레톤 매시의 라이플이라는 소켓에 장착
+	Pistol1->SetupAttachment(GetMesh(), TEXT("Pistol"));// 캐릭터 스켈레톤 매시의 피스톨이라는 소켓에 장착
+
 
 }
 
@@ -91,12 +100,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 }
 
-void  APlayerCharacter::PlayerHPDown() {
-	PlayerHp = PlayerHp - 10;
-	if (PlayerHp == 0) {
-		PlayerDie = true;
-	}
-}
+
+
 
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -132,7 +137,7 @@ void APlayerCharacter::Rewind(const FInputActionValue& inputValue)
 
 		if (Is_Rewind == false)
 		{
-			RewindCoolTime = 10.0f; // 여기엔 추후 변수를 하나 둬서 아이템같은거 먹으면 체류시간 늘어나게 할 수 있음
+			RewindCoolTime = 60.0f; // 여기엔 추후 변수를 하나 둬서 아이템같은거 먹으면 체류시간 늘어나게 할 수 있음
 			GetWorldTimerManager().SetTimer(RewindTimerHandle, this, &APlayerCharacter::RewindCooldown, 1.0f, true);
 
 			// 과거로 갈때
@@ -175,6 +180,7 @@ void APlayerCharacter::RewindCooldown()
 
 		FVector NewLocation = CurrentLocation - FVector(0.f, 0.f, 10000.f);
 		SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, NewLocation, GetActorRotation());
 		UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
 
 	}
@@ -310,6 +316,9 @@ void APlayerCharacter::Reload(const FInputActionValue& inputValue)
 	}
 }
 
+// getters and setters for PlayerHP
+float APlayerCharacter::GetPlayerHP() { return PlayerHP; }
+void APlayerCharacter::SetPlayerHP(float HP) { PlayerHP = HP; }
 
 void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 	FVector Start = CameraComp->GetComponentLocation();
@@ -341,8 +350,12 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			UE_LOG(LogTemp, Warning, TEXT("gun type: %s"),
 				*StaticEnum<EWeaponType>()->GetNameStringByValue((int64)Weapon->GetWeaponType()));
 			CurrentWeapon = Weapon;
-			//IsHasGun = true; // 이건 추후에 BP에서 설정안하게 하면 추가하면됨
+			IsHasGun = true; // 이건 추후에 BP에서 설정안하게 하면 추가하면됨
 			// 그리고 맨위에 weaponsocket같은거 attach여기서 하면될거같은데
+			break;
+		}
+		case EInteractionType::Monitor: {
+			IInteractable::Execute_Interact(HitActor, this);
 			break;
 		}
 		default:
@@ -350,6 +363,5 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 		}
 	}
 }
-
 
 

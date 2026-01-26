@@ -26,6 +26,22 @@ public:
 	class UCameraComponent* CameraComp;
 
 
+	// ���� ������Ʈ 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GunMesh)
+	class UStaticMeshComponent* gunMeshComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GunMesh) // To use WeaponSystem
+		class UStaticMeshComponent* Rifle1;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GunMesh) // @@
+		class UStaticMeshComponent* Pistol1;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	UStaticMeshComponent* GetRifleMesh() const { return Rifle1; }
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	UStaticMeshComponent* GetPistolMesh() const { return Pistol1; }
+
+
 
 protected:
 	// ������ �ڵ����� ȣ��
@@ -46,9 +62,8 @@ protected:
 
 
 
-	// ���� ������Ʈ 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GunMesh)
-	class UStaticMeshComponent* gunMeshComp;
+
+
 
 
 	// �� �� �� ũ�ν���� ���� 
@@ -168,17 +183,17 @@ protected:
 	UPROPERTY(EditAnywhere, BluePrintReadWrite) //�߰���
 		bool IsLookTimer = false;
 
-	//�÷��̾� ü�� ���� ����
+	//Player Current HP
 	UPROPERTY(EditAnywhere, BluePrintReadWrite)
-	int PlayerHp = 100;
+	float PlayerHP = 100.0;
 
 	UPROPERTY(EditAnywhere, BluePrintReadWrite)
 	bool PlayerDie = false;
 
+	// getters and setters for Player HP
 public:
-	UFUNCTION(BlueprintCallable)
-	void PlayerHPDown();
-
+	float GetPlayerHP();
+	void SetPlayerHP(float HP);
 
 
 private:

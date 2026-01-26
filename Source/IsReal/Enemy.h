@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EnemyEventSubsystem.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/Pawn.h"
 #include "Enemy.generated.h"
+
 
 UCLASS(Blueprintable)
 class ISREAL_API AEnemy : public ACharacter
@@ -15,7 +17,6 @@ class ISREAL_API AEnemy : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AEnemy();
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -34,6 +35,7 @@ protected:
 	float AttackSpeed = 10.0f;		//Attack Speed
 
 	FTimerHandle CoolTimeHandle;	//timer handler
+	UEnemyEventSubsystem* EnemyEventSubsystem;
 
 public:
 	// Called every frame
@@ -52,4 +54,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void Hit(int damage);
+
+	void TempLog();
 };

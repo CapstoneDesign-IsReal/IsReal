@@ -4,6 +4,7 @@
 #include "Enemy.h"
 #include "EnemyController.h"
 #include "PlayerCharacter.h"
+#include "EnemyEventSubsystem.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
@@ -20,6 +21,12 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (GetGameInstance()) {
+		EnemyEventSubsystem = GetGameInstance()->GetSubsystem<UEnemyEventSubsystem>();
+	}
+	if (EnemyEventSubsystem) {
+		EnemyEventSubsystem->EnemyDieDelegate.AddUObject(this, &AEnemy::TempLog);
+	}
 }
 
 // Called every frame
@@ -76,15 +83,26 @@ void AEnemy::Chase(APawn* target)
 void AEnemy::Hit(int damage)
 {
 	auto EnemyController = Cast<AEnemyController>(GetController());
-
 	UBlackboardComponent* BlackboardComp = EnemyController->GetBlackboardComponent();
+
+	if (!EnemyController) {
+		UE_LOG(LogTemp, Warning, TEXT("<Controller Unpossessed Error>: No Controller"));
+	}
 	if (!BlackboardComp) {
 		UE_LOG(LogTemp, Warning, TEXT("<Perception Process Error>: No BlackBoard"));
 		return;
 	}
 
 	HP = HP - damage;
-	if (HP < damage) {
+
+	if (HP <= 0 && (BlackboardComp->GetValueAsEnum(TEXT("state")) != static_cast<uint8>(EEnemyState::Die))) {
+
 		BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Die));
+		EnemyController->StopMovement();
+
+
+		if (EnemyEventSubsystem) {
+			EnemyEventSubsystem->EnemyDieNotify();
+		}
 	}
 }

@@ -3,6 +3,7 @@
 
 #include "EnemyController.h"
 #include "PlayerCharacter.h"
+#include "Enemy.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AISenseConfig_Hearing.h"
@@ -18,8 +19,6 @@ AEnemyController::AEnemyController()
 {
 	AIPerception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerception"));
 	SetPerceptionComponent(*AIPerception);
-
-	SetGenericTeamId(FGenericTeamId(1));
 }
 
 void AEnemyController::AttackDecision(APawn* target)
