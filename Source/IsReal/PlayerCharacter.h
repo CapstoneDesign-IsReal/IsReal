@@ -25,14 +25,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UCameraComponent* CameraComp;
 
-
-	// ���� ������Ʈ 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GunMesh)
 	class UStaticMeshComponent* gunMeshComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GunMesh) // To use WeaponSystem
 		class UStaticMeshComponent* Rifle1;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GunMesh) // @@
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GunMesh) 
 		class UStaticMeshComponent* Pistol1;
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
@@ -44,7 +42,6 @@ public:
 
 
 protected:
-	// ������ �ڵ����� ȣ��
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -54,52 +51,45 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	// ������Ʈ��
 
-	// ��������
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class USpringArmComponent* SpringArmComp;
 
 
-
-
-
-
-
-	// �� �� �� ũ�ν���� ���� 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	TSubclassOf<UUserWidget> AimCrossHairWidgetClass; //���� ��������Ʈ Ŭ������ ������ ��ü������ 
+	TSubclassOf<UUserWidget> AimCrossHairWidgetClass; 
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	UUserWidget* AimCrossHairWidget; //������ ȭ�鿡 ǥ�õ� ���� �ν��Ͻ�(��ü)�� ������ ��ü���� 
+	UUserWidget* AimCrossHairWidget; 
 
 
-	// ���� ũ�ν� ��� ���� 
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> NormalCrossHairWidgetClass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	UUserWidget* NormalCrossHairWidget;
 
 
-	// �ð� UI
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> ClockWidgetClass;
-	// �ð� UI �ν��Ͻ�
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	UUserWidget* ClockWidgetInstance;
-	// �ǰ��� VFX
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
 	UNiagaraSystem* RewindVFX;
 
 
 
-	// ��ǲ ���� ���� 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// ��ǲ�������ؽ�Ʈ
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 		class UInputMappingContext* imc_TPS;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// T (�ð� �̵��ϱ�)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 		class UInputAction* ia_Rewind;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// TabŰ (�ð����� ������)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 		class UInputAction* ia_ToggleClock;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input") // R (재장전)
@@ -108,87 +98,91 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* ia_Interact;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// ������ ���콺 (����)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 		class UInputAction* AimAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// ���� ���콺 (�ѽ��)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 		class UInputAction* ShootingAction;
 
 
 
-	// ��ǲ ���ο� ���� ���� �� �Լ� 
 
 
-	void Rewind(const struct FInputActionValue& inputValue); //T ������ �� ����� 
+
+	void Rewind(const struct FInputActionValue& inputValue); 
 
 	void PInteract(const struct FInputActionValue& inputValue);
 
-	void ToggleClock(const FInputActionValue& Value); //�߰���
+	void ToggleClock(const FInputActionValue& Value); 
 
 	void Reload(const struct FInputActionValue& inputValue); // R 눌렀을 때 실행됨
 
-	virtual void DoAimStart();// ������ ���콺 ������ �� �����
+	virtual void DoAimStart();
 
-	virtual void DoAimEnd();// ������ ���� �� �����
+	virtual void DoAimEnd();
 
-	virtual void DoShootingStart();// ���� ���콺 ������ �� �����
+	virtual void DoShootingStart();
 
-	virtual void DoShootingEnd();// ���� ���콺 ���� �� �����
+	virtual void DoShootingEnd();
 
 
 
-	// ���߿� ó���ؾ��� 
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim")
-	bool IsHasGun = false; // ���� ��� �ִ���.
+	bool IsHasGun = false; 
+
+
+
+
 	// weapon system
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AWeaponSystem* CurrentWeapon;
 
 
-	// ���� ���� 
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float DefaultFOV = 90.f; //���� �þ߰�
+	float DefaultFOV = 90.f; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float AimFOV = 65.f; // ���� �þ߰� 
+	float AimFOV = 65.f; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float DefaultArmLength = 400.f; //���� ī�޶���� �Ÿ�
+	float DefaultArmLength = 400.f; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float AimArmLength = 200.f; // ���ؽ� ī�޶���� �Ÿ� 
+	float AimArmLength = 200.f; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim")
-	bool isAiming = false; // ������ �ϰ� �ִ��� 
+	bool isAiming = false; 
 
 
 
-	// ���콺 ���ʹ�ư���� �� ��� ����
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-	FTimerHandle AutoFireTimer; // �� ���� ��� ������ Ÿ�̸� �ڵ鷯 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-	bool IsShooting = false; //�� ��� �ִ���
+	FTimerHandle AutoFireTimer;  
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-	float FireRange = 3000.f; // �� ������ �Ÿ� 
+	bool IsShooting = false; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	float FireRange = 3000.f;
 
 
-	//�ð� �ٲ� �� ���� 
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerSetting)
 	bool Is_Rewind = false;
 
-	//tab�� ������ �ִ��� (�ð踦 ���� �ִ���)
-	UPROPERTY(EditAnywhere, BluePrintReadWrite) //�߰���
-		bool IsLookTimer = false;
+	
+	UPROPERTY(EditAnywhere, BluePrintReadWrite) 
+	bool IsLookTimer = false;
 
 	//Player Current HP
 	UPROPERTY(EditAnywhere, BluePrintReadWrite)
 	float PlayerHP = 100.0;
 
 	UPROPERTY(EditAnywhere, BluePrintReadWrite)
-	bool PlayerDie = false;
+	bool IsDie = false;
 
 	// getters and setters for Player HP
 public:
@@ -204,5 +198,7 @@ private:
 	FTimerHandle RewindTimerHandle;
 	// Rewind Cooldown function
 	void RewindCooldown();
+
+	void PlayerDie();
 
 };

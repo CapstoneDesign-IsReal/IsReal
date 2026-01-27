@@ -17,7 +17,7 @@
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
-APlayerCharacter::APlayerCharacter() // �ʱ�ȭ �ϱ� 
+APlayerCharacter::APlayerCharacter()  
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -28,26 +28,13 @@ APlayerCharacter::APlayerCharacter() // �ʱ�ȭ �ϱ�
 	SpringArmComp->SetupAttachment(RootComponent);
 	SpringArmComp->TargetArmLength = 400;
 	SpringArmComp->bUsePawnControlRotation = true;
-	SpringArmComp->SocketOffset = FVector(0.f, 70.f, 50.f); // (X=�յ�, Y=�¿�, Z=���Ʒ�)
-	SpringArmComp->SetRelativeRotation(FRotator(-15.f, 0.f, 0.f)); // -15�� �����ٺ��� ����
+	SpringArmComp->SocketOffset = FVector(0.f, 70.f, 50.f); 
+	SpringArmComp->SetRelativeRotation(FRotator(-15.f, 0.f, 0.f)); 
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
 	CameraComp->bUsePawnControlRotation = false;
 
-	//ConstructorHelpers::FObjectFinder<UStaticMesh> rifleMesh(TEXT("/Game/Fab/Free_Gun_Packs/Meshes/AK47_Body.AK47_Body"));
-	//gunMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GunMeshComp"));
-	////GunMeshComp��� �̸����� ���ο� SkeletalMeshComponent�� �����. 
-	//gunMeshComp->SetupAttachment(GetMesh());
-	//// �� �� �޽ø� ��ü �޽ÿ� �ٿ���   , GetMesh()�� ĳ������ �� ���̷�Ż �޽� (��������Ʈ���� �پ�����)
-
-	//if (rifleMesh.Succeeded())
-	//{
-	//	gunMeshComp->SetStaticMesh(rifleMesh.Object); //gunMeshComp�� AK47_Body �� ����
-	//	// �߰�
-	//	gunMeshComp->SetupAttachment(GetMesh(), TEXT("RifleSocket"));
-	//	//�� �޽ø� ĳ���� ��ü�� RifleSocket�̶�� ���� ���Ϻκп� �ٿ��� 
-	//}
 
 	Rifle1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RifleMesh"));
 	Rifle1->SetupAttachment(GetMesh()); //여기까지하면 블루프린트에 생김 
@@ -65,11 +52,11 @@ APlayerCharacter::APlayerCharacter() // �ʱ�ȭ �ϱ�
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	auto pc = Cast<APlayerController>(Controller); //�÷��̾� ��Ʈ�ѷ� �������� 
-	if (pc) //�����ϸ� 
+	auto pc = Cast<APlayerController>(Controller); 
+	if (pc) 
 	{
-		pc->PlayerCameraManager->ViewPitchMin = -50.f; //@@@@@@@@@
-		pc->PlayerCameraManager->ViewPitchMax = 50.f; //@@@@@@@@
+		pc->PlayerCameraManager->ViewPitchMin = -50.f; 
+		pc->PlayerCameraManager->ViewPitchMax = 50.f; 
 
 		auto subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
 
@@ -80,12 +67,11 @@ void APlayerCharacter::BeginPlay()
 	}
 	if (NormalCrossHairWidgetClass) {
 		NormalCrossHairWidget = CreateWidget<UUserWidget>(GetController<APlayerController>(), NormalCrossHairWidgetClass);
-		//CrossHairWidgetClass�� BP_CrosshairWidget�̸� CrossHairWidget�� ��´�. 
-		// => �״ϱ� ������������Ʈ�� �÷��̾� ��������ƮŬ�������� ������ �ϴ� ������ ������ؼ�.
+		
 
-		if (NormalCrossHairWidget) //�׸��� �� ���� ��ü�� �����ϸ� (������ ĳ���� ��������Ʈ���� ���� ���ָ�) 
+		if (NormalCrossHairWidget) 
 		{
-			NormalCrossHairWidget->AddToViewport(); //���� ���̱� 
+			NormalCrossHairWidget->AddToViewport(); 
 		}
 	}
 	if (AimCrossHairWidgetClass) {
@@ -222,23 +208,23 @@ void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 void APlayerCharacter::DoAimStart()
 {
 	if (IsHasGun) {
-		// ī�޶� ���� (�þ� ������)
+		
 		if (CameraComp)
 		{
 			CameraComp->SetFieldOfView(AimFOV);
 		}
 
-		// �������� ī�޶� �Ÿ� ���̱�
+		
 		if (SpringArmComp)
 		{
 			SpringArmComp->TargetArmLength = AimArmLength;
 		}
 		isAiming = true;
 
-		if (AimCrossHairWidget) //�׸��� �� ���� ��ü�� �����ϸ� (������ ĳ���� ��������Ʈ���� ���� ���ָ�) 
+		if (AimCrossHairWidget) 
 		{
-			AimCrossHairWidget->AddToViewport(); //���� ���̱� 
-			NormalCrossHairWidget->RemoveFromParent(); //���� �����
+			AimCrossHairWidget->AddToViewport(); 
+			NormalCrossHairWidget->RemoveFromParent(); 
 		}
 	}
 }
@@ -246,30 +232,32 @@ void APlayerCharacter::DoAimStart()
 void APlayerCharacter::DoAimEnd()
 {
 	if (IsHasGun) {
-		// ī�޶� �ǵ�����
+		
 		if (CameraComp)
 		{
 			CameraComp->SetFieldOfView(DefaultFOV);
 		}
 
-		// �������� �Ÿ� ����
+		
 		if (SpringArmComp)
 		{
 			SpringArmComp->TargetArmLength = DefaultArmLength;
 		}
 		isAiming = false;
-		if (NormalCrossHairWidget) //�׸��� �� ���� ��ü�� �����ϸ� (������ ĳ���� ��������Ʈ���� ���� ���ָ�) 
+		if (NormalCrossHairWidget) 
 		{
-			NormalCrossHairWidget->AddToViewport(); //���� ���̱� 
-			AimCrossHairWidget->RemoveFromParent(); //���� �����
+			NormalCrossHairWidget->AddToViewport(); 
+			AimCrossHairWidget->RemoveFromParent(); 
 		}
 	}
 }
 
 void APlayerCharacter::DoShootingStart()
 {
+	if (!CurrentWeapon) return;
+	//if (CurrentWeapon->IsReloading()) return;
 	// 가지고 있는 무기에 따라 fire가 다르게 나감
-	if (CurrentWeapon && IsHasGun) {
+	if (IsHasGun) {
 		IsShooting = true;
 
 		switch (CurrentWeapon->GetWeaponType()) {
@@ -318,13 +306,24 @@ void APlayerCharacter::Reload(const FInputActionValue& inputValue)
 
 // getters and setters for PlayerHP
 float APlayerCharacter::GetPlayerHP() { return PlayerHP; }
-void APlayerCharacter::SetPlayerHP(float HP) { PlayerHP = HP; }
+
+void APlayerCharacter::SetPlayerHP(float HP) { 
+	PlayerHP = HP;
+	UE_LOG(LogTemp, Warning, TEXT("PlayerHP = %f"), PlayerHP);
+	if (PlayerHP <= 0) {
+		PlayerDie();
+	}
+}
+
+void APlayerCharacter::PlayerDie() {
+	IsDie = true;
+}
 
 void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 	FVector Start = CameraComp->GetComponentLocation();
 	FVector End = Start + (CameraComp->GetForwardVector() * 500.f);
 
-	FHitResult HitResult; // ���� Ʈ���̽��� ������ ����
+	FHitResult HitResult; 
 	FCollisionQueryParams param;
 	param.AddIgnoredActor(this);
 
