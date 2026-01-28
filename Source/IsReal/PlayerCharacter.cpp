@@ -93,6 +93,8 @@ void APlayerCharacter::BeginPlay()
 	if (AimCrossHairWidgetClass) {
 		AimCrossHairWidget = CreateWidget<UUserWidget>(GetController<APlayerController>(), AimCrossHairWidgetClass);
 	}
+
+	WeaponSlot.SetNum(2); // 2가지 무기 슬롯 초기화
 }
 
 // Called every frame
@@ -127,6 +129,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		PlayerInput->BindAction(ia_Reload, ETriggerEvent::Started, this, &APlayerCharacter::Reload);
 
 		PlayerInput->BindAction(ia_Interact, ETriggerEvent::Started, this, &APlayerCharacter::PInteract);
+
+		PlayerInput->BindAction(ia_EquipPrimary, ETriggerEvent::Started, this, &APlayerCharacter::EquipPrimaryWeapon);
+		PlayerInput->BindAction(ia_EquipSecondary, ETriggerEvent::Started, this, &APlayerCharacter::EquipSecondaryWeapon);
 	}
 
 }
@@ -282,6 +287,24 @@ void APlayerCharacter::SetPlayerHP(float HP) {
 	}
 }
 
+void APlayerCharacter::EquipPrimaryWeapon(const struct FInputActionValue& inputValue)
+{
+	EquipWeapon(EWeaponSlot::Primary);
+}
+void APlayerCharacter::EquipSecondaryWeapon(const struct FInputActionValue& inputValue)
+{
+	EquipWeapon(EWeaponSlot::Secondary);
+}
+
+void APlayerCharacter::EquipWeapon(EWeaponSlot NewSlot)
+{
+	if (WeaponSlot[(int)NewSlot]) {
+		CurrentWeapon = WeaponSlot[(int)NewSlot];
+		IsHasGun = true;
+		UE_LOG(LogTemp, Warning, TEXT("Equipped Weapon Slot: %d"), (int)NewSlot);
+	}
+}
+
 void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 	FVector Start = CameraComp->GetComponentLocation();
 	FVector End = Start + (CameraComp->GetForwardVector() * 500.f);
@@ -311,6 +334,27 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			Weapon->SetOwner(this);
 			UE_LOG(LogTemp, Warning, TEXT("gun type: %s"),
 				*StaticEnum<EWeaponType>()->GetNameStringByValue((int64)Weapon->GetWeaponType()));
+
+			EWeaponType type = Weapon->GetWeaponType();
+			EWeaponSlot slot = EWeaponSlot::Primary;
+
+			switch (type) 
+			{
+				case EWeaponType::EWT_Rifle:
+				case EWeaponType::EWT_Shotgun:
+				case EWeaponType::EWT_Sniper:
+				{
+					slot = EWeaponSlot::Primary;
+					break;
+				}
+				case EWeaponType::EWT_Pistol:
+				{
+					slot = EWeaponSlot::Secondary;
+					break;
+				}
+			}
+
+			WeaponSlot[(int)slot] = Weapon;
 			CurrentWeapon = Weapon;
 			IsHasGun = true; // 이건 추후에 BP에서 설정안하게 하면 추가하면됨
 			// 그리고 맨위에 weaponsocket같은거 attach여기서 하면될거같은데

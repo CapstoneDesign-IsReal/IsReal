@@ -11,6 +11,13 @@ class UCoreSystem;
 
 #include "PlayerCharacter.generated.h"
 
+enum class EWeaponSlot : uint8
+{
+	Primary = 0,
+	Secondary = 1
+};
+
+
 UCLASS()
 class ISREAL_API APlayerCharacter : public ACharacter
 {
@@ -111,6 +118,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")// ���� ���콺 (�ѽ��)
 		class UInputAction* ShootingAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input") // 1번키 - 주무기
+		class UInputAction* ia_EquipPrimary;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input") // 2번키 - 보조무기
+		class UInputAction* ia_EquipSecondary;
 
 
 	// ��ǲ ���ο� ���� ���� �� �Լ� 
@@ -131,6 +142,10 @@ protected:
 	virtual void DoShootingStart();// ���� ���콺 ������ �� �����
 
 	virtual void DoShootingEnd();// ���� ���콺 ���� �� �����
+	
+	// 주무기, 보조무기 장착 인풋 함수
+	void EquipPrimaryWeapon(const struct FInputActionValue& inputValue);
+	void EquipSecondaryWeapon(const struct FInputActionValue& inputValue);
 
 
 
@@ -140,6 +155,9 @@ protected:
 	// weapon system
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	AWeaponSystem* CurrentWeapon;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+	TArray<AWeaponSystem*> WeaponSlot;
+	void EquipWeapon(EWeaponSlot NewSlot);
 
 	// core system
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Core");
