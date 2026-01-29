@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "CoreSystem.h"
 #include "WeaponSystem.generated.h"
 
 UENUM(BlueprintType)
@@ -63,6 +64,13 @@ protected:
 	float ReloadCoolTime;
 
 public:
+	// 델리게이트용 coresystem
+	TObjectPtr<UCoreSystem> CoreSystem;
+	// Subscribe Core System
+	void SubscribeCoreSystem();
+	// Reset weapon Ammo // 자식에서 오버라이드 해서 사용
+	virtual void ResetAmmo();
+
 	// Weapon Type setters and getters
 	void SetWeaponType(EWeaponType NewType);
 	EWeaponType GetWeaponType() const;
@@ -91,6 +99,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:	
 	// Called every frame

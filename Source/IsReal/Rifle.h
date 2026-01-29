@@ -18,6 +18,8 @@ class ISREAL_API ARifle : public AWeaponSystem, public IInteractable
 public:
 	ARifle();
 
+	virtual void ResetAmmo() override;
+
 	virtual void WeaponFire() override;
 	virtual void WeaponStopFire() override;
 	virtual void WeaponReload() override;

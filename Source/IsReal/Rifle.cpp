@@ -14,6 +14,13 @@ ARifle::ARifle()
 	ReloadCoolTime = 2.0f;
 }
 
+void ARifle::ResetAmmo()
+{
+	CurrentAmmo = 30;
+	TotalAmmo = 120;
+
+}
+
 void ARifle::WeaponFire()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Rifle Fire!!"));

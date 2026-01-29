@@ -22,11 +22,40 @@ void AWeaponSystem::BeginPlay()
 	SetWeaponType(EWeaponType::EWT_None); // Initial Type
 }
 
+void AWeaponSystem::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (CoreSystem)
+	{
+		CoreSystem->RewindReturn.RemoveAll(this);
+	}
+	Super::EndPlay(EndPlayReason);
+}
+
 // Called every frame
 void AWeaponSystem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+// CoreSystem 구독 함수
+void AWeaponSystem::SubscribeCoreSystem()
+{
+	// 설명하자면, CoreSystem 컴포넌트를 소유한 Pawn을 찾아야 함.
+	// 그래서 GetOwner()를 통해 소유한 액터를 가져오고,
+	// FindComponentByClass<UCoreSystem>()를 사용하여 CoreSystem 컴포넌트를 찾음.
+	APawn* Pawn = Cast<APawn>(GetOwner());
+	CoreSystem = Pawn->FindComponentByClass<UCoreSystem>();
+
+	if (CoreSystem) 
+	{
+		CoreSystem->RewindReturn.AddUObject(this, &AWeaponSystem::ResetAmmo);
+	}
+}
+
+void AWeaponSystem::ResetAmmo()
+{
+	// Implement in child classes
 }
 
 void AWeaponSystem::WeaponFire()
@@ -39,6 +68,8 @@ void AWeaponSystem::WeaponStopFire()
 }
 void AWeaponSystem::WeaponReload()
 {
+	if (CurrentAmmo == MaxAmmo) return; // 이미 총알이 가득 찬 경우
+
 	if (TotalAmmo <= 0) 
 	{	// 추후 사운드 이펙트 추가 - 총알 없다는 경고
 		UE_LOG(LogTemp, Warning, TEXT("No More Ammo to Reload!"));

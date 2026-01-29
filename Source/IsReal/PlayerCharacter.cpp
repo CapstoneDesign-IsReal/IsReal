@@ -332,6 +332,7 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			IInteractable::Execute_Interact(HitActor, this);
 			AWeaponSystem* Weapon = Cast<AWeaponSystem>(HitActor);
 			Weapon->SetOwner(this);
+			Weapon->SubscribeCoreSystem(); // 코어시스템 델리게이트 연결 - 바인딩 위해서 필요
 			UE_LOG(LogTemp, Warning, TEXT("gun type: %s"),
 				*StaticEnum<EWeaponType>()->GetNameStringByValue((int64)Weapon->GetWeaponType()));
 

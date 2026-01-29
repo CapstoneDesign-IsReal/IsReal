@@ -8,6 +8,9 @@
 
 class UNiagaraSystem;
 
+// delegate for rewind function
+DECLARE_MULTICAST_DELEGATE(FRewindDelegateFunction);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ISREAL_API UCoreSystem : public UActorComponent
 {
@@ -26,6 +29,8 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
+	FRewindDelegateFunction RewindReturn;
+
 	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
 	int GetRewindCore() const { return RewindCore; }
 

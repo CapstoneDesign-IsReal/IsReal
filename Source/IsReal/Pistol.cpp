@@ -14,6 +14,13 @@ APistol::APistol()
 	ReloadCoolTime = 1.5f;
 }
 
+void APistol::ResetAmmo()
+{
+	CurrentAmmo = 10;
+	TotalAmmo = 50;
+
+}
+
 void APistol::WeaponFire()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Pistol Fire!!"));

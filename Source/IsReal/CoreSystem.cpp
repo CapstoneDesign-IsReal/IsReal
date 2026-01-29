@@ -23,7 +23,7 @@ void UCoreSystem::BeginPlay()
 
 	RewindCore = MaxRewindCore;
 	Is_Rewind = false;
-	RewindCoolTime = 60.0f; // ÃÑ Äð´Ù¿î ½Ã°£
+	RewindCoolTime = 10.0f; // ÃÑ Äð´Ù¿î ½Ã°£
 	CurruntRewindCoolTime = 0.0f; // ÇöÀç Äð´Ù¿î ½Ã°£
 
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
@@ -73,12 +73,16 @@ void UCoreSystem::RewindCooldown()
 		FString::Printf(TEXT("CoolDown.. : %.1f"), RewindCoolTime-CurruntRewindCoolTime)
 		, true, true, FLinearColor::Green, 2.0f);
 
-	if (CurruntRewindCoolTime == RewindCoolTime) {
+	if (CurruntRewindCoolTime >= RewindCoolTime) {
 		GetWorld()->GetTimerManager().ClearTimer(RewindTimerHandle);
 		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("To Present!"), true, true, FLinearColor::Green, 2.0f);
 
 		// ÇöÀç·Î ¿Ã¶§
 		Is_Rewind = false;
+
+		// delegate trigger
+		RewindReturn.Broadcast();
+
 		CurruntRewindCoolTime = 0.0f;
 
 		FVector CurrentLocation = OwnerCharacter->GetActorLocation();

@@ -17,6 +17,8 @@ class ISREAL_API APistol : public AWeaponSystem, public IInteractable
 public:
 	APistol();
 
+	virtual void ResetAmmo() override;
+
 	virtual void WeaponFire() override;
 	virtual void WeaponStopFire() override;
 	virtual void WeaponReload() override;
