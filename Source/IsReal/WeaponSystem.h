@@ -42,8 +42,8 @@ protected:
 	float TotalAmmo;
 
 	// 무기 컴포넌트 // 이거 Weaponsystem으로 가져옴  25/11/16 (코드 리팩토링) 이건 삭제할지 안할지 물어봐야함
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GunMesh)
-	class UStaticMeshComponent* gunMeshComp;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GunMesh)
+	//class UStaticMeshComponent* gunMeshComp;
 
 private:
 	//  Weapon Type
