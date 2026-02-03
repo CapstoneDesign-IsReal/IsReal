@@ -114,7 +114,7 @@ void AWeaponSystem::FireLineTrace()
 	}
 	if (!CurrentGun) return;
 
-		FVector MuzzleLocation = CurrentGun->GetSocketLocation(TEXT("WeaponSokect"));
+		FVector MuzzleLocation = CurrentGun->GetSocketLocation(TEXT("WeaponSockect"));
 		//FRotator MuzzleRotation = gunMeshComp->GetSocketRotation(TEXT("WeaponSocket"));
 
 		// ī�޶� ������ �״�� ��� (�÷��̾ ������ ��������)

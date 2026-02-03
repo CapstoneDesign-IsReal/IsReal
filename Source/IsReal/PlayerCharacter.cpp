@@ -36,14 +36,14 @@ APlayerCharacter::APlayerCharacter()
 	CameraComp->bUsePawnControlRotation = false;
 
 
-	Rifle1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RifleMesh"));
-	Rifle1->SetupAttachment(GetMesh()); //여기까지하면 블루프린트에 생김 
+	Rifle1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RifleMesh")); //여기까지하면 블루프린트에 생김 
+	Rifle1->SetupAttachment(GetMesh()); //캐릭터에 메시 아래에 붙인다.
 
-	Pistol1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PistolMesh"));
-	Pistol1->SetupAttachment(GetMesh()); //여기까지 하면 블루프린트에 생김 
+	Pistol1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PistolMesh")); //여기까지하면 블루프린트에 생김 
+	Pistol1->SetupAttachment(GetMesh()); //캐릭터에 메시 아래에 붙인다.
 
-	Rifle1->SetupAttachment(GetMesh(), TEXT("Rifle")); //캐릭터 스켈레톤 매시의 라이플이라는 소켓에 장착
-	Pistol1->SetupAttachment(GetMesh(), TEXT("Pistol"));// 캐릭터 스켈레톤 매시의 피스톨이라는 소켓에 장착
+	//Rifle1->SetupAttachment(GetMesh(), TEXT("Rifle")); //캐릭터 스켈레톤 매시의 라이플이라는 소켓에 장착
+	//Pistol1->SetupAttachment(GetMesh(), TEXT("Pistol"));// 캐릭터 스켈레톤 매시의 피스톨이라는 소켓에 장착
 
 
 }
