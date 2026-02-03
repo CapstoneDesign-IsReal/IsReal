@@ -6,6 +6,8 @@
 #include "BehaviorTree/BTTaskNode.h"
 #include "TAttack.generated.h"
 
+
+class UAnimMontage;
 /**
  * 
  */
@@ -24,4 +26,10 @@ public:
 	//area for key
 	UPROPERTY(EditAnywhere, Category = "BlackBoard")
 	FBlackboardKeySelector targetKey;
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	UAnimMontage* AttackMontage;
+
+	UFUNCTION(BlueprintCallable)
+	void OnAttackMontageEnd(UAnimMontage* PlayedMontage, bool bInterrupted, UBehaviorTreeComponent* OwnerComp);
 };

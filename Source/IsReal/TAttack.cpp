@@ -4,10 +4,12 @@
 #include "TAttack.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "PlayerCharacter.h"
 #include "AIController.h"
 #include "Enemy.h"
 #include "EnemyController.h"
+#include "Animation/AnimMontage.h"
 
 UTAttack::UTAttack()
 {
@@ -18,25 +20,37 @@ EBTNodeResult::Type UTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uin
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
-	AEnemy* currentEnemy = Cast<AEnemy>(OwnerComp.GetAIOwner()->GetCharacter());
 	AEnemyController* currentController = Cast<AEnemyController>(OwnerComp.GetAIOwner());
+	if (!currentController)	return EBTNodeResult::Failed;
+	AEnemy* currentEnemy = Cast<AEnemy>(currentController->GetCharacter());
+	if (currentEnemy == nullptr)	return EBTNodeResult::Failed;
 
-	currentController->StopMovement();
 
-	//exception
-	if (currentEnemy == nullptr)
-	{
-		return EBTNodeResult::Failed;
+	//currentEnemy->GetCharacterMovement()->StopMovementImmediately();
+
+	UAnimInstance* currentAnimInstance = currentEnemy->GetMesh()->GetAnimInstance();
+
+	if (currentAnimInstance) {
+		if(!AttackMontage) return EBTNodeResult::Failed;
+		currentEnemy->PlayAnimMontage(AttackMontage);
+
+		FOnMontageEnded MontageEndDelegate;
+		MontageEndDelegate.BindUObject(this, &UTAttack::OnAttackMontageEnd, &OwnerComp);
+		currentAnimInstance->Montage_SetEndDelegate(MontageEndDelegate, AttackMontage);
+
+		return EBTNodeResult::InProgress;
 	}
-
-	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	if (!BlackboardComp)
-		return EBTNodeResult::Failed;
-
+	
+	/*UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
+	if (!BlackboardComp)	return EBTNodeResult::Failed;
 	APlayerCharacter* target = Cast<APlayerCharacter>(BlackboardComp->GetValueAsObject(targetKey.SelectedKeyName));
-	if (!target)
-		return EBTNodeResult::Failed;
+	if (!target)	return EBTNodeResult::Failed;*/
 
-	//currentEnemy->Attack(target);
-	return EBTNodeResult::Succeeded;
+	
+	return EBTNodeResult::Failed;
+}
+
+void UTAttack::OnAttackMontageEnd(UAnimMontage* PlayedMontage, bool bInterrupted, UBehaviorTreeComponent* OwnerComp)
+{
+	if (OwnerComp) FinishLatentTask(*OwnerComp, EBTNodeResult::Succeeded);
 }

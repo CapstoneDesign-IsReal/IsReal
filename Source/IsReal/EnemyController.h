@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "Enemy.h"
+#include "EnvironmentQuery/EnvQuery.h"
 #include "EnemyController.generated.h"
 
 /**
@@ -39,6 +40,13 @@ class ISREAL_API AEnemyController : public AAIController
 public:
 	void AttackDecision(APawn* target);
 	AEnemyController();	//define basic constructor 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	UEnvQuery* DodgeEQS;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	FName LowHPKeyName = TEXT("isLowHP");
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UAIPerceptionComponent* AIPerception;
@@ -53,4 +61,9 @@ protected:
 	UFUNCTION()
 	void HandleSensedSight(AActor* Actor);
 
+	UFUNCTION()
+	void Dodge();
+
+	virtual void OnPossess(APawn* InPawn) override;
+	virtual void OnUnPossess() override;
 };

@@ -127,3 +127,34 @@ void AEnemyController::HandleSensedSight(AActor* Actor)
 		return;
 	}
 }
+
+void AEnemyController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	AEnemy* EnemyPawn = Cast<AEnemy>(InPawn);
+	if (EnemyPawn) {
+		EnemyPawn->LowHPDelegate.RemoveDynamic(this, &AEnemyController::Dodge);
+		EnemyPawn->LowHPDelegate.AddDynamic(this, &AEnemyController::Dodge);
+
+		UE_LOG(LogTemp, Log, TEXT("Success binding Dodge"));
+	}
+}
+
+void AEnemyController::OnUnPossess()
+{
+	AEnemy* EnemyPawn = Cast<AEnemy>(GetPawn());
+	if (EnemyPawn) {
+		EnemyPawn->LowHPDelegate.RemoveDynamic(this, &AEnemyController::Dodge);
+
+		UE_LOG(LogTemp, Log, TEXT("Success Remove Binding"));
+	}
+
+	Super::OnUnPossess();
+}
+
+void AEnemyController::Dodge()
+{
+	UBlackboardComponent* BlackboardComp = GetBlackboardComponent();
+	BlackboardComp->SetValueAsBool(LowHPKeyName, true);
+}

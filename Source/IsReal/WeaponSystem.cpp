@@ -114,39 +114,38 @@ void AWeaponSystem::FireLineTrace()
 	}
 	if (!CurrentGun) return;
 
-		FVector MuzzleLocation = CurrentGun->GetSocketLocation(TEXT("WeaponSokect"));
-		//FRotator MuzzleRotation = gunMeshComp->GetSocketRotation(TEXT("WeaponSocket"));
+	FVector MuzzleLocation = CurrentGun->GetSocketLocation(TEXT("WeaponSokect"));
+	//FRotator MuzzleRotation = gunMeshComp->GetSocketRotation(TEXT("WeaponSocket"));
 
-		// ī�޶� ������ �״�� ��� (�÷��̾ ������ ��������)
-		//FVector ShootDirection = ForwardVector;
-		FVector EndFromMuzzle = TargetPoint;
+	// ī�޶� ������ �״�� ��� (�÷��̾ ������ ��������)
+	//FVector ShootDirection = ForwardVector;
+	FVector EndFromMuzzle = TargetPoint;
 
-		FHitResult MuzzleHit;
-		FCollisionQueryParams MuzzleParams;
-		MuzzleParams.AddIgnoredActor(PC);
-		MuzzleParams.AddIgnoredActor(this); // Params.AddIgnoredActor(this): �ڱ� �ڽ��� ����.
+	FHitResult MuzzleHit;
+	FCollisionQueryParams MuzzleParams;
+	MuzzleParams.AddIgnoredActor(PC);
+	MuzzleParams.AddIgnoredActor(this); // Params.AddIgnoredActor(this): �ڱ� �ڽ��� ����.
 
-		bool MuzzleTraceHit = GetWorld()->LineTraceSingleByChannel(
-			MuzzleHit, MuzzleLocation, EndFromMuzzle, ECC_Visibility, MuzzleParams
-		);
-		//ECC_Visibility : �����̴� ��ü�� ä�θ� ����
+	bool MuzzleTraceHit = GetWorld()->LineTraceSingleByChannel(
+		MuzzleHit, MuzzleLocation, EndFromMuzzle, ECC_Visibility, MuzzleParams
+	);
+	//ECC_Visibility : �����̴� ��ü�� ä�θ� ����
 
-		if (MuzzleTraceHit)
+	if (MuzzleTraceHit)
+	{
+		DrawDebugLine(GetWorld(), MuzzleLocation, TargetPoint, FColor::Red, false, 0.05f, 0, 1.5f);
+		DrawDebugPoint(GetWorld(), TargetPoint, 10.0f, FColor::Blue, false, 0.1f);
+
+		AActor* HitActor2 = MuzzleHit.GetActor();
+		if (HitActor2)
 		{
-			DrawDebugLine(GetWorld(), MuzzleLocation, TargetPoint, FColor::Red, false, 0.05f, 0, 1.5f);
-			DrawDebugPoint(GetWorld(), TargetPoint, 10.0f, FColor::Blue, false, 0.1f);
-
-			AActor* HitActor2 = MuzzleHit.GetActor();
-			if (HitActor2)
+			//UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *HitActor2->GetName());
+			// 여기서 적 체력 처리
+			AEnemy* Enemy = Cast<AEnemy>(HitActor2);
+			if (Enemy)
 			{
-				//UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *HitActor2->GetName());
-				// 여기서 적 체력 처리
-				AEnemy* Enemy = Cast<AEnemy>(HitActor2);
-				if (Enemy)
-				{
 					UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *Enemy->GetName());
 					Enemy->Hit(10);    // 데미지 10 주기
-				}
 			}
 		}
 		else
@@ -154,3 +153,4 @@ void AWeaponSystem::FireLineTrace()
 			DrawDebugLine(GetWorld(), MuzzleLocation, EndFromMuzzle, FColor::Red, false, 0.05f, 0, 1.5f);
 		}
 	}
+}
