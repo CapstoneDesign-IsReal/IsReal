@@ -304,6 +304,16 @@ void APlayerCharacter::EquipWeapon(EWeaponSlot NewSlot)
 		UE_LOG(LogTemp, Warning, TEXT("Equipped Weapon Slot: %d"), (int)NewSlot);
 	}
 }
+void APlayerCharacter::UnEquipWeapon()
+{
+	if(IsShooting) 
+	{
+		DoShootingEnd(); // 발사 중이면 발사 종료
+	}
+	CurrentWeapon = nullptr;
+	WeaponSlot[(int)EWeaponSlot::Primary] = nullptr;
+	UE_LOG(LogTemp, Warning, TEXT("Unequipped Weapon"));
+}
 
 void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 	FVector Start = CameraComp->GetComponentLocation();

@@ -208,4 +208,5 @@ public:
 	float GetPlayerHP();
 	void SetPlayerHP(float HP);
 
+	void UnEquipWeapon();
 };

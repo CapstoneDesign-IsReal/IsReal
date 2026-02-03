@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "PlayerCharacter.h"
 #include "CoreSystem.generated.h"
 
 class UNiagaraSystem;
@@ -56,5 +57,5 @@ private:
 	UNiagaraSystem* RewindVFX;
 
 	// Owner Character
-	ACharacter* OwnerCharacter;
+	APlayerCharacter* OwnerCharacter;
 };
