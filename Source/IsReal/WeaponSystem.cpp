@@ -171,7 +171,7 @@ void AWeaponSystem::FireLineTrace()
 	}
 	if (!CurrentGun) return;
 
-	FVector MuzzleLocation = CurrentGun->GetSocketLocation(TEXT("WeaponSokect"));  // ? 오타?
+	FVector MuzzleLocation = CurrentGun->GetSocketLocation(TEXT("WeaponSocket"));  // ? 오타?
 	//FRotator MuzzleRotation = gunMeshComp->GetSocketRotation(TEXT("WeaponSocket"));
 
 	float Range = 20000.0f;
