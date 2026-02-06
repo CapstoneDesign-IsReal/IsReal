@@ -20,13 +20,21 @@ void AWeaponSystem::BeginPlay()
 {
 	Super::BeginPlay();
 	SetWeaponType(EWeaponType::EWT_None); // Initial Type
+
+	UGameInstance* GameInst = GetWorld()->GetGameInstance();
+	if (GameInst)
+	{
+		coresubsys = GameInst->GetSubsystem<UCoreEventSubsystem>();
+
+		coresubsys->RewindDoneDelegate.AddUObject(this, &AWeaponSystem::ResetAmmo);
+	}
 }
 
 void AWeaponSystem::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	if (CoreSystem)
+	if (coresubsys)
 	{
-		CoreSystem->RewindReturn.RemoveAll(this);
+		coresubsys->RewindDoneDelegate.RemoveAll(this);
 	}
 	Super::EndPlay(EndPlayReason);
 }
@@ -36,21 +44,6 @@ void AWeaponSystem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-}
-
-// CoreSystem 구독 함수
-void AWeaponSystem::SubscribeCoreSystem()
-{
-	// 설명하자면, CoreSystem 컴포넌트를 소유한 Pawn을 찾아야 함.
-	// 그래서 GetOwner()를 통해 소유한 액터를 가져오고,
-	// FindComponentByClass<UCoreSystem>()를 사용하여 CoreSystem 컴포넌트를 찾음.
-	APawn* Pawn = Cast<APawn>(GetOwner());
-	CoreSystem = Pawn->FindComponentByClass<UCoreSystem>();
-
-	if (CoreSystem) 
-	{
-		CoreSystem->RewindReturn.AddUObject(this, &AWeaponSystem::ResetAmmo);
-	}
 }
 
 void AWeaponSystem::ResetAmmo()

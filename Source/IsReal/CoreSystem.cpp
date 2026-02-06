@@ -27,6 +27,7 @@ void UCoreSystem::BeginPlay()
 	CurruntRewindCoolTime = 0.0f; // 현재 쿨다운 시간
 
 	OwnerCharacter = Cast<APlayerCharacter>(GetOwner());
+	GameInstance = GetWorld()->GetGameInstance();
 }
 
 void UCoreSystem::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -81,7 +82,14 @@ void UCoreSystem::RewindCooldown()
 		Is_Rewind = false;
 
 		// delegate trigger
-		RewindReturn.Broadcast();
+		if (GameInstance) 
+		{
+			UCoreEventSubsystem* coresubsystem = GameInstance->GetSubsystem<UCoreEventSubsystem>();
+			if (coresubsystem)
+			{
+				coresubsystem->RewindDone();
+			}
+		}
 		
 		OwnerCharacter->UnEquipWeapon(); // 주무기 해제
 

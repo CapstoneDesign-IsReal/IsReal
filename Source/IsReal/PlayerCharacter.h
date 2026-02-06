@@ -85,9 +85,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	UUserWidget* ClockWidgetInstance;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
-	UNiagaraSystem* RewindVFX;
-
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 		class UInputMappingContext* imc_TPS;
@@ -188,9 +185,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float FireRange = 3000.f;
 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = PlayerSetting)
-	bool Is_Rewind = false;
 
 	
 	UPROPERTY(EditAnywhere, BluePrintReadWrite) 

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "CoreSystem.h"
+#include "CoreEventSubsystem.h"
 #include "WeaponSystem.generated.h"
 
 UENUM(BlueprintType)
@@ -64,10 +64,8 @@ protected:
 	float ReloadCoolTime;
 
 public:
-	// 델리게이트용 coresystem
-	TObjectPtr<UCoreSystem> CoreSystem;
-	// Subscribe Core System
-	void SubscribeCoreSystem();
+	// 델리게이트용 Subsystem
+	UCoreEventSubsystem* coresubsys;
 	// Reset weapon Ammo // 자식에서 오버라이드 해서 사용
 	virtual void ResetAmmo();
 
