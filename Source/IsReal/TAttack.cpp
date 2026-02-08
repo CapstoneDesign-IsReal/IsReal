@@ -25,7 +25,6 @@ EBTNodeResult::Type UTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uin
 	AEnemy* currentEnemy = Cast<AEnemy>(currentController->GetCharacter());
 	if (currentEnemy == nullptr)	return EBTNodeResult::Failed;
 
-
 	//currentEnemy->GetCharacterMovement()->StopMovementImmediately();
 
 	UAnimInstance* currentAnimInstance = currentEnemy->GetMesh()->GetAnimInstance();
@@ -41,16 +40,37 @@ EBTNodeResult::Type UTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uin
 		return EBTNodeResult::InProgress;
 	}
 	
-	/*UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	if (!BlackboardComp)	return EBTNodeResult::Failed;
+	/*
 	APlayerCharacter* target = Cast<APlayerCharacter>(BlackboardComp->GetValueAsObject(targetKey.SelectedKeyName));
-	if (!target)	return EBTNodeResult::Failed;*/
+	if (!target)	return EBTNodeResult::Failed;
+	*/
 
-	
 	return EBTNodeResult::Failed;
 }
 
 void UTAttack::OnAttackMontageEnd(UAnimMontage* PlayedMontage, bool bInterrupted, UBehaviorTreeComponent* OwnerComp)
 {
-	if (OwnerComp) FinishLatentTask(*OwnerComp, EBTNodeResult::Succeeded);
+	//UBlackboardComponent* BlackboardComp = OwnerComp->GetBlackboardComponent();
+	//if(!BlackboardComp) FinishLatentTask(*OwnerComp, EBTNodeResult::Failed);
+
+
+	if (OwnerComp) {
+		//BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Chase));
+		FinishLatentTask(*OwnerComp, EBTNodeResult::Succeeded);
+	}
+}
+
+EBTNodeResult::Type UTAttack::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+
+	AEnemyController* currentController = Cast<AEnemyController>(OwnerComp.GetAIOwner());
+	if (!currentController)	return EBTNodeResult::Failed;
+	AEnemy* currentEnemy = Cast<AEnemy>(currentController->GetCharacter());
+	if (currentEnemy == nullptr)	return EBTNodeResult::Failed;
+	UAnimInstance* currentAnimInstance = currentEnemy->GetMesh()->GetAnimInstance();
+	if (!currentAnimInstance)	return EBTNodeResult::Failed;
+
+	currentAnimInstance->Montage_Stop(0.2f, AttackMontage);
+
+	return Super::AbortTask(OwnerComp, NodeMemory);
 }

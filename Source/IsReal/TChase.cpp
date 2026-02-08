@@ -8,6 +8,7 @@
 #include "AIController.h"
 #include "Enemy.h"
 #include "EnemyController.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 //Generator
 UTChase::UTChase()
@@ -46,22 +47,18 @@ void UTChase::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, flo
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
 	AEnemy* currentEnemy = Cast<AEnemy>(OwnerComp.GetAIOwner()->GetCharacter());
-	//exception
-	if (currentEnemy == nullptr)
-	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
-	}
+	if (currentEnemy == nullptr)	FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 
 	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
-	if (!BlackboardComp)
-		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+	if (!BlackboardComp)	FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 
 	float dist = BlackboardComp->GetValueAsFloat(distanceKey.SelectedKeyName);
 
-	//do attack
-	if (dist < currentEnemy->getAttackRange())
+	//check arrive to target
+	if (dist < 100.0)
 	{
-		BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Attack));
+		BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Nearby));
+		currentEnemy->GetCharacterMovement()->StopMovementImmediately();
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
 }

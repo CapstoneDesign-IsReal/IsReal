@@ -21,6 +21,7 @@ public:
 
 protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
+	virtual EBTNodeResult::Type AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
 
 public:
 	//area for key
@@ -28,7 +29,7 @@ public:
 	FBlackboardKeySelector targetKey;
 
 	UPROPERTY(EditAnywhere, Category = "Animation")
-	UAnimMontage* AttackMontage;
+	UAnimMontage* AttackMontage;	//set in Behavior Tree Blueprint
 
 	UFUNCTION(BlueprintCallable)
 	void OnAttackMontageEnd(UAnimMontage* PlayedMontage, bool bInterrupted, UBehaviorTreeComponent* OwnerComp);
