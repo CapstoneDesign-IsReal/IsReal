@@ -24,28 +24,34 @@ EBTNodeResult::Type UTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uin
 	if (!currentController)	return EBTNodeResult::Failed;
 	AEnemy* currentEnemy = Cast<AEnemy>(currentController->GetCharacter());
 	if (currentEnemy == nullptr)	return EBTNodeResult::Failed;
-
-	//currentEnemy->GetCharacterMovement()->StopMovementImmediately();
-
+	UBlackboardComponent* currentBlackboardComp = currentController->GetBlackboardComponent();
+	if (!currentBlackboardComp)	return EBTNodeResult::Failed;
 	UAnimInstance* currentAnimInstance = currentEnemy->GetMesh()->GetAnimInstance();
-
-	if (currentAnimInstance) {
-		if(!AttackMontage) return EBTNodeResult::Failed;
-		currentEnemy->PlayAnimMontage(AttackMontage);
-
-		FOnMontageEnded MontageEndDelegate;
-		MontageEndDelegate.BindUObject(this, &UTAttack::OnAttackMontageEnd, &OwnerComp);
-		currentAnimInstance->Montage_SetEndDelegate(MontageEndDelegate, AttackMontage);
-
-		return EBTNodeResult::InProgress;
+	if (!currentAnimInstance) return EBTNodeResult::Failed;
+	//currentEnemy->GetCharacterMovement()->StopMovementImmediately();
+	
+	//Stop Attack Motion immediately when Enemy die
+	if (currentBlackboardComp->GetValueAsName(TEXT("state")) == TEXT("Die")) {
+		if(AttackMontage)
+			currentEnemy->StopAnimMontage(AttackMontage);
+		return EBTNodeResult::Succeeded;
 	}
+
+	
+	if(!AttackMontage) return EBTNodeResult::Failed;
+	currentEnemy->PlayAnimMontage(AttackMontage);
+
+	FOnMontageEnded MontageEndDelegate;
+	MontageEndDelegate.BindUObject(this, &UTAttack::OnAttackMontageEnd, &OwnerComp);
+	currentAnimInstance->Montage_SetEndDelegate(MontageEndDelegate, AttackMontage);
+
+	return EBTNodeResult::InProgress;
+
 	
 	/*
 	APlayerCharacter* target = Cast<APlayerCharacter>(BlackboardComp->GetValueAsObject(targetKey.SelectedKeyName));
 	if (!target)	return EBTNodeResult::Failed;
 	*/
-
-	return EBTNodeResult::Failed;
 }
 
 void UTAttack::OnAttackMontageEnd(UAnimMontage* PlayedMontage, bool bInterrupted, UBehaviorTreeComponent* OwnerComp)

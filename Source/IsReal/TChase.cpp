@@ -55,10 +55,12 @@ void UTChase::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, flo
 	float dist = BlackboardComp->GetValueAsFloat(distanceKey.SelectedKeyName);
 
 	//check arrive to target
-	if (dist < 100.0)
+	if (dist < 150.0)
 	{
 		BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Nearby));
 		currentEnemy->GetCharacterMovement()->StopMovementImmediately();
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
+	if (BlackboardComp->GetValueAsName(TEXT("state")) == TEXT("Die"))
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 }
