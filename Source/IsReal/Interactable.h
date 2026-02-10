@@ -13,6 +13,7 @@ enum class EInteractionType : uint8
 	Gun,
 	CCTV,
 	Monitor,
+	Card ,
 	None
 };
 

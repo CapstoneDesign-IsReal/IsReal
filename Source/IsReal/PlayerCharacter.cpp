@@ -358,6 +358,9 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			IInteractable::Execute_Interact(HitActor, this);
 			break;
 		}
+		case EInteractionType::Card: 
+			IInteractable::Execute_Interact(HitActor, this);
+			break;
 		default:
 			break;
 		}

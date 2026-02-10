@@ -1,5 +1,7 @@
 #include "Door.h"
+#include "Card.h"
 #include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 ADoor::ADoor()
@@ -16,6 +18,8 @@ ADoor::ADoor()
 
 	DoorButton = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DoorButton"));
 	DoorButton->SetupAttachment(RootComponent);
+
+
 }
 
 void ADoor::BeginPlay()
@@ -56,12 +60,28 @@ void ADoor::Tick(float DeltaTime)
 		RightDoor->SetRelativeLocation(TargetRight);
 	}
 }
+bool ADoor::IsCardPresent() const
+{
+	// LinkedCard가 nullptr이면 카드 없음 그냥 열기 가능
+	if (!LinkedCard) return false;
+
+	// 맵에 카드가 아직 존재하면 true
+
+	TArray<AActor*> FoundCards;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACard::StaticClass(), FoundCards);
+	return FoundCards.Contains(LinkedCard);
+}
 
 void ADoor::Interact_Implementation(AActor* Interactor)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Door Interacted"));
+	// 카드가 남아있으면 열리지 않음
+	if (IsCardPresent())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Door is locked! Card is still present."));
+		return;
+	}
 
-	// 상태 토글 및 이동 시작
+	
 	_IsOpen = !_IsOpen;
 	bMoving = true;
 }
