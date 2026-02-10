@@ -5,6 +5,7 @@
 #include "PlayerCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Enemy.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AWeaponSystem::AWeaponSystem()
@@ -115,6 +116,8 @@ void AWeaponSystem::FireLineTrace()
 	}
 	// 한발 쏠 때마다 ammo -1 
 	CurrentAmmo--;
+	// 사운드 재생
+	UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
 
 	APlayerCharacter* PC = Cast<APlayerCharacter>(GetOwner());
 	if (PC) {
@@ -161,6 +164,10 @@ void AWeaponSystem::FireLineTrace()
 	else if (_weapontype == EWeaponType::EWT_Pistol)
 	{
 		CurrentGun = PistolMesh;
+	}
+	else if (_weapontype == EWeaponType::EWT_Sniper) 
+	{
+		CurrentGun = RifleMesh; // 일단 임시로 라이플 메쉬 사용
 	}
 	if (!CurrentGun) return;
 

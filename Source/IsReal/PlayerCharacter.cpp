@@ -37,8 +37,10 @@ APlayerCharacter::APlayerCharacter()
 	CameraComp->bUsePawnControlRotation = false;
 
 
-	Rifle1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RifleMesh")); //여기까지하면 블루프린트에 생김 
-	Pistol1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PistolMesh")); //여기까지하면 블루프린트에 생김 
+	Rifle1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RifleMesh")); //여기까지하면 블루프린트에 생김
+	Rifle1->SetupAttachment(GetMesh());
+	Pistol1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PistolMesh")); //여기까지하면 블루프린트에 생김
+	Pistol1->SetupAttachment(GetMesh());
 
 	// core system Component
 	CoreSystemComp = CreateDefaultSubobject<UCoreSystem>(TEXT("CoreSystemComp"));
@@ -233,29 +235,13 @@ void APlayerCharacter::DoShootingStart()
 	if (IsHasGun) {
 		IsShooting = true;
 
-		switch (CurrentWeapon->GetWeaponType()) {
-		case EWeaponType::EWT_Rifle: {
-			if (CurrentWeapon->GetWeaponAmmo() > 0) {
-				CurrentWeapon->WeaponFire();
-				UE_LOG(LogTemp, Warning, TEXT("(PlayerCharacter-DoShootingStart) Current Ammo : %d"), CurrentWeapon->GetWeaponAmmo());
-			}
-			else {
-				CurrentWeapon->WeaponStopFire();
-			}
-			break;
+		if (CurrentWeapon->GetWeaponAmmo() > 0) 
+		{
+			CurrentWeapon->WeaponFire();
 		}
-		case EWeaponType::EWT_Pistol: {
-			if (CurrentWeapon->GetWeaponAmmo() > 0) {
-				CurrentWeapon->WeaponFire();
-				UE_LOG(LogTemp, Warning, TEXT("(PlayerCharacter-DoShootingStart) Current Ammo : %d"), CurrentWeapon->GetWeaponAmmo());
-			}
-			else {
-				CurrentWeapon->WeaponStopFire();
-			}
-			break;
-		}
-		default:
-			break;
+		else
+		{
+			CurrentWeapon->WeaponStopFire();
 		}
 	}
 }
