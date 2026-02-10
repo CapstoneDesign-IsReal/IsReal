@@ -24,6 +24,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category="AI")
 	FEnemyLowHPDelegate LowHPDelegate;
+	
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -63,4 +65,6 @@ public:
 	void Chase(AActor*);
 	UFUNCTION(BlueprintCallable)
 	void Hit(int damage);
+	UFUNCTION(BlueprintCallable)
+	void DestroyEnemy();
 };
