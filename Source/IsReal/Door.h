@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interactable.h"
+
+class ACard;
 #include "Door.generated.h"
 
 UCLASS()
@@ -11,7 +13,6 @@ class ISREAL_API ADoor : public AActor, public IInteractable
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	ADoor();
 
 	virtual void Interact_Implementation(AActor* Interactor) override;
@@ -24,7 +25,7 @@ protected:
 private:
 	// 문 상태
 	bool _IsOpen = false;
-	bool bMoving = false; // 문이 움직이는 중인지
+	bool bMoving = false;
 
 	// 문 컴포넌트
 	UPROPERTY(VisibleAnywhere)
@@ -36,6 +37,11 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* DoorButton;
 
+	
+
+	UPROPERTY(EditAnywhere, Category = "Door")
+	ACard* LinkedCard; // 카드 연결
+
 	// 위치 저장
 	FVector LeftClosedPos;
 	FVector RightClosedPos;
@@ -44,5 +50,8 @@ private:
 
 	// 문 이동 속도
 	UPROPERTY(EditAnywhere, Category = "Door")
-	float MoveSpeed = 2.0f; // 1~5 정도 조절 가능
+	float MoveSpeed = 1.0f;
+
+	
+	bool IsCardPresent() const;
 };
