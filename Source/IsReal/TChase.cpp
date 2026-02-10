@@ -8,11 +8,13 @@
 #include "AIController.h"
 #include "Enemy.h"
 #include "EnemyController.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 //Generator
 UTChase::UTChase()
 {
 	NodeName = "Chase";
+	bNotifyTick = true;
 }
 
 EBTNodeResult::Type UTChase::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -20,7 +22,6 @@ EBTNodeResult::Type UTChase::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
 	AEnemy* currentEnemy = Cast<AEnemy>(OwnerComp.GetAIOwner()->GetCharacter());
-
 	//exception
 	if (currentEnemy == nullptr)
 	{
@@ -35,17 +36,31 @@ EBTNodeResult::Type UTChase::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint
 	if (!target)
 		return EBTNodeResult::Failed;
 
-	float dist = BlackboardComp->GetValueAsFloat(distanceKey.SelectedKeyName);
-	AEnemy* SelfActor = Cast<AEnemy>(BlackboardComp->GetValueAsObject(TEXT("SelfActor")));
 
-	//do attack
-	if (dist < SelfActor->getAttackRange())
+	currentEnemy->Chase(target);
+	return EBTNodeResult::InProgress;
+}
+
+//Can Enemy attack player?
+void UTChase::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+{
+	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
+
+	AEnemy* currentEnemy = Cast<AEnemy>(OwnerComp.GetAIOwner()->GetCharacter());
+	if (currentEnemy == nullptr)	FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+
+	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
+	if (!BlackboardComp)	FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+
+	float dist = BlackboardComp->GetValueAsFloat(distanceKey.SelectedKeyName);
+
+	//check arrive to target
+	if (dist < 150.0)
 	{
-		BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Attack));
+		BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Nearby));
+		currentEnemy->GetCharacterMovement()->StopMovementImmediately();
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
-	else                    //else keep chase
-	{
-		currentEnemy->Chase(target);
-	}
-	return EBTNodeResult::Succeeded;
+	if (BlackboardComp->GetValueAsName(TEXT("state")) == TEXT("Die"))
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 }

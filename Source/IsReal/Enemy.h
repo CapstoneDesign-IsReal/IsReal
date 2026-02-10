@@ -3,10 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EnemyEventSubsystem.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/Pawn.h"
 #include "Enemy.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEnemyLowHPDelegate);
+
+/**
+ *
+ */
 UCLASS(Blueprintable)
 class ISREAL_API AEnemy : public ACharacter
 {
@@ -16,12 +22,18 @@ public:
 	// Sets default values for this character's properties
 	AEnemy();
 
+	UPROPERTY(BlueprintAssignable, Category="AI")
+	FEnemyLowHPDelegate LowHPDelegate;
+	
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 protected:
 	//Enemy Status
+	UPROPERTY(EditAnywhere, Category = "Enemy Params")
+	float MaxHP = 200;
 	UPROPERTY(EditAnywhere, Category = "Enemy Params")
 	float HP = 200;
 	UPROPERTY(EditAnywhere, Category = "Enemy Params")
@@ -34,7 +46,8 @@ protected:
 	float AttackSpeed = 10.0f;		//Attack Speed
 
 	FTimerHandle CoolTimeHandle;	//timer handler
-
+	UEnemyEventSubsystem* EnemyEventSubsystem;
+	bool bIsLowHPTriggered = false;
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -48,8 +61,10 @@ public:
 	float getAttackRange();
 	float getAttackCoolTime();
 	void AttackCountdown();
-	void Chase(APawn* target);
-
+	//void Chase(APawn* target);
+	void Chase(AActor*);
 	UFUNCTION(BlueprintCallable)
 	void Hit(int damage);
+	UFUNCTION(BlueprintCallable)
+	void DestroyEnemy();
 };
