@@ -38,13 +38,11 @@ APlayerCharacter::APlayerCharacter()
 
 
 	Rifle1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RifleMesh")); //여기까지하면 블루프린트에 생김 
-	Rifle1->SetupAttachment(GetMesh()); //캐릭터에 메시 아래에 붙인다.
-
+	Rifle1->SetupAttachment(GetMesh());
 	Pistol1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PistolMesh")); //여기까지하면 블루프린트에 생김 
-	Pistol1->SetupAttachment(GetMesh()); //캐릭터에 메시 아래에 붙인다.
+	Pistol1->SetupAttachment(GetMesh());
 
-	//Rifle1->SetupAttachment(GetMesh(), TEXT("Rifle")); //캐릭터 스켈레톤 매시의 라이플이라는 소켓에 장착
-	//Pistol1->SetupAttachment(GetMesh(), TEXT("Pistol"));// 캐릭터 스켈레톤 매시의 피스톨이라는 소켓에 장착
+
 
 	// core system Component
 	CoreSystemComp = CreateDefaultSubobject<UCoreSystem>(TEXT("CoreSystemComp"));
@@ -81,6 +79,24 @@ void APlayerCharacter::BeginPlay()
 	}
 
 	WeaponSlot.SetNum(2); // 2가지 무기 슬롯 초기화
+
+	if (Rifle1)
+	{
+		Rifle1->AttachToComponent(
+			GetMesh(),
+			FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+			TEXT("Rifle")   // 네가 만든 소켓 이름
+		);
+	}
+
+	if (Pistol1)
+	{
+		Pistol1->AttachToComponent(
+			GetMesh(),
+			FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+			TEXT("Pistol")  // 네가 만든 소켓 이름
+		);
+	}
 }
 
 // Called every frame
@@ -221,29 +237,13 @@ void APlayerCharacter::DoShootingStart()
 	if (IsHasGun) {
 		IsShooting = true;
 
-		switch (CurrentWeapon->GetWeaponType()) {
-		case EWeaponType::EWT_Rifle: {
-			if (CurrentWeapon->GetWeaponAmmo() > 0) {
-				CurrentWeapon->WeaponFire();
-				UE_LOG(LogTemp, Warning, TEXT("(PlayerCharacter-DoShootingStart) Current Ammo : %d"), CurrentWeapon->GetWeaponAmmo());
-			}
-			else {
-				CurrentWeapon->WeaponStopFire();
-			}
-			break;
+		if (CurrentWeapon->GetWeaponAmmo() > 0)
+		{
+			CurrentWeapon->WeaponFire();
 		}
-		case EWeaponType::EWT_Pistol: {
-			if (CurrentWeapon->GetWeaponAmmo() > 0) {
-				CurrentWeapon->WeaponFire();
-				UE_LOG(LogTemp, Warning, TEXT("(PlayerCharacter-DoShootingStart) Current Ammo : %d"), CurrentWeapon->GetWeaponAmmo());
-			}
-			else {
-				CurrentWeapon->WeaponStopFire();
-			}
-			break;
-		}
-		default:
-			break;
+		else
+		{
+			CurrentWeapon->WeaponStopFire();
 		}
 	}
 }
@@ -307,6 +307,7 @@ void APlayerCharacter::PlayerDie() {
 }
 
 void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
+	if (IsShooting) DoShootingEnd(); // 발사 중일 때, 상호작용 누르면 발사 멈추기
 	FVector Start = CameraComp->GetComponentLocation();
 	FVector End = Start + (CameraComp->GetForwardVector() * 500.f);
 
@@ -333,7 +334,7 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			IInteractable::Execute_Interact(HitActor, this);
 			AWeaponSystem* Weapon = Cast<AWeaponSystem>(HitActor);
 			Weapon->SetOwner(this);
-			Weapon->SubscribeCoreSystem(); // 코어시스템 델리게이트 연결 - 바인딩 위해서 필요
+			//Weapon->SubscribeCoreSystem(); // 코어시스템 델리게이트 연결 - 바인딩 위해서 필요
 			UE_LOG(LogTemp, Warning, TEXT("gun type: %s"),
 				*StaticEnum<EWeaponType>()->GetNameStringByValue((int64)Weapon->GetWeaponType()));
 
@@ -366,6 +367,9 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			IInteractable::Execute_Interact(HitActor, this);
 			break;
 		}
+		case EInteractionType::Card:
+			IInteractable::Execute_Interact(HitActor, this);
+			break;
 		default:
 			break;
 		}
