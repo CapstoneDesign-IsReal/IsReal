@@ -35,6 +35,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
 	void TryReWind();
 
+	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
+	void RewindOnDeath();
+
 private:
 	// Rewind State
 	bool Is_Rewind = false;

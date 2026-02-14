@@ -103,3 +103,34 @@ void UCoreSystem::RewindCooldown()
 		UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
 	}
 }
+
+void UCoreSystem::RewindOnDeath() 
+{
+	UE_LOG(LogTemp, Warning, TEXT("Rewind On Death"));
+	GetWorld()->GetTimerManager().ClearTimer(RewindTimerHandle);
+	UKismetSystemLibrary::PrintString(GetWorld(), TEXT("To Present!"), true, true, FLinearColor::Green, 2.0f);
+
+	// 현재로 올때
+	Is_Rewind = false;
+
+	// delegate trigger
+	if (GameInstance)
+	{
+		UCoreEventSubsystem* coresubsystem = GameInstance->GetSubsystem<UCoreEventSubsystem>();
+		if (coresubsystem)
+		{
+			coresubsystem->RewindDone();
+		}
+	}
+
+	OwnerCharacter->UnEquipWeapon(); // 주무기 해제
+
+	CurruntRewindCoolTime = 0.0f;
+
+	FVector CurrentLocation = OwnerCharacter->GetActorLocation();
+
+	FVector NewLocation = CurrentLocation - FVector(0.f, 0.f, 10000.f);
+	OwnerCharacter->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, NewLocation, OwnerCharacter->GetActorRotation());
+	UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
+}
