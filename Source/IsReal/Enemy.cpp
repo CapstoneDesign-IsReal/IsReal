@@ -25,8 +25,8 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GetGameInstance()) {
-		EnemyEventSubsystem = GetGameInstance()->GetSubsystem<UEnemyEventSubsystem>();
+	if (GetWorld()) {
+		EnemyEventSubsystem = GetWorld()->GetSubsystem<UEnemyEventSubsystem>();
 	}
 }
 
@@ -112,7 +112,7 @@ void AEnemy::Hit(int damage)
 		BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Die));
 
 		if (EnemyEventSubsystem) {
-			EnemyEventSubsystem->EnemyDieNotify();
+			EnemyEventSubsystem->EnemyDieNotify(this);
 		}
 	}
 }

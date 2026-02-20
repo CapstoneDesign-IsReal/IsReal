@@ -4,10 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "EnemyEventSubsystem.h"
 #include "EnemySpawner.generated.h"
 
 class AEnemy;
 
+/**
+ *
+ */
 UCLASS()
 class ISREAL_API AEnemySpawner : public AActor
 {
@@ -24,6 +28,8 @@ protected:
 	FRotator SpawnPointRotation;
 
 	FActorSpawnParameters SpawnParams;
+
+	UEnemyEventSubsystem* EnemyEventSubsystem;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -34,4 +40,5 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SpawnEnemy();
+	void InitialSetting(AEnemy* spawned);
 };

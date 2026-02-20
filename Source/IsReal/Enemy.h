@@ -10,7 +10,6 @@
 #include "Enemy.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEnemyLowHPDelegate);
-
 /**
  *
  */
