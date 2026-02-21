@@ -294,12 +294,22 @@ void APlayerCharacter::EquipWeapon(EWeaponSlot NewSlot)
 }
 void APlayerCharacter::UnEquipWeapon()
 {
-	if(IsShooting) 
+	if(IsShooting || isAiming) 
 	{
 		DoShootingEnd(); // 발사 중이면 발사 종료
+		DoAimEnd(); // 조준 중이면 조준 종료
 	}
-	CurrentWeapon = nullptr;
-	WeaponSlot[(int)EWeaponSlot::Primary] = nullptr;
+	if (WeaponSlot[(int)EWeaponSlot::Secondary] == nullptr) // 보조무기가 없다면
+	{
+		IsHasGun = false;
+		CurrentWeapon = nullptr;
+		WeaponSlot[(int)EWeaponSlot::Primary] = nullptr;
+	}
+	else												   // 보조무기가 있으면 보조로 교체
+	{
+		CurrentWeapon = WeaponSlot[(int)EWeaponSlot::Secondary];
+		WeaponSlot[(int)EWeaponSlot::Primary] = nullptr;
+	}
 	UE_LOG(LogTemp, Warning, TEXT("Unequipped Weapon"));
 }
 
