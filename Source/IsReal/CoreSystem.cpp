@@ -23,7 +23,7 @@ void UCoreSystem::BeginPlay()
 
 	RewindCore = MaxRewindCore;
 	Is_Rewind = false;
-	RewindCoolTime = 10.0f; // ÃÑ Äð´Ù¿î ½Ã°£
+	RewindCoolTime = 5.0f; // ÃÑ Äð´Ù¿î ½Ã°£
 	CurruntRewindCoolTime = 0.0f; // ÇöÀç Äð´Ù¿î ½Ã°£
 
 	OwnerCharacter = Cast<APlayerCharacter>(GetOwner());
@@ -50,13 +50,18 @@ void UCoreSystem::TryReWind()
 			RewindCore -= 100;
 			if (RewindVFX) 
 			{
-				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, CurrentLocation, OwnerCharacter->GetActorRotation());
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, 
+					CurrentLocation, OwnerCharacter->GetActorRotation());
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindRibbonVFX, 
+					CurrentLocation + FVector(0.f, 0.f, -90.0f), OwnerCharacter->GetActorRotation() + FRotator(0.f, -90.0f, 0.f));
 			}
 			FVector NewLocation = CurrentLocation + FVector(0.f, 0.f, 10000.f);
 			OwnerCharacter->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
 			UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
-
+			
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, NewLocation, OwnerCharacter->GetActorRotation());
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindRibbonVFX, 
+				NewLocation + FVector(0.f, 0.f, -90.0f), OwnerCharacter->GetActorRotation() + FRotator(0.f, -90.0f, 0.f));
 		}
 	}
 	else 
@@ -100,6 +105,8 @@ void UCoreSystem::RewindCooldown()
 		FVector NewLocation = CurrentLocation - FVector(0.f, 0.f, 10000.f);
 		OwnerCharacter->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, NewLocation, OwnerCharacter->GetActorRotation());
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindRibbonVFX, 
+			NewLocation + FVector(0.f, 0.f, -90.0f), OwnerCharacter->GetActorRotation() + FRotator(0.f, -90.0f, 0.f));
 		UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
 	}
 }
@@ -132,5 +139,7 @@ void UCoreSystem::RewindOnDeath()
 	FVector NewLocation = CurrentLocation - FVector(0.f, 0.f, 10000.f);
 	OwnerCharacter->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, NewLocation, OwnerCharacter->GetActorRotation());
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindRibbonVFX,
+		NewLocation + FVector(0.f, 0.f, -90.0f), OwnerCharacter->GetActorRotation() + FRotator(0.f, -90.0f, 0.f));
 	UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
 }

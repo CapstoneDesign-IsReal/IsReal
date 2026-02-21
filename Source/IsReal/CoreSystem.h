@@ -55,6 +55,8 @@ private:
 	// Rewind Effect
 	UPROPERTY(EditAnywhere, Category = "VFX")
 	UNiagaraSystem* RewindVFX;
+	UPROPERTY(EditAnywhere, Category = "VFX")
+	UNiagaraSystem* RewindRibbonVFX;
 
 	// Owner Character
 	APlayerCharacter* OwnerCharacter;
