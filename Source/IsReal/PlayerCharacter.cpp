@@ -351,7 +351,7 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			UE_LOG(LogTemp, Warning, TEXT("gun type: %s"),
 				*StaticEnum<EWeaponType>()->GetNameStringByValue((int64)Weapon->GetWeaponType()));
 
-			EWeaponType type = Weapon->GetWeaponType();
+			type = Weapon->GetWeaponType();
 			EWeaponSlot slot = EWeaponSlot::Primary;
 
 			switch (type) 
@@ -387,6 +387,47 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			break;
 		}
 	}
+
+}
+
+AWeaponSystem* APlayerCharacter::GetPrimaryWeapon() const
+{
+	if (WeaponSlot.Num() > 0)
+	{
+		return WeaponSlot[(int)EWeaponSlot::Primary];
+	}
+	return nullptr;
+}
+
+AWeaponSystem* APlayerCharacter::GetSecondaryWeapon() const
+{
+	if (WeaponSlot.Num() > 1)
+	{
+		return WeaponSlot[(int)EWeaponSlot::Secondary];
+	}
+	return nullptr;
+}
+
+EWeaponType APlayerCharacter::GetPrimaryWeaponType() const
+{
+	AWeaponSystem* Weapon = GetPrimaryWeapon();
+	if (Weapon)
+	{
+		return Weapon->GetWeaponType();
+	}
+
+	return EWeaponType::EWT_None; // 네 enum에 None 있어야 함
+}
+
+EWeaponType APlayerCharacter::GetSecondaryWeaponType() const
+{
+	AWeaponSystem* Weapon = GetSecondaryWeapon();
+	if (Weapon)
+	{
+		return Weapon->GetWeaponType();
+	}
+
+	return EWeaponType::EWT_None;
 }
 
 
