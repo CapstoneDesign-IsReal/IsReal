@@ -51,12 +51,12 @@ private:
 	FTimerHandle RewindTimerHandle;
 	// Rewind Cooldown function
 	void RewindCooldown();
+	// Core Heal
+	void CoreHeal();
 
 	// Rewind Effect
 	UPROPERTY(EditAnywhere, Category = "VFX")
 	UNiagaraSystem* RewindVFX;
-	UPROPERTY(EditAnywhere, Category = "VFX")
-	UNiagaraSystem* RewindRibbonVFX;
 
 	// Owner Character
 	APlayerCharacter* OwnerCharacter;

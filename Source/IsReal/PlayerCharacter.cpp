@@ -316,7 +316,7 @@ void APlayerCharacter::UnEquipWeapon()
 void APlayerCharacter::PlayerDie() {
 	IsDie = true;
 	DoShootingEnd(); // 죽을 때 발사 멈추기
-	CoreSystemComp->RewindOnDeath();
+	DoAimEnd(); // 죽을 때 조준 멈추기
 }
 
 void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
