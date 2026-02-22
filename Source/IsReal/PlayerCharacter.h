@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "WeaponSystem.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 
@@ -150,6 +151,7 @@ protected:
 	AWeaponSystem* CurrentWeapon;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	TArray<AWeaponSystem*> WeaponSlot;
+
 	void EquipWeapon(EWeaponSlot NewSlot);
 
 	// core system
@@ -197,11 +199,33 @@ protected:
 	UPROPERTY(EditAnywhere, BluePrintReadWrite)
 	bool IsDie = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	EWeaponType type;
+
+
+
 	// getters and setters for Player HP
 public:
 	float GetPlayerHP();
 	void SetPlayerHP(float HP);
 	void UnEquipWeapon();
+
+	// 슬롯에 들어있는 무기 자체 반환
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	AWeaponSystem* GetPrimaryWeapon() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	AWeaponSystem* GetSecondaryWeapon() const;
+
+	// 슬롯 무기 타입만 반환
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	EWeaponType GetPrimaryWeaponType() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	EWeaponType GetSecondaryWeaponType() const;
+
+
+
 private:
 
 	void PlayerDie();
