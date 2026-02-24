@@ -7,6 +7,9 @@
 #include "Enemy.h"
 #include "Kismet/GameplayStatics.h"
 
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
+
 // Sets default values
 AWeaponSystem::AWeaponSystem()
 {
@@ -140,8 +143,10 @@ void AWeaponSystem::FireLineTrace()
 	bool Hit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params);
 
 	FVector TargetPoint = End; // �⺻�� (���� ������ �� ����)
+	FVector TargetNormal = FVector::ZeroVector;
 	if (Hit) {
 		TargetPoint = HitResult.ImpactPoint;
+		TargetNormal = HitResult.ImpactNormal;
 
 		AActor* HitActor = HitResult.GetActor();
 
@@ -171,7 +176,7 @@ void AWeaponSystem::FireLineTrace()
 	}
 	if (!CurrentGun) return;
 
-	FVector MuzzleLocation = CurrentGun->GetSocketLocation(TEXT("WeaponSocket"));  // ? 오타?
+	FVector MuzzleLocation = CurrentGun->GetSocketLocation(TEXT("WeaponSocket"));
 	//FRotator MuzzleRotation = gunMeshComp->GetSocketRotation(TEXT("WeaponSocket"));
 
 	float Range = 20000.0f;
@@ -203,6 +208,7 @@ void AWeaponSystem::FireLineTrace()
 				DrawDebugPoint(GetWorld(), TargetPoint, 10.0f, FColor::Blue, false, 0.1f); // 적군을 맞추면 파란 점 찍힘
 				UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *Enemy->GetName());
 				Enemy->Hit(Damage);    // 총기 별 데미지 주기
+				PlayBloodEffect(TargetPoint, TargetNormal); // 피격 이펙트 재생
 			}
 		}
 	}
@@ -210,4 +216,22 @@ void AWeaponSystem::FireLineTrace()
 	{
 		DrawDebugLine(GetWorld(), MuzzleLocation, EndFromMuzzle, FColor::Red, false, 0.05f, 0, 1.5f);
 	}
+}
+
+void AWeaponSystem::PlayBloodEffect(FVector impactpoint, FVector impactnormal) 
+{
+	if (BloodVFXArray.Num() > 0)
+	{	
+		int32 RandomIndex = FMath::RandRange(0, BloodVFXArray.Num() - 1);
+		UNiagaraSystem* RandBloodEffect = BloodVFXArray[RandomIndex];
+
+		float OffsetDistance = 10.0f; // 이펙트가 표면에서 약간 떨어지도록 하는 거리
+		FVector SurfacePoint = impactpoint + (impactnormal * OffsetDistance);
+
+		FRotator Rotation = impactnormal.Rotation();
+
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RandBloodEffect, SurfacePoint, Rotation);
+
+	}
+
 }
