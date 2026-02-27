@@ -91,6 +91,14 @@ void UCoreSystem::RewindCooldown()
 				coresubsystem->RewindDone();
 			}
 		}
+		/*   // 코어 회복 구현
+		
+		if (Enemy->isAllEnemyDie())
+		{
+			CoreHeal();
+		}
+
+		*/
 		
 		OwnerCharacter->UnEquipWeapon(); // 주무기 해제
 
