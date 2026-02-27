@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "PlayerCharacter.h"
 #include "CoreEventSubsystem.h"
+#include "EnemyEventSubsystem.h"
 #include "CoreSystem.generated.h"
 
 class UNiagaraSystem;
@@ -67,4 +68,8 @@ private:
 	APlayerCharacter* OwnerCharacter;
 
 	UGameInstance* GameInstance;
+	
+	// enemy event subsystem
+	UWorld* World;
+	UEnemyEventSubsystem* enemyeventsubsys;
 };
