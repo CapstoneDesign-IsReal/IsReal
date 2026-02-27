@@ -14,6 +14,10 @@ AEnemySpawner::AEnemySpawner()
 // Called when the game starts or when spawned
 void AEnemySpawner::BeginPlay()
 {
+	if (GetWorld()) {
+		EnemyEventSubsystem = GetWorld()->GetSubsystem<UEnemyEventSubsystem>();
+	}
+
 	Super::BeginPlay();
 }
 
@@ -41,8 +45,13 @@ void AEnemySpawner::SpawnEnemy()
 		SpawnParams
 	);
 
-	//setting initial value if needed
+	//setting initial Setting if needed
 	if (spawnedEnemy) {
-
+		InitialSetting(spawnedEnemy);
 	}
+}
+
+void AEnemySpawner::InitialSetting(AEnemy* spawned)
+{
+	EnemyEventSubsystem->AddEnemyArray(spawned);
 }

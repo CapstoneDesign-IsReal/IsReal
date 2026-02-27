@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "Enemy.h"
 #include "EnvironmentQuery/EnvQuery.h"
+#include "GenericTeamAgentInterface.h"
 #include "EnemyController.generated.h"
 
 /**
@@ -42,6 +43,8 @@ public:
 	void AttackDecision(APawn* target);
 	AEnemyController();	//define basic constructor 
 
+	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	UEnvQuery* DodgeEQS;
 
@@ -51,6 +54,7 @@ protected:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UAIPerceptionComponent* AIPerception;
+	virtual FGenericTeamId GetGenericTeamId() const override;
 
 	//Handling Enemy action when Enemy sense  something.
 	UFUNCTION(BlueprintCallable)
