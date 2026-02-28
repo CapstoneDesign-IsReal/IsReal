@@ -23,7 +23,6 @@ void UCoreSystem::BeginPlay()
 
 	RewindCore = MaxRewindCore;
 	Is_Rewind = false;
-	RewindCoolTime = 5.0f; // ÃÑ Äð´Ù¿î ½Ã°£
 	CurruntRewindCoolTime = 0.0f; // ÇöÀç Äð´Ù¿î ½Ã°£
 
 	OwnerCharacter = Cast<APlayerCharacter>(GetOwner());

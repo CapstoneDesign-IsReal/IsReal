@@ -52,6 +52,7 @@ private:
 	// Max Rewind Core
 	int MaxRewindCore = 300;
 	// Rewind Cooldown
+	UPROPERTY(EditAnywhere, Category = "CoreSystem")
 	float RewindCoolTime;
 	float CurruntRewindCoolTime;
 	FTimerHandle RewindTimerHandle;
