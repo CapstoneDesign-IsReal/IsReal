@@ -4,6 +4,7 @@
 #include "Enemy.h"
 #include "EnemyController.h"
 #include "PlayerCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "EnemyEventSubsystem.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -18,6 +19,9 @@ AEnemy::AEnemy()
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	TeamID = FGenericTeamId(1);
+
+	GetCharacterMovement()->bUseRVOAvoidance = true;
+	GetCharacterMovement()->AvoidanceConsiderationRadius = 100.0f;
 }
 
 // Called when the game starts or when spawned
