@@ -158,3 +158,25 @@ void AEnemyController::Dodge()
 	UBlackboardComponent* BlackboardComp = GetBlackboardComponent();
 	BlackboardComp->SetValueAsBool(LowHPKeyName, true);
 }
+
+FGenericTeamId AEnemyController::GetGenericTeamId() const
+{
+	const IGenericTeamAgentInterface* PawnAsTeamAgent = Cast<IGenericTeamAgentInterface>(GetPawn());
+	if (!PawnAsTeamAgent)	return FGenericTeamId::NoTeam;
+
+	return PawnAsTeamAgent->GetGenericTeamId();
+}
+
+ETeamAttitude::Type AEnemyController::GetTeamAttitudeTowards(const AActor& Other) const
+{
+	const IGenericTeamAgentInterface* sensedTeamAgent = Cast<IGenericTeamAgentInterface>(&Other);
+	if (!sensedTeamAgent)	return ETeamAttitude::Neutral;
+	AEnemy* EnemyPawn = Cast<AEnemy>(GetPawn());
+	if(!EnemyPawn) return ETeamAttitude::Neutral;
+
+	if (sensedTeamAgent->GetGenericTeamId() == EnemyPawn->GetGenericTeamId())
+		return ETeamAttitude::Friendly;
+	else {
+		return ETeamAttitude::Hostile;
+	}
+}

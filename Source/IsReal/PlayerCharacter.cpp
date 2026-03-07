@@ -140,6 +140,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void APlayerCharacter::Rewind(const FInputActionValue& inputValue)
 {
+	if (IsDie) return;
 	if (CoreSystemComp) 
 	{
 		CoreSystemComp->TryReWind();
@@ -228,7 +229,7 @@ void APlayerCharacter::DoAimEnd()
 void APlayerCharacter::DoShootingStart()
 {
 	// 재장전 중일 때는 발사 못하게 막기
-	if (!CurrentWeapon) return;
+	if (!CurrentWeapon || IsDie) return;
 	if (CurrentWeapon->IsReloading()) return;
 
 	// 가지고 있는 무기에 따라 fire가 다르게 나감 // 근데 굳이 switch문 안써도 될거같음
@@ -259,6 +260,7 @@ void APlayerCharacter::DoShootingEnd()
 
 void APlayerCharacter::Reload(const FInputActionValue& inputValue)
 {	
+	if (IsShooting) return;
 	if (CurrentWeapon && IsHasGun) {
 		CurrentWeapon->WeaponReload();
 	}
@@ -292,17 +294,29 @@ void APlayerCharacter::EquipWeapon(EWeaponSlot NewSlot)
 }
 void APlayerCharacter::UnEquipWeapon()
 {
-	if(IsShooting) 
+	if(IsShooting || isAiming) 
 	{
 		DoShootingEnd(); // 발사 중이면 발사 종료
+		DoAimEnd(); // 조준 중이면 조준 종료
 	}
-	CurrentWeapon = nullptr;
-	WeaponSlot[(int)EWeaponSlot::Primary] = nullptr;
+	if (WeaponSlot[(int)EWeaponSlot::Secondary] == nullptr) // 보조무기가 없다면
+	{
+		IsHasGun = false;
+		CurrentWeapon = nullptr;
+		WeaponSlot[(int)EWeaponSlot::Primary] = nullptr;
+	}
+	else												   // 보조무기가 있으면 보조로 교체
+	{
+		CurrentWeapon = WeaponSlot[(int)EWeaponSlot::Secondary];
+		WeaponSlot[(int)EWeaponSlot::Primary] = nullptr;
+	}
 	UE_LOG(LogTemp, Warning, TEXT("Unequipped Weapon"));
 }
 
 void APlayerCharacter::PlayerDie() {
 	IsDie = true;
+	DoShootingEnd(); // 죽을 때 발사 멈추기
+	DoAimEnd(); // 죽을 때 조준 멈추기
 }
 
 void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
@@ -337,7 +351,7 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			UE_LOG(LogTemp, Warning, TEXT("gun type: %s"),
 				*StaticEnum<EWeaponType>()->GetNameStringByValue((int64)Weapon->GetWeaponType()));
 
-			EWeaponType type = Weapon->GetWeaponType();
+			type = Weapon->GetWeaponType();
 			EWeaponSlot slot = EWeaponSlot::Primary;
 
 			switch (type) 
@@ -373,6 +387,47 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			break;
 		}
 	}
+
+}
+
+AWeaponSystem* APlayerCharacter::GetPrimaryWeapon() const
+{
+	if (WeaponSlot.Num() > 0)
+	{
+		return WeaponSlot[(int)EWeaponSlot::Primary];
+	}
+	return nullptr;
+}
+
+AWeaponSystem* APlayerCharacter::GetSecondaryWeapon() const
+{
+	if (WeaponSlot.Num() > 1)
+	{
+		return WeaponSlot[(int)EWeaponSlot::Secondary];
+	}
+	return nullptr;
+}
+
+EWeaponType APlayerCharacter::GetPrimaryWeaponType() const
+{
+	AWeaponSystem* Weapon = GetPrimaryWeapon();
+	if (Weapon)
+	{
+		return Weapon->GetWeaponType();
+	}
+
+	return EWeaponType::EWT_None; // 네 enum에 None 있어야 함
+}
+
+EWeaponType APlayerCharacter::GetSecondaryWeaponType() const
+{
+	AWeaponSystem* Weapon = GetSecondaryWeapon();
+	if (Weapon)
+	{
+		return Weapon->GetWeaponType();
+	}
+
+	return EWeaponType::EWT_None;
 }
 
 

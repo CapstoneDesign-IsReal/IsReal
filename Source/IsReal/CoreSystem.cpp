@@ -50,12 +50,13 @@ void UCoreSystem::TryReWind()
 			RewindCore -= 100;
 			if (RewindVFX) 
 			{
-				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, CurrentLocation, OwnerCharacter->GetActorRotation());
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, 
+					CurrentLocation, OwnerCharacter->GetActorRotation());
 			}
 			FVector NewLocation = CurrentLocation + FVector(0.f, 0.f, 10000.f);
 			OwnerCharacter->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
 			UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
-
+			
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, NewLocation, OwnerCharacter->GetActorRotation());
 		}
 	}
@@ -74,7 +75,7 @@ void UCoreSystem::RewindCooldown()
 		FString::Printf(TEXT("CoolDown.. : %.1f"), RewindCoolTime-CurruntRewindCoolTime)
 		, true, true, FLinearColor::Green, 2.0f);
 
-	if (CurruntRewindCoolTime >= RewindCoolTime) {
+	if (CurruntRewindCoolTime >= RewindCoolTime && OwnerCharacter->GetIsDie() == false) {
 		GetWorld()->GetTimerManager().ClearTimer(RewindTimerHandle);
 		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("To Present!"), true, true, FLinearColor::Green, 2.0f);
 
@@ -90,6 +91,14 @@ void UCoreSystem::RewindCooldown()
 				coresubsystem->RewindDone();
 			}
 		}
+		/*   // 코어 회복 구현
+		
+		if (Enemy->isAllEnemyDie())
+		{
+			CoreHeal();
+		}
+
+		*/
 		
 		OwnerCharacter->UnEquipWeapon(); // 주무기 해제
 
@@ -102,4 +111,41 @@ void UCoreSystem::RewindCooldown()
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, NewLocation, OwnerCharacter->GetActorRotation());
 		UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
 	}
+}
+
+void UCoreSystem::RewindOnDeath()   // 죽을 때 현재로 돌아오는 함수 // BP에서 호출
+{
+	UE_LOG(LogTemp, Warning, TEXT("Rewind On Death"));
+	GetWorld()->GetTimerManager().ClearTimer(RewindTimerHandle);
+	UKismetSystemLibrary::PrintString(GetWorld(), TEXT("To Present!"), true, true, FLinearColor::Green, 2.0f);
+
+	// 현재로 올때
+	Is_Rewind = false;
+
+	// delegate trigger
+	if (GameInstance)
+	{
+		UCoreEventSubsystem* coresubsystem = GameInstance->GetSubsystem<UCoreEventSubsystem>();
+		if (coresubsystem)
+		{
+			coresubsystem->RewindDone();
+		}
+	}
+
+	OwnerCharacter->UnEquipWeapon(); // 주무기 해제
+
+	CurruntRewindCoolTime = 0.0f;
+
+	FVector CurrentLocation = OwnerCharacter->GetActorLocation();
+
+	FVector NewLocation = CurrentLocation - FVector(0.f, 0.f, 10000.f);
+	OwnerCharacter->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, NewLocation, OwnerCharacter->GetActorRotation());
+	UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
+}
+
+void UCoreSystem::CoreHeal() 
+{
+	RewindCore += 100;
+	if (RewindCore >= 300) RewindCore = 300;   // Max Rewind Core 이상으로 안올라가게
 }

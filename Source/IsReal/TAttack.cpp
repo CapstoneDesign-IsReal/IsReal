@@ -21,13 +21,17 @@ EBTNodeResult::Type UTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uin
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
 	AEnemyController* currentController = Cast<AEnemyController>(OwnerComp.GetAIOwner());
-	if (!currentController)	return EBTNodeResult::Failed;
 	AEnemy* currentEnemy = Cast<AEnemy>(currentController->GetCharacter());
-	if (currentEnemy == nullptr)	return EBTNodeResult::Failed;
 	UBlackboardComponent* currentBlackboardComp = currentController->GetBlackboardComponent();
-	if (!currentBlackboardComp)	return EBTNodeResult::Failed;
 	UAnimInstance* currentAnimInstance = currentEnemy->GetMesh()->GetAnimInstance();
+	
+	//=============Exception Check=============
+	if (!currentController)	return EBTNodeResult::Failed;
+	if (currentEnemy == nullptr)	return EBTNodeResult::Failed;
+	if (!currentBlackboardComp)	return EBTNodeResult::Failed;
 	if (!currentAnimInstance) return EBTNodeResult::Failed;
+	//=========================================
+
 	//currentEnemy->GetCharacterMovement()->StopMovementImmediately();
 	
 	//Stop Attack Motion immediately when Enemy die
@@ -46,7 +50,6 @@ EBTNodeResult::Type UTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uin
 	currentAnimInstance->Montage_SetEndDelegate(MontageEndDelegate, AttackMontage);
 
 	return EBTNodeResult::InProgress;
-
 	
 	/*
 	APlayerCharacter* target = Cast<APlayerCharacter>(BlackboardComp->GetValueAsObject(targetKey.SelectedKeyName));

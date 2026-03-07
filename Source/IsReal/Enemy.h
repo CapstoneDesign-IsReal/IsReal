@@ -6,15 +6,15 @@
 #include "EnemyEventSubsystem.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/Pawn.h"
+#include "GenericTeamAgentInterface.h"
 #include "Enemy.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEnemyLowHPDelegate);
-
 /**
  *
  */
 UCLASS(Blueprintable)
-class ISREAL_API AEnemy : public ACharacter
+class ISREAL_API AEnemy : public ACharacter, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -44,6 +44,8 @@ protected:
 	float AttackCoolTime = 0.0f;	//notify Attack or Not
 	UPROPERTY(EditAnywhere, Category = "Enemy Params")
 	float AttackSpeed = 10.0f;		//Attack Speed
+	UPROPERTY(EditAnywhere, Category = "AI")
+	FGenericTeamId TeamID;
 
 	FTimerHandle CoolTimeHandle;	//timer handler
 	UEnemyEventSubsystem* EnemyEventSubsystem;
@@ -67,4 +69,5 @@ public:
 	void Hit(int damage);
 	UFUNCTION(BlueprintCallable)
 	void DestroyEnemy();
+	virtual FGenericTeamId GetGenericTeamId() const override;
 };

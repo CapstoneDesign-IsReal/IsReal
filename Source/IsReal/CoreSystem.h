@@ -35,6 +35,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
 	void TryReWind();
 
+	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
+	void RewindOnDeath();
+
+	// 과거 체류시간 getter, setter
+	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
+	float GetRewindCoolTime() { return RewindCoolTime; }
+	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
+	void SetRewindCoolTime(float CoolTime) { RewindCoolTime = CoolTime; }
 private:
 	// Rewind State
 	bool Is_Rewind = false;
@@ -48,6 +56,8 @@ private:
 	FTimerHandle RewindTimerHandle;
 	// Rewind Cooldown function
 	void RewindCooldown();
+	// Core Heal
+	void CoreHeal();
 
 	// Rewind Effect
 	UPROPERTY(EditAnywhere, Category = "VFX")

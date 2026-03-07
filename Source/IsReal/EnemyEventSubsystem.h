@@ -3,22 +3,27 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Subsystems/GameInstanceSubsystem.h"
+#include "Subsystems/WorldSubsystem.h"
 #include "EnemyEventSubsystem.generated.h"
 
-DECLARE_MULTICAST_DELEGATE(FEnemyDieDelegate)
+class AEnemy;
 
-
+DECLARE_MULTICAST_DELEGATE(FEnemyDieDelegate);
 /**
  * 
  */
 UCLASS()
-class ISREAL_API UEnemyEventSubsystem : public UGameInstanceSubsystem
+class ISREAL_API UEnemyEventSubsystem : public UWorldSubsystem
 {
 	GENERATED_BODY()
 	
 public:
-	FEnemyDieDelegate EnemyDieDelegate;
+	FEnemyDieDelegate EnemyDieDelegate;	//for external class
 
-	void EnemyDieNotify();
+	void EnemyDieNotify(AEnemy* diedEnemy);
+	void AddEnemyArray(AEnemy* spawnedEnemy);
+	bool isAllEnemyDie();
+private:
+	UPROPERTY()
+	TArray<AEnemy*> AliveEnemyArray;
 };

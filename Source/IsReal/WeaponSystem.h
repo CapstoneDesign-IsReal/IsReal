@@ -7,6 +7,8 @@
 #include "CoreEventSubsystem.h"
 #include "WeaponSystem.generated.h"
 
+class UNiagaraSystem;
+
 UENUM(BlueprintType)
 enum class EWeaponType : uint8   // 총기 종류를 고르기 위해선 setter를 사용해야 하는데 이건 총과 상호작용을 통해 설정해야함.
 {
@@ -61,6 +63,11 @@ private:
 	bool isReloading = false;
 	FTimerHandle ReloadTimerHandle;
 	void WeaponReloadCooldown();
+
+	UPROPERTY(EditAnywhere, Category = "VFX")
+	TArray<UNiagaraSystem*> BloodVFXArray; 
+
+	void PlayBloodEffect(FVector ImpactLocation, FVector ImpactNormal);
 protected:
 	float ReloadCoolTime;
 

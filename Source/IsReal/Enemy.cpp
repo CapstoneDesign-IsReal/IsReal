@@ -4,9 +4,11 @@
 #include "Enemy.h"
 #include "EnemyController.h"
 #include "PlayerCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "EnemyEventSubsystem.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GenericTeamAgentInterface.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -15,6 +17,11 @@ AEnemy::AEnemy()
 	PrimaryActorTick.bCanEverTick = true;
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	TeamID = FGenericTeamId(1);
+
+	GetCharacterMovement()->bUseRVOAvoidance = true;
+	GetCharacterMovement()->AvoidanceConsiderationRadius = 100.0f;
 }
 
 // Called when the game starts or when spawned
@@ -22,8 +29,8 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GetGameInstance()) {
-		EnemyEventSubsystem = GetGameInstance()->GetSubsystem<UEnemyEventSubsystem>();
+	if (GetWorld()) {
+		EnemyEventSubsystem = GetWorld()->GetSubsystem<UEnemyEventSubsystem>();
 	}
 }
 
@@ -109,7 +116,7 @@ void AEnemy::Hit(int damage)
 		BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Die));
 
 		if (EnemyEventSubsystem) {
-			EnemyEventSubsystem->EnemyDieNotify();
+			EnemyEventSubsystem->EnemyDieNotify(this);
 		}
 	}
 }
@@ -117,4 +124,9 @@ void AEnemy::Hit(int damage)
 void AEnemy::DestroyEnemy()
 {
 	Destroy();
+}
+
+FGenericTeamId AEnemy::GetGenericTeamId() const
+{
+	return TeamID;
 }
