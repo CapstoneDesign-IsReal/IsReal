@@ -34,5 +34,5 @@ void AWeaponBox::Interact_Implementation(AActor* Interactor)
 
 EInteractionType AWeaponBox::GetInteractionType_Implementation()
 {
-	//return EInteractionType::Box;
+	return EInteractionType::Gun;
 }
