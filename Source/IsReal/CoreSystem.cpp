@@ -24,6 +24,7 @@ void UCoreSystem::BeginPlay()
 	RewindCore = MaxRewindCore;
 	Is_Rewind = false;
 	CurruntRewindCoolTime = 0.0f; // 현재 쿨다운 시간
+	RewindCoolTime = 120.0f;
 
 	OwnerCharacter = Cast<APlayerCharacter>(GetOwner());
 	GameInstance = GetWorld()->GetGameInstance();

@@ -9,6 +9,7 @@
 class UNiagaraSystem;
 class AWeaponSystem;
 class UCoreSystem;
+class UHealthComponent;
 
 #include "PlayerCharacter.generated.h"
 
@@ -158,6 +159,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Core");
 	TObjectPtr<UCoreSystem> CoreSystemComp;
 
+	// health system
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health");
+	TObjectPtr<UHealthComponent> HealthSystemComp;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
@@ -192,24 +196,20 @@ protected:
 	UPROPERTY(EditAnywhere, BluePrintReadWrite) 
 	bool IsLookTimer = false;
 
-	//Player Current HP
-	UPROPERTY(EditAnywhere, BluePrintReadWrite)
-	float PlayerHP = 100.0;
-
 	UPROPERTY(EditAnywhere, BluePrintReadWrite)
 	bool IsDie = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	EWeaponType type;
 
+	bool isCombat = false;
 
-
-	// getters and setters for Player HP
 public:
-	float GetPlayerHP();
-	void SetPlayerHP(float HP);
 	void UnEquipWeapon();
 	bool GetIsDie() { return IsDie; }
+	// 전투 상태 getters and setters
+	bool GetIsCombat() { return isCombat; }
+	void SetIsCombat(bool combat) { isCombat = combat; }
 
 	// 슬롯에 들어있는 무기 자체 반환
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
@@ -227,7 +227,6 @@ public:
 
 
 
-private:
 
 	void PlayerDie();
 
