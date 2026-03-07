@@ -5,6 +5,7 @@
 #include "EnemyController.h"
 #include "PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "HealthComponent.h"
 #include "EnemyEventSubsystem.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -52,10 +53,13 @@ void AEnemy::Attack(APawn* target)
 	UE_LOG(LogTemp, Warning, TEXT("Attack Called"));
 	//Attack implement
 	auto player = Cast<APlayerCharacter>(target);
-	float player_HP = player->GetPlayerHP();
-	player_HP = player_HP - AttackDamage;
-	player->SetPlayerHP(player_HP);
-	UE_LOG(LogTemp, Warning, TEXT("Current HP: %f"), player_HP);
+
+	if (player == nullptr) return;
+	UHealthComponent* playerHP = player->FindComponentByClass<UHealthComponent>();
+
+	if (playerHP == nullptr) return;
+	playerHP->hit(AttackDamage);
+	UE_LOG(LogTemp, Warning, TEXT("Current HP: %f"), playerHP->GetPlayerHP());
 }
 
 float AEnemy::getAttackRange()

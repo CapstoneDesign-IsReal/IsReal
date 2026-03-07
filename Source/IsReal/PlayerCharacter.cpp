@@ -14,6 +14,7 @@
 #include "Interactable.h"
 #include "WeaponSystem.h"
 #include "CoreSystem.h"
+#include "HealthComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -45,6 +46,9 @@ APlayerCharacter::APlayerCharacter()
 
 	// core system Component
 	CoreSystemComp = CreateDefaultSubobject<UCoreSystem>(TEXT("CoreSystemComp"));
+
+	// health system Component
+	HealthSystemComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthSystemComp"));
 }
 
 // Called when the game starts or when spawned
@@ -263,15 +267,6 @@ void APlayerCharacter::Reload(const FInputActionValue& inputValue)
 	if (IsShooting) return;
 	if (CurrentWeapon && IsHasGun) {
 		CurrentWeapon->WeaponReload();
-	}
-}
-
-// getters and setters for PlayerHP
-float APlayerCharacter::GetPlayerHP() { return PlayerHP; }
-void APlayerCharacter::SetPlayerHP(float HP) {
-	PlayerHP = HP;
-	if (PlayerHP <= 0) {
-		PlayerDie();
 	}
 }
 

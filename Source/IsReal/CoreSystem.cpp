@@ -23,11 +23,13 @@ void UCoreSystem::BeginPlay()
 
 	RewindCore = MaxRewindCore;
 	Is_Rewind = false;
-	RewindCoolTime = 10.0f; // 총 쿨다운 시간
 	CurruntRewindCoolTime = 0.0f; // 현재 쿨다운 시간
+	RewindCoolTime = 120.0f;
 
 	OwnerCharacter = Cast<APlayerCharacter>(GetOwner());
 	GameInstance = GetWorld()->GetGameInstance();
+	World = GetWorld();
+	enemyeventsubsys = World->GetSubsystem<UEnemyEventSubsystem>();
 }
 
 void UCoreSystem::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -91,15 +93,17 @@ void UCoreSystem::RewindCooldown()
 				coresubsystem->RewindDone();
 			}
 		}
-		/*   // 코어 회복 구현
+
+		// 모든 적이 죽었으면 코어 회복
 		
-		if (Enemy->isAllEnemyDie())
+		if (enemyeventsubsys)
 		{
-			CoreHeal();
+			if (enemyeventsubsys->isAllEnemyDie())
+			{
+				CoreHeal();
+			}
 		}
 
-		*/
-		
 		OwnerCharacter->UnEquipWeapon(); // 주무기 해제
 
 		CurruntRewindCoolTime = 0.0f;

@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "PlayerCharacter.h"
 #include "CoreEventSubsystem.h"
+#include "EnemyEventSubsystem.h"
 #include "CoreSystem.generated.h"
 
 class UNiagaraSystem;
@@ -43,6 +44,9 @@ public:
 	float GetRewindCoolTime() { return RewindCoolTime; }
 	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
 	void SetRewindCoolTime(float CoolTime) { RewindCoolTime = CoolTime; }
+
+	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
+	bool GetIsRewind() { return Is_Rewind; }
 private:
 	// Rewind State
 	bool Is_Rewind = false;
@@ -51,6 +55,7 @@ private:
 	// Max Rewind Core
 	int MaxRewindCore = 300;
 	// Rewind Cooldown
+	UPROPERTY(EditAnywhere, Category = "CoreSystem")
 	float RewindCoolTime;
 	float CurruntRewindCoolTime;
 	FTimerHandle RewindTimerHandle;
@@ -67,4 +72,8 @@ private:
 	APlayerCharacter* OwnerCharacter;
 
 	UGameInstance* GameInstance;
+	
+	// enemy event subsystem
+	UWorld* World;
+	UEnemyEventSubsystem* enemyeventsubsys;
 };
