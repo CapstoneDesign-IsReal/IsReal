@@ -209,6 +209,7 @@ public:
 	float GetPlayerHP();
 	void SetPlayerHP(float HP);
 	void UnEquipWeapon();
+	bool GetIsDie() { return IsDie; }
 
 	// 슬롯에 들어있는 무기 자체 반환
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
@@ -223,6 +224,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	EWeaponType GetSecondaryWeaponType() const;
+
+
 
 
 
