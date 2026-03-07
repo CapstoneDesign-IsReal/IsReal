@@ -44,6 +44,9 @@ public:
 	float GetRewindCoolTime() { return RewindCoolTime; }
 	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
 	void SetRewindCoolTime(float CoolTime) { RewindCoolTime = CoolTime; }
+
+	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
+	bool GetIsRewind() { return Is_Rewind; }
 private:
 	// Rewind State
 	bool Is_Rewind = false;
