@@ -226,8 +226,6 @@ public:
 	EWeaponType GetSecondaryWeaponType() const;
 
 
-
-
 	void PlayerDie();
 
 };

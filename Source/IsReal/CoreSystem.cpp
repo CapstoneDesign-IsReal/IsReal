@@ -23,7 +23,8 @@ void UCoreSystem::BeginPlay()
 
 	RewindCore = MaxRewindCore;
 	Is_Rewind = false;
-	CurruntRewindCoolTime = 0.0f; // ÇöÀç Äð´Ù¿î ½Ã°£
+
+	CurruntRewindCoolTime = 0.0f; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ù¿ï¿½ ï¿½Ã°ï¿½
 	RewindCoolTime = 120.0f;
 
 	OwnerCharacter = Cast<APlayerCharacter>(GetOwner());
@@ -72,7 +73,7 @@ void UCoreSystem::RewindCooldown()
 {
 	CurruntRewindCoolTime++;
 
-	UKismetSystemLibrary::PrintString(						// Äð´Ù¿î º¸¿©ÁÖ´Â ÅØ½ºÆ®(Áö¿öµµµÊ)
+	UKismetSystemLibrary::PrintString(						// ï¿½ï¿½Ù¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ ï¿½Ø½ï¿½Æ®(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
 		GetWorld(),
 		FString::Printf(TEXT("CoolDown.. : %.1f"), RewindCoolTime-CurruntRewindCoolTime)
 		, true, true, FLinearColor::Green, 2.0f);
@@ -81,7 +82,7 @@ void UCoreSystem::RewindCooldown()
 		GetWorld()->GetTimerManager().ClearTimer(RewindTimerHandle);
 		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("To Present!"), true, true, FLinearColor::Green, 2.0f);
 
-		// ÇöÀç·Î ¿Ã¶§
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã¶ï¿½
 		Is_Rewind = false;
 
 		// delegate trigger
@@ -94,7 +95,7 @@ void UCoreSystem::RewindCooldown()
 			}
 		}
 
-		// ¸ðµç ÀûÀÌ Á×¾úÀ¸¸é ÄÚ¾î È¸º¹
+		// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½×¾ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ú¾ï¿½ È¸ï¿½ï¿½
 		
 		if (enemyeventsubsys)
 		{
@@ -104,7 +105,7 @@ void UCoreSystem::RewindCooldown()
 			}
 		}
 
-		OwnerCharacter->UnEquipWeapon(); // ÁÖ¹«±â ÇØÁ¦
+		OwnerCharacter->UnEquipWeapon(); // ï¿½Ö¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 		CurruntRewindCoolTime = 0.0f;
 
@@ -117,13 +118,13 @@ void UCoreSystem::RewindCooldown()
 	}
 }
 
-void UCoreSystem::RewindOnDeath()   // Á×À» ¶§ ÇöÀç·Î µ¹¾Æ¿À´Â ÇÔ¼ö // BP¿¡¼­ È£Ãâ
+void UCoreSystem::RewindOnDeath()   // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Æ¿ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ // BPï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½
 {
 	UE_LOG(LogTemp, Warning, TEXT("Rewind On Death"));
 	GetWorld()->GetTimerManager().ClearTimer(RewindTimerHandle);
 	UKismetSystemLibrary::PrintString(GetWorld(), TEXT("To Present!"), true, true, FLinearColor::Green, 2.0f);
 
-	// ÇöÀç·Î ¿Ã¶§
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã¶ï¿½
 	Is_Rewind = false;
 
 	// delegate trigger
@@ -136,7 +137,7 @@ void UCoreSystem::RewindOnDeath()   // Á×À» ¶§ ÇöÀç·Î µ¹¾Æ¿À´Â ÇÔ¼ö // BP¿¡¼­ È£
 		}
 	}
 
-	OwnerCharacter->UnEquipWeapon(); // ÁÖ¹«±â ÇØÁ¦
+	OwnerCharacter->UnEquipWeapon(); // ï¿½Ö¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 	CurruntRewindCoolTime = 0.0f;
 
@@ -151,5 +152,5 @@ void UCoreSystem::RewindOnDeath()   // Á×À» ¶§ ÇöÀç·Î µ¹¾Æ¿À´Â ÇÔ¼ö // BP¿¡¼­ È£
 void UCoreSystem::CoreHeal() 
 {
 	RewindCore += 100;
-	if (RewindCore >= 300) RewindCore = 300;   // Max Rewind Core ÀÌ»óÀ¸·Î ¾È¿Ã¶ó°¡°Ô
+	if (RewindCore >= 300) RewindCore = 300;   // Max Rewind Core ï¿½Ì»ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½È¿Ã¶ó°¡°ï¿½
 }
