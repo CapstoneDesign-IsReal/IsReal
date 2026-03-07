@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "EnemyEventSubsystem.h"
+#include "CoreEventSubsystem.h"
 #include "EnemySpawner.generated.h"
 
 class AEnemy;
@@ -30,6 +31,9 @@ protected:
 	FActorSpawnParameters SpawnParams;
 
 	UEnemyEventSubsystem* EnemyEventSubsystem;
+	UCoreEventSubsystem* CoreEventSubsystem;
+
+	AEnemy* SpawnedEnemy;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -41,4 +45,5 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SpawnEnemy();
 	void InitialSetting(AEnemy* spawned);
+	void ResetEnemy();
 };
