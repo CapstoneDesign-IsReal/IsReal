@@ -294,7 +294,7 @@ void AWeaponSystem::ScatterFireLineTrace()
 	FVector SphereCenter = MuzzleLocation + (Dir * DistanceToSphere);
 	FVector RandVec = FMath::VRand() * FMath::FRandRange(0.0f, SphereRadius);
 	FVector EndLoc = SphereCenter + RandVec;
-	// 탄환이 퍼지는 범위에서 랜덤한 위치로 라인트레이스 끝점 설정
+	// 탄환이 퍼지는 범위에서 랜덤한 위치로 라인트레이스 끝벡터 설정
 	FVector EndFromMuzzle = (EndLoc - MuzzleLocation) * Range;
 
 	FHitResult MuzzleHit;
