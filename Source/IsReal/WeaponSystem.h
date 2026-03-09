@@ -97,6 +97,9 @@ public:
 	// 라인트레이스로 총 구현할 함수
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void FireLineTrace();
+	// 샷건 라인트레이스 함수
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void ScatterFireLineTrace();
 
 public:	
 	// Sets default values for this actor's properties
