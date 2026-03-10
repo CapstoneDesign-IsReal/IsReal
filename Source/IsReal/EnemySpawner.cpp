@@ -63,7 +63,7 @@ void AEnemySpawner::InitialSetting(AEnemy* spawned)
 
 void AEnemySpawner::ResetEnemy()
 {
-	//no reset when all enemy die
+	//do not reset when all enemy die
 	if (EnemyEventSubsystem->isAllEnemyDie())
 		return;
 
