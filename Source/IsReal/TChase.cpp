@@ -55,8 +55,9 @@ void UTChase::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, flo
 	float dist = BlackboardComp->GetValueAsFloat(distanceKey.SelectedKeyName);
 
 	//check arrive to target
-	if (dist < 150.0)
+	if (dist < currentEnemy->getAttackRange())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Chase End Called"));
 		BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Nearby));
 		currentEnemy->GetCharacterMovement()->StopMovementImmediately();
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);

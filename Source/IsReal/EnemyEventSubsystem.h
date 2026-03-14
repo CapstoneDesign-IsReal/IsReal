@@ -21,7 +21,8 @@ public:
 	FEnemyDieDelegate EnemyDieDelegate;	//for external class
 
 	void EnemyDieNotify(AEnemy* diedEnemy);
-	void AddEnemyArray(AEnemy* spawnedEnemy);
+	void AddEnemytoArray(AEnemy* spawnedEnemy);
+	void DeleteEnemyfromArray(AEnemy* diedEnemy);
 	bool isAllEnemyDie();
 private:
 	UPROPERTY()

@@ -8,13 +8,18 @@ void UEnemyEventSubsystem::EnemyDieNotify(AEnemy* diedEnemy)
 	if (EnemyDieDelegate.IsBound())	{
 		EnemyDieDelegate.Broadcast();
 	}
-	AliveEnemyArray.RemoveSwap(diedEnemy);
+	DeleteEnemyfromArray(diedEnemy);
 	UE_LOG(LogTemp, Log, TEXT("Enemy Die"));
 }  
 
-void UEnemyEventSubsystem::AddEnemyArray(AEnemy* spawnedEnemy)
+void UEnemyEventSubsystem::AddEnemytoArray(AEnemy* spawnedEnemy)
 {
 	AliveEnemyArray.AddUnique(spawnedEnemy);
+}
+
+void UEnemyEventSubsystem::DeleteEnemyfromArray(AEnemy* diedEnemy)
+{
+	AliveEnemyArray.RemoveSwap(diedEnemy);
 }
 
 //return true if all enemy die
