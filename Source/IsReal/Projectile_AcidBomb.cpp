@@ -4,6 +4,8 @@
 #include "Projectile_AcidBomb.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
+#include "NiagaraSystem.h"
+#include "NiagaraFunctionLibrary.h"
 
 // Sets default values
 AProjectile_AcidBomb::AProjectile_AcidBomb()
@@ -20,6 +22,9 @@ AProjectile_AcidBomb::AProjectile_AcidBomb()
 
 	if (SphereComp)
 		SphereComp->OnComponentHit.AddDynamic(this, &AProjectile_AcidBomb::OnHit);
+
+	ExplosionSize = FVector(1.f, 1.f, 1.f);
+	ExplosionRotation = FRotator::ZeroRotator;
 }
 
 // Called when the game starts or when spawned
@@ -41,9 +46,11 @@ void AProjectile_AcidBomb::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActo
 	if (OtherActor == nullptr ||
 		OtherActor == this ||
 		OtherComp == nullptr ||
-		!OtherComp->IsSimulatingPhysics())	return;
+		OtherActor == GetInstigator() ||
+		OtherActor == GetOwner())	return;
 
-
+	FVector HitLocation = Hit.Location;
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ExplosionEffect, HitLocation, ExplosionRotation, ExplosionSize, true, true);
 
 	Destroy();
 }

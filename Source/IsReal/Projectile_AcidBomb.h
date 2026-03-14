@@ -8,6 +8,8 @@
 
 class USphereComponent;
 class UProjectileMovementComponent;
+class UNiagaraSystem;
+class UNiagaraFunctionLibrary;
 
 UCLASS(BlueprintType, Blueprintable)
 class ISREAL_API AProjectile_AcidBomb : public AActor
@@ -28,6 +30,12 @@ protected:
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComp;	//handle projection of object
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile | Components")
 	TObjectPtr<UStaticMeshComponent> ProjectileMeshComp;				//Setting Projectile Mesh
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile | VFX")
+	TObjectPtr<UNiagaraSystem> ExplosionEffect;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile | VFX")
+	FVector ExplosionSize;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile | VFX")
+	FRotator ExplosionRotation;
 
 public:	
 	// Called every frame
