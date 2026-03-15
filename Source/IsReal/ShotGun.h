@@ -26,6 +26,9 @@ public:
 
 	virtual void Interact_Implementation(AActor* Interactor) override;
 	virtual EInteractionType GetInteractionType_Implementation() override;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	int shotgunPellet = 8;
 private:
 	// 연타 방지용 타이머
 	float LastFireTime = -1000.f;

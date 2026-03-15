@@ -186,6 +186,9 @@ protected:
 	FTimerHandle AutoFireTimer;  
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	FTimerHandle KnockbackTimer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	bool IsShooting = false; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
@@ -228,4 +231,15 @@ public:
 
 	void PlayerDie();
 
+	void PlayerHit(float damage);
+	void Playerknockback();
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* HitMontage;
+
+	UFUNCTION()
+	void OnHitMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+private:
+	void KnockbackEnd();
 };

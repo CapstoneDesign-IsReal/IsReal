@@ -113,6 +113,7 @@ bool AWeaponSystem::IsReloading(){ return isReloading; }
 
 void AWeaponSystem::FireLineTrace()
 {
+	if (!CanShooting) return;
 	if (CurrentAmmo <= 0) {
 		UE_LOG(LogTemp, Warning, TEXT("No Ammo!"));
 		return;
@@ -222,6 +223,7 @@ void AWeaponSystem::FireLineTrace()
 //					  why? Pump Sound를 총이 발사될 때 마다 재생해야 하기 때문입니다.
 void AWeaponSystem::ScatterFireLineTrace()
 {
+	if (!CanShooting) return;
 	// 사운드 재생
 	UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
 
@@ -288,7 +290,7 @@ void AWeaponSystem::ScatterFireLineTrace()
 
 	float Range = 20000.0f;
 	float DistanceToSphere = 1000.0f;
-	float SphereRadius = 100.0f;
+	float SphereRadius = 80.0f;
 	FVector Dir = (TargetPoint - MuzzleLocation).GetSafeNormal(); // GetSafeNormal(): To make normalized vector
 	// 샷건의 탄환이 퍼지는 범위 
 	FVector SphereCenter = MuzzleLocation + (Dir * DistanceToSphere);

@@ -6,10 +6,10 @@
 
 AShotGun::AShotGun()
 {
-	Damage = 10;
+	Damage = 20;
 	CurrentAmmo = 8;
 	MaxAmmo = 8;
-	FireRate = 1.5f;
+	FireRate = 1.0f;
 	TotalAmmo = 40;
 
 	ReloadCoolTime = 2.0f;
@@ -63,7 +63,7 @@ void AShotGun::ShotGunFireLineTrace()
 
 	CurrentAmmo--;
 	
-	for (int i = 0; i < 8; i++)
+	for (int i = 0; i < shotgunPellet; i++)
 	{
 		ScatterFireLineTrace();
 	}

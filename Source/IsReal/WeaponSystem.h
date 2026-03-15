@@ -101,6 +101,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void ScatterFireLineTrace();
 
+	UPROPERTY(BlueprintReadWrite, Category = "Combat")
+	bool CanShooting = true;
+
 public:	
 	// Sets default values for this actor's properties
 	AWeaponSystem();
