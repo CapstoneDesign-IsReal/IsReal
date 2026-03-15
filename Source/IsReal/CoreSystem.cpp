@@ -93,16 +93,6 @@ void UCoreSystem::RewindCooldown()
 			}
 		}
 
-		//  CoreHeal을 각 적을 죽였을 때 호출하도록 변경
-
-		//if (enemyeventsubsys)
-		//{
-		//	if (enemyeventsubsys->isAllEnemyDie())
-		//	{
-		//		CoreHeal();
-		//	}
-		//}
-
 		OwnerCharacter->UnEquipWeapon(); // �ֹ��� ����
 
 		CurruntRewindCoolTime = 0.0f;
@@ -147,7 +137,7 @@ void UCoreSystem::RewindOnDeath()   // ���� �� ����� ��
 	UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
 }
 
-void UCoreSystem::CoreHeal(float value) 
+void UCoreSystem::CoreHeal(int value) 
 {
 	RewindCore += value;
 	if (RewindCore >= 300) RewindCore = 300;   // Max Rewind Core �̻����� �ȿö󰡰�
