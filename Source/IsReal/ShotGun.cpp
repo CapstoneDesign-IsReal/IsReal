@@ -12,6 +12,10 @@ AShotGun::AShotGun()
 	FireRate = 1.0f;
 	TotalAmmo = 40;
 
+	// 반동 변수
+	PitchRecoilAmount = 1.0f;
+	YawRecoilAmount = 0.2f;
+
 	ReloadCoolTime = 2.0f;
 }
 
@@ -68,6 +72,9 @@ void AShotGun::ShotGunFireLineTrace()
 		ScatterFireLineTrace();
 	}
 	UGameplayStatics::PlaySoundAtLocation(this, PumpSound, GetActorLocation());
+
+	// 총기 반동 적용
+	ApplyRecoil();
 }
 
 void AShotGun::Interact_Implementation(AActor* Interactor)

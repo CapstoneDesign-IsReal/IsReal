@@ -213,6 +213,7 @@ public:
 	// 전투 상태 getters and setters
 	bool GetIsCombat() { return isCombat; }
 	void SetIsCombat(bool combat) { isCombat = combat; }
+	bool GetIsAiming() { return isAiming; }
 
 	// 슬롯에 들어있는 무기 자체 반환
 	UFUNCTION(BlueprintCallable, Category = "Weapon")

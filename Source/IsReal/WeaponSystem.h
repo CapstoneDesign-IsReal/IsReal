@@ -71,6 +71,11 @@ private:
 protected:
 	float ReloadCoolTime;
 
+	// 총기 반동 변수
+	float PitchRecoilAmount;  // vertical recoil
+	float YawRecoilAmount;    // horizontal recoil
+	// 총기 반동 함수
+	void ApplyRecoil();
 public:
 	// 델리게이트용 Subsystem
 	UCoreEventSubsystem* coresubsys;

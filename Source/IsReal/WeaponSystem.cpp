@@ -99,6 +99,32 @@ void AWeaponSystem::WeaponReloadCooldown()
 	isReloading = false;
 }
 
+void AWeaponSystem::ApplyRecoil()
+{
+	APlayerController* PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PlayerController) {
+		APlayerCharacter* Player = Cast<APlayerCharacter>(PlayerController->GetPawn());
+		if (Player)
+		{
+			float FinalPitchAmount = PitchRecoilAmount;
+			float FinalYawAmount = YawRecoilAmount;
+
+			if (Player->GetIsAiming())		// 조준 상태에서는 반동 감소
+			{
+				FinalPitchAmount *= 0.3f;
+				FinalYawAmount *= 0.3f;
+			}
+
+			float PitchRecoil = FMath::RandRange(FinalPitchAmount * 0.8f, FinalPitchAmount * 1.2f);
+			float YawRecoil = FMath::RandRange(-FinalYawAmount, FinalYawAmount);
+
+			PlayerController->AddPitchInput(-PitchRecoil); // Pitch는 위로 올라가므로 음수 입력
+			PlayerController->AddYawInput(YawRecoil);   // Yaw는 좌우로 흔들리므로 양수/음수 입력
+
+		}
+	}
+}
+
 // Weapon Type setters and getters
 void AWeaponSystem::SetWeaponType(EWeaponType NewType) { _weapontype = NewType; }
 
@@ -122,6 +148,9 @@ void AWeaponSystem::FireLineTrace()
 	CurrentAmmo--;
 	// 사운드 재생
 	UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+
+	// 총기 반동 적용
+	ApplyRecoil();
 
 	APlayerCharacter* PC = Cast<APlayerCharacter>(GetOwner());
 	if (PC) {
