@@ -44,6 +44,8 @@ protected:
 	float AttackCoolTime = 0.0f;	//notify Attack or Not
 	UPROPERTY(EditAnywhere, Category = "Enemy Params")
 	float AttackSpeed = 10.0f;		//Attack Speed
+	UPROPERTY(EditAnywhere, Category = "Enemy Params | Time")
+	float TimeEnergy = 10.0f;	
 	UPROPERTY(EditAnywhere, Category = "AI")
 	FGenericTeamId TeamID;
 
@@ -66,7 +68,7 @@ public:
 	//void Chase(APawn* target);
 	void Chase(AActor*);
 	UFUNCTION(BlueprintCallable)
-	void Hit(int damage);
+	void Hit(int damage, FName HitBoneName);
 	UFUNCTION(BlueprintCallable)
 	void DestroyEnemy();
 	virtual FGenericTeamId GetGenericTeamId() const override;

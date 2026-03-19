@@ -3,10 +3,10 @@
 
 #include "EnemyEventSubsystem.h"
 
-void UEnemyEventSubsystem::EnemyDieNotify(AEnemy* diedEnemy)
+void UEnemyEventSubsystem::EnemyDieNotify(AEnemy* diedEnemy, float TimeEnergy)
 {
 	if (EnemyDieDelegate.IsBound())	{
-		EnemyDieDelegate.Broadcast();
+		EnemyDieDelegate.Broadcast(TimeEnergy);
 	}
 	DeleteEnemyfromArray(diedEnemy);
 	UE_LOG(LogTemp, Log, TEXT("Enemy Die"));
