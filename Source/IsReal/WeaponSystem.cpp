@@ -113,6 +113,7 @@ bool AWeaponSystem::IsReloading(){ return isReloading; }
 
 void AWeaponSystem::FireLineTrace()
 {
+	if (!CanShooting) return;
 	if (CurrentAmmo <= 0) {
 		UE_LOG(LogTemp, Warning, TEXT("No Ammo!"));
 		return;
