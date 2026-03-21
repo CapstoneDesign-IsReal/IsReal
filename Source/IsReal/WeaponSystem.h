@@ -71,6 +71,11 @@ private:
 protected:
 	float ReloadCoolTime;
 
+	// 총기 반동 변수
+	float PitchRecoilAmount;  // vertical recoil
+	float YawRecoilAmount;    // horizontal recoil
+	// 총기 반동 함수
+	void ApplyRecoil();
 public:
 	// 델리게이트용 Subsystem
 	UCoreEventSubsystem* coresubsys;
@@ -97,6 +102,12 @@ public:
 	// 라인트레이스로 총 구현할 함수
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void FireLineTrace();
+	// 샷건 라인트레이스 함수
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void ScatterFireLineTrace();
+
+	UPROPERTY(BlueprintReadWrite, Category = "Combat")
+	bool CanShooting = true;
 
 public:	
 	// Sets default values for this actor's properties

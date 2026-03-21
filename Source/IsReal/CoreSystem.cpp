@@ -93,16 +93,6 @@ void UCoreSystem::RewindCooldown()
 			}
 		}
 
-		// ��� ���� �׾����� �ھ� ȸ��
-		
-		if (enemyeventsubsys)
-		{
-			if (enemyeventsubsys->isAllEnemyDie())
-			{
-				CoreHeal();
-			}
-		}
-
 		OwnerCharacter->UnEquipWeapon(); // �ֹ��� ����
 
 		CurruntRewindCoolTime = 0.0f;
@@ -147,8 +137,20 @@ void UCoreSystem::RewindOnDeath()   // ���� �� ����� ��
 	UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
 }
 
-void UCoreSystem::CoreHeal() 
+void UCoreSystem::CoreHeal(int value) 
 {
-	RewindCore += 100;
+	RewindCore += value;
 	if (RewindCore >= 300) RewindCore = 300;   // Max Rewind Core �̻����� �ȿö󰡰�
+}
+
+void UCoreSystem::PauseRewind() 
+{
+	GetWorld()->GetTimerManager().PauseTimer(RewindTimerHandle);
+	UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Rewind Paused"), true, true, FLinearColor::Green, 2.0f);
+}
+
+void UCoreSystem::UnPauseRewind() 
+{
+	GetWorld()->GetTimerManager().UnPauseTimer(RewindTimerHandle);
+	UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Rewind Unpaused"), true, true, FLinearColor::Green, 2.0f);
 }

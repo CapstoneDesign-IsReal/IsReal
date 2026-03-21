@@ -186,6 +186,9 @@ protected:
 	FTimerHandle AutoFireTimer;  
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	FTimerHandle KnockbackTimer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	bool IsShooting = false; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
@@ -210,6 +213,7 @@ public:
 	// 전투 상태 getters and setters
 	bool GetIsCombat() { return isCombat; }
 	void SetIsCombat(bool combat) { isCombat = combat; }
+	bool GetIsAiming() { return isAiming; }
 
 	// 슬롯에 들어있는 무기 자체 반환
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
@@ -228,4 +232,15 @@ public:
 
 	void PlayerDie();
 
+	void PlayerHit(float damage);
+	void Playerknockback();
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* HitMontage;
+
+	UFUNCTION()
+	void OnHitMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+private:
+	void KnockbackEnd();
 };

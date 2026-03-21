@@ -314,6 +314,40 @@ void APlayerCharacter::PlayerDie() {
 	DoAimEnd(); // 죽을 때 조준 멈추기
 }
 
+void APlayerCharacter::PlayerHit(float Damage) 
+{
+	HealthSystemComp->hit(Damage);
+}
+
+void APlayerCharacter::Playerknockback()
+{
+	HealthSystemComp->SetIsInvincible(true);
+
+	GetWorld()->GetTimerManager().SetTimer(KnockbackTimer, this, &APlayerCharacter::KnockbackEnd, 1.0f, false);
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->Montage_Play(HitMontage);
+
+	AnimInstance->OnMontageEnded.AddDynamic(
+		this,
+		&APlayerCharacter::OnHitMontageEnded
+	);
+}
+
+void APlayerCharacter::OnHitMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	if (Montage == HitMontage)
+	{
+		//HealthSystemComp->SetIsInvincible(false);
+	}
+}
+
+void APlayerCharacter::KnockbackEnd()
+{
+	HealthSystemComp->SetIsInvincible(false);
+	GetWorld()->GetTimerManager().ClearTimer(KnockbackTimer);
+}
+
 void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 	if (IsShooting) DoShootingEnd(); // 발사 중일 때, 상호작용 누르면 발사 멈추기
 
