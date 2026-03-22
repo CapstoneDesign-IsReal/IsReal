@@ -261,6 +261,9 @@ public:
 	// 애님몽타주
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* HitMontage;
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* ToggleClockMontage;
 	
 	// 플레이어의 애님인스턴스 자체를 가져오는 변수
 	UAnimInstance* AnimInstance;
