@@ -215,7 +215,7 @@ void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 		{
 			if (ToggleClockMontage)
 			{
-				AnimInstance->Montage_Stop(0.2f, ToggleClockMontage);
+				AnimInstance->Montage_Stop(0.01f, ToggleClockMontage);
 			}
 
 			if (ClockWidgetInstance)

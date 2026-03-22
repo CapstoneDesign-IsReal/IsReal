@@ -237,7 +237,7 @@ void AWeaponSystem::FireLineTrace()
 			{
 				DrawDebugPoint(GetWorld(), TargetPoint, 10.0f, FColor::Blue, false, 0.1f); // 적군을 맞추면 파란 점 찍힘
 				UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *Enemy->GetName());
-				//Enemy->Hit(Damage);    // 총기 별 데미지 주기
+				Enemy->Hit(Damage, MuzzleHit.BoneName);    // 총기 별 데미지 주기
 				PlayBloodEffect(TargetPoint, TargetNormal); // 피격 이펙트 재생
 			}
 		}
@@ -354,7 +354,7 @@ void AWeaponSystem::ScatterFireLineTrace()
 			{
 				DrawDebugLine(GetWorld(), MuzzleLocation, TargetPoint, FColor::Blue, false, 1.0f); // 적군을 맞추면 파란 점 찍힘
 				UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *Enemy->GetName());
-				//Enemy->Hit(Damage);    // 총기 별 데미지 주기
+				Enemy->Hit(Damage, MuzzleHit.BoneName);    // 총기 별 데미지 주기
 				PlayBloodEffect(TargetPoint, TargetNormal); // 피격 이펙트 재생
 			}
 		}
