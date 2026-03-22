@@ -11,6 +11,10 @@ ASniperRifle::ASniperRifle()
 	FireRate = 1.5f;
 	TotalAmmo = 25;
 
+	// 반동 변수
+	PitchRecoilAmount = 1.3f;
+	YawRecoilAmount = 0.05f;
+
 	ReloadCoolTime = 1.5f;
 }
 

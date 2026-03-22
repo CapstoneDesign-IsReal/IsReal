@@ -50,7 +50,6 @@ APlayerCharacter::APlayerCharacter()
 	// health system Component
 	HealthSystemComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthSystemComp"));
 
-	//AnimInstance = GetMesh()->GetAnimInstance();
 }
 
 // Called when the game starts or when spawned
@@ -259,7 +258,6 @@ void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 	}
 }
 
-
 void APlayerCharacter::DoAimStart()
 {
 	if (IsLookTimer) return; //타이머 보는동안 줌 안되게
@@ -363,6 +361,7 @@ void APlayerCharacter::EquipWeapon(EWeaponSlot NewSlot)
 	}
 	UpdateCrosshair();
 }
+
 void APlayerCharacter::UnEquipWeapon()
 {
 	if(IsShooting || isAiming) 
@@ -398,10 +397,12 @@ void APlayerCharacter::PlayerHit(float Damage)
 	HealthSystemComp->hit(Damage);
 }
 
-void APlayerCharacter::Playerknockback() 
+void APlayerCharacter::Playerknockback() // delete
 {
 	// Rolling 중이면 Return; 데미지는 입고 모션은 안풀리고 
 	HealthSystemComp->SetIsInvincible(true);
+
+	GetWorld()->GetTimerManager().SetTimer(KnockbackTimer, this, &APlayerCharacter::KnockbackEnd, 1.0f, false);
 
 	if (IsLookTimer) { //시계를 보고 있었으면 시계를 끄기 
 		if (AnimInstance && ToggleClockMontage)
@@ -421,19 +422,13 @@ void APlayerCharacter::Playerknockback()
 	if (AnimInstance && HitMontage)
 	{
 		AnimInstance->Montage_Play(HitMontage);
-		AnimInstance->OnMontageEnded.AddDynamic(
-			this,
-			&APlayerCharacter::OnMontageEnded
-		);
 	}
 }
 
-void APlayerCharacter::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+void APlayerCharacter::KnockbackEnd()
 {
-	if (Montage == HitMontage)
-	{
-		HealthSystemComp->SetIsInvincible(false);
-	}
+	HealthSystemComp->SetIsInvincible(false);
+	GetWorld()->GetTimerManager().ClearTimer(KnockbackTimer);
 }
 
 void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {

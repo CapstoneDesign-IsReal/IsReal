@@ -9,6 +9,8 @@
 #include "EnemyEventSubsystem.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "CoreSystem.h"
 #include "GenericTeamAgentInterface.h"
 
 // Sets default values
@@ -52,14 +54,11 @@ void AEnemy::Attack(APawn* target)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Attack Called"));
 	//Attack implement
-	auto player = Cast<APlayerCharacter>(target);
+	APlayerCharacter* Player = Cast<APlayerCharacter>(target);
 
-	if (player == nullptr) return;
-	UHealthComponent* playerHP = player->FindComponentByClass<UHealthComponent>();
+	if (!Player)	return;
 
-	if (playerHP == nullptr) return;
-	playerHP->hit(AttackDamage);
-	UE_LOG(LogTemp, Warning, TEXT("Current HP: %f"), playerHP->GetPlayerHP());
+	Player->PlayerHit(AttackDamage);
 }
 
 float AEnemy::getAttackRange()
@@ -87,17 +86,14 @@ void AEnemy::Chase(AActor* target)
 	EnemyController->MoveToActor(target);
 }
 
-void AEnemy::Hit(int damage)
+void AEnemy::Hit(int damage, FName HitBoneName)
 {
 	auto EnemyController = Cast<AEnemyController>(GetController());
+	APlayerCharacter* CurrentPlayer = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	UBlackboardComponent* BlackboardComp = EnemyController->GetBlackboardComponent();
 
-	if (!EnemyController) {
-		UE_LOG(LogTemp, Warning, TEXT("<Controller Unpossessed Error>: No Controller"));
-	}
-	if (!BlackboardComp) {
-		UE_LOG(LogTemp, Warning, TEXT("<Perception Process Error>: No BlackBoard"));
-		return;
+	if (!EnemyController || CurrentPlayer || BlackboardComp) {
+		UE_LOG(LogTemp, Warning, TEXT("<Controller Unpossessed Error>: Ptr Access Error"));
 	}
 
 	HP = HP - damage;
@@ -120,8 +116,13 @@ void AEnemy::Hit(int damage)
 		BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Die));
 
 		if (EnemyEventSubsystem) {
-			EnemyEventSubsystem->EnemyDieNotify(this);
+			EnemyEventSubsystem->EnemyDieNotify(this, TimeEnergy);
 		}
+
+		//=======================================
+		UCoreSystem* PlayerCoreSystem = CurrentPlayer->FindComponentByClass<UCoreSystem>();
+		PlayerCoreSystem->CoreHeal(TimeEnergy);
+		//=======================================
 	}
 }
 

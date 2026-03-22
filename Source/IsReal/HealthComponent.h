@@ -28,19 +28,19 @@ public:
 
     float GetPlayerHP();
 
-    UFUNCTION(BlueprintCallable, Category = "Health")
-    bool GetIsInvincible() const { return IsInvincible; }
-    UFUNCTION(BlueprintCallable, Category = "Health")
-    void SetIsInvincible(bool bInvincible) { IsInvincible = bInvincible; }
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	bool GetIsInvincible() const { return IsInvincible; }
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void SetIsInvincible(bool bInvincible) { IsInvincible = bInvincible; }
 
-    void hit(float damage);
+	void hit(float damage);
 
-    //Player Current HP
-    UPROPERTY(EditAnywhere, BluePrintReadWrite)
-    float PlayerHP = 100.0;
+	//Player Current HP
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)
+	float PlayerHP = 100.0;
 
-    // µ¨¸®°ÔÀÌÆ®¿ë Subsystem
-    UCoreEventSubsystem* coresubsys;
+	// ë¸ë¦¬ê²Œì´íŠ¸ìš© Subsystem
+	UCoreEventSubsystem* coresubsys;
 private:
 
     void heal();
@@ -48,12 +48,12 @@ private:
     void ResetHP();
 
     float LastHitTime = 0.0f;
-    float CombatExitDelay = 5.0f; // °ø°İÀ» ¹ŞÀº ÈÄ ÀüÅõ »óÅÂ¿¡¼­ ¹ş¾î³ª´Â ½Ã°£ (ÃÊ)
+    float CombatExitDelay = 5.0f; // ê³µê²©ì„ ë°›ì€ í›„ ì „íˆ¬ ìƒíƒœì—ì„œ ë²—ì–´ë‚˜ëŠ” ì‹œê°„ (ì´ˆ)
 
     bool IsInvincible = false;
 
     APlayerCharacter* player;
 
-    FTimerHandle LastHitTimeHandle; // ¸¶Áö¸· °ø°İ ½Ã°£À» ÃßÀûÇÏ´Â Å¸ÀÌ¸Ó ÇÚµé
-    FTimerHandle RegenTimerHandle; // Ã¼·Â È¸º¹ Å¸ÀÌ¸Ó ÇÚµé
+    FTimerHandle LastHitTimeHandle; // ë§ˆì§€ë§‰ ê³µê²© ì‹œê°„ì„ ì¶”ì í•˜ëŠ” íƒ€ì´ë¨¸ í•¸ë“¤
+    FTimerHandle RegenTimerHandle; // ì²´ë ¥ íšŒë³µ íƒ€ì´ë¨¸ í•¸ë“¤
 };

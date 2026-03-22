@@ -198,6 +198,9 @@ protected:
 	FTimerHandle AutoFireTimer;  
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	FTimerHandle KnockbackTimer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	bool IsShooting = false; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
@@ -258,19 +261,10 @@ public:
 	// 애님몽타주
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* HitMontage;
-
-	UPROPERTY(EditAnywhere)
-	UAnimMontage* ToggleClockMontage;
-
-
-
-	// 애님몽타주가 끝나는 시점을 알려주는 델리게이트 함수
-	UFUNCTION()
-	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 	
 	// 플레이어의 애님인스턴스 자체를 가져오는 변수
 	UAnimInstance* AnimInstance;
 
-
-
+private:
+	void KnockbackEnd();
 };

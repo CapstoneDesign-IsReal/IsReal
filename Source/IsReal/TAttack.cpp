@@ -40,7 +40,6 @@ EBTNodeResult::Type UTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uin
 			currentEnemy->StopAnimMontage(AttackMontage);
 		return EBTNodeResult::Succeeded;
 	}
-
 	
 	if(!AttackMontage) return EBTNodeResult::Failed;
 	currentEnemy->PlayAnimMontage(AttackMontage);

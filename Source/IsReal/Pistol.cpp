@@ -11,6 +11,10 @@ APistol::APistol()
 	FireRate = 0.5f;
 	TotalAmmo = 50;
 
+	// 반동 변수
+	PitchRecoilAmount = 0.6f;
+	YawRecoilAmount = 0.15f;
+
 	ReloadCoolTime = 1.5f;
 }
 

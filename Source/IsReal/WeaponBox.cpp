@@ -2,6 +2,7 @@
 
 
 #include "WeaponBox.h"
+#include "WeaponSystem.h"
 
 // Sets default values
 AWeaponBox::AWeaponBox()
@@ -25,14 +26,29 @@ void AWeaponBox::Tick(float DeltaTime)
 
 }
 
-void AWeaponBox::Interact_Implementation(AActor* Interactor)
-{
-	//SetWeaponType(EWeaponType::EWT_Rifle);
-	//Destroy(); // 흠..Destroy가 있으면 한 몇초동안 아웃라이너에 남아있다가 사라짐
-	// 이 사실을 가지고 한 몇초 플레이를 한다면 총알이 발사가 안됨. 
-}
-
 EInteractionType AWeaponBox::GetInteractionType_Implementation()
 {
-	return EInteractionType::Gun;
+	return EInteractionType::Box;
+}
+
+AWeaponSystem* AWeaponBox::SpawnWeapon()
+{
+	if (!ContainedWeapon) {
+		UE_LOG(LogTemp, Warning, TEXT("Need to Assign Weapon to Spawn"));
+		return nullptr;
+	}
+	SpawnParams.SpawnCollisionHandlingOverride
+		= ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	SpawnPointLocation = GetActorLocation();
+	SpawnPointRotation = GetActorRotation();
+
+	SpawnedWeapon = GetWorld()->SpawnActor<AWeaponSystem>(
+		ContainedWeapon,
+		SpawnPointLocation,
+		SpawnPointRotation,
+		SpawnParams
+	);
+	UE_LOG(LogTemp, Warning, TEXT("Spawned"));
+	return SpawnedWeapon;
 }
