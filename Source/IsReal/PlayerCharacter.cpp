@@ -25,13 +25,13 @@ APlayerCharacter::APlayerCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90), FRotator(0, -90, 0));
 
-
+	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	SpringArmComp->SetupAttachment(RootComponent);
-	SpringArmComp->TargetArmLength = 400;
+	SpringArmComp->TargetArmLength = DefaultArmLength;
 	SpringArmComp->bUsePawnControlRotation = true;
 	SpringArmComp->SocketOffset = FVector(0.f, 70.f, 50.f); 
-	SpringArmComp->SetRelativeRotation(FRotator(-15.f, 0.f, 0.f)); 
+	//SpringArmComp->SetRelativeRotation(FRotator(-15.f, 0.f, 0.f)); 
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
@@ -49,6 +49,8 @@ APlayerCharacter::APlayerCharacter()
 
 	// health system Component
 	HealthSystemComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthSystemComp"));
+
+	//AnimInstance = GetMesh()->GetAnimInstance();
 }
 
 // Called when the game starts or when spawned
@@ -80,6 +82,12 @@ void APlayerCharacter::BeginPlay()
 	if (AimCrossHairWidgetClass) {
 		AimCrossHairWidget = CreateWidget<UUserWidget>(GetController<APlayerController>(), AimCrossHairWidgetClass);
 	}
+	if (ShotgunCrossHairWidgetClass) {
+		ShotgunCrossHairWidget = CreateWidget<UUserWidget>(GetController<APlayerController>(), ShotgunCrossHairWidgetClass);
+	}
+	if (SniperCrossHairWidgetClass) {
+		SniperCrossHairWidget = CreateWidget<UUserWidget>(GetController<APlayerController>(), SniperCrossHairWidgetClass);
+	}
 
 	WeaponSlot.SetNum(2); // 2가지 무기 슬롯 초기화
 
@@ -100,6 +108,7 @@ void APlayerCharacter::BeginPlay()
 			TEXT("Pistol")
 		);
 	}
+	AnimInstance = GetMesh()->GetAnimInstance();
 }
 
 // Called every frame
@@ -137,9 +146,55 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		PlayerInput->BindAction(ia_EquipPrimary, ETriggerEvent::Started, this, &APlayerCharacter::EquipPrimaryWeapon);
 		PlayerInput->BindAction(ia_EquipSecondary, ETriggerEvent::Started, this, &APlayerCharacter::EquipSecondaryWeapon);
+
 	}
 
 }
+void APlayerCharacter::UpdateCrosshair()
+{
+	// 일단 다 끄기
+	if (NormalCrossHairWidget) NormalCrossHairWidget->RemoveFromParent();
+	if (AimCrossHairWidget) AimCrossHairWidget->RemoveFromParent();
+	if (ShotgunCrossHairWidget) ShotgunCrossHairWidget->RemoveFromParent();
+	if (SniperCrossHairWidget) SniperCrossHairWidget->RemoveFromParent();
+
+	// 총 없으면 Normal UI
+	if (!CurrentWeapon || !IsHasGun)
+	{
+		if (NormalCrossHairWidget)
+			NormalCrossHairWidget->AddToViewport();
+		return;
+	}
+
+	EWeaponType Type = CurrentWeapon->GetWeaponType();
+
+	switch (Type)
+	{
+	case EWeaponType::EWT_Shotgun:
+		if (ShotgunCrossHairWidget)
+			ShotgunCrossHairWidget->AddToViewport();
+		break;
+
+	case EWeaponType::EWT_Sniper:
+		if (isAiming)
+		{
+			if (SniperCrossHairWidget)
+				SniperCrossHairWidget->AddToViewport();
+		}
+		// 조준 안하면 아무것도 안 띄움
+		break;
+
+	case EWeaponType::EWT_Rifle:
+	case EWeaponType::EWT_Pistol:
+		if (AimCrossHairWidget)
+			AimCrossHairWidget->AddToViewport();
+		break;
+
+	default:
+		break;
+	}
+}
+
 
 
 void APlayerCharacter::Rewind(const FInputActionValue& inputValue)
@@ -166,14 +221,14 @@ void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 		{
 			// 닫기
 			ClockWidgetInstance->RemoveFromParent();
-			SpringArmComp->TargetArmLength = 400;
+			SpringArmComp->TargetArmLength = 200;
 			UE_LOG(LogTemp, Warning, TEXT("Clock UI Closed"));
 		}
 		else
 		{
 			// 열기
 			ClockWidgetInstance->AddToViewport();
-			SpringArmComp->TargetArmLength = 250;
+			SpringArmComp->TargetArmLength = 100;
 			UE_LOG(LogTemp, Warning, TEXT("Clock UI Opened"));
 		}
 
@@ -186,47 +241,53 @@ void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 void APlayerCharacter::DoAimStart()
 {
 	if (IsHasGun) {
-		
 		if (CameraComp)
 		{
-			CameraComp->SetFieldOfView(AimFOV);
+			if (CurrentWeapon->GetWeaponType() == EWeaponType::EWT_Sniper)
+			{
+				// 저격총 
+				CameraComp->SetFieldOfView(20.f);
+			}
+			else
+			{
+				// 일반 무기
+				CameraComp->SetFieldOfView(AimFOV);
+			}
 		}
-
-		
 		if (SpringArmComp)
 		{
-			SpringArmComp->TargetArmLength = AimArmLength;
+			if (CurrentWeapon->GetWeaponType() == EWeaponType::EWT_Sniper)
+			{
+				// 저격총 
+				SpringArmComp->TargetArmLength = 50.f;
+				SpringArmComp->SocketOffset = FVector(0.f, 20.f, 70.f);
+			}
+			else {
+				SpringArmComp->TargetArmLength = AimArmLength;
+				SpringArmComp->SocketOffset = FVector(0.f, 40.f, 70.f);
+			}
 		}
 		isAiming = true;
-
-		if (AimCrossHairWidget) 
-		{
-			AimCrossHairWidget->AddToViewport(); 
-			NormalCrossHairWidget->RemoveFromParent(); 
-		}
+		UpdateMoveSpeed();
+		UpdateCrosshair();
 	}
 }
 
 void APlayerCharacter::DoAimEnd()
 {
 	if (IsHasGun) {
-		
 		if (CameraComp)
 		{
 			CameraComp->SetFieldOfView(DefaultFOV);
 		}
-
-		
 		if (SpringArmComp)
 		{
 			SpringArmComp->TargetArmLength = DefaultArmLength;
+			SpringArmComp->SocketOffset = FVector(0.f, 70.f, 50.f);
 		}
 		isAiming = false;
-		if (NormalCrossHairWidget) 
-		{
-			NormalCrossHairWidget->AddToViewport(); 
-			AimCrossHairWidget->RemoveFromParent(); 
-		}
+		UpdateMoveSpeed();
+		UpdateCrosshair();
 	}
 }
 
@@ -240,7 +301,7 @@ void APlayerCharacter::DoShootingStart()
 
 	if (IsHasGun) {
 		IsShooting = true;
-
+		UpdateMoveSpeed();
 		if (CurrentWeapon->GetWeaponAmmo() > 0) 
 		{
 			CurrentWeapon->WeaponFire();
@@ -256,7 +317,7 @@ void APlayerCharacter::DoShootingEnd()
 {
 	if (CurrentWeapon) {
 		IsShooting = false;
-
+		UpdateMoveSpeed();
 		CurrentWeapon->WeaponStopFire();
 	}
 
@@ -286,6 +347,7 @@ void APlayerCharacter::EquipWeapon(EWeaponSlot NewSlot)
 		IsHasGun = true;
 		UE_LOG(LogTemp, Warning, TEXT("Equipped Weapon Slot: %d"), (int)NewSlot);
 	}
+	UpdateCrosshair();
 }
 void APlayerCharacter::UnEquipWeapon()
 {
@@ -310,8 +372,39 @@ void APlayerCharacter::UnEquipWeapon()
 
 void APlayerCharacter::PlayerDie() {
 	IsDie = true;
+	IsDieAnim = true;
+	//AnimInstance->Montage_Play(DieMontage);
 	DoShootingEnd(); // 죽을 때 발사 멈추기
 	DoAimEnd(); // 죽을 때 조준 멈추기
+	SpringArmComp->TargetArmLength = 400.f;
+}
+
+void APlayerCharacter::PlayerHit(float Damage) 
+{
+	HealthSystemComp->hit(Damage);
+}
+
+void APlayerCharacter::Playerknockback() 
+{
+	// Rolling 중이면 Return; 데미지는 입고 모션은 안풀리고 
+	HealthSystemComp->SetIsInvincible(true);
+
+	if (AnimInstance && HitMontage)
+	{
+		AnimInstance->Montage_Play(HitMontage);
+		AnimInstance->OnMontageEnded.AddDynamic(
+			this,
+			&APlayerCharacter::OnMontageEnded
+		);
+	}
+}
+
+void APlayerCharacter::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	if (Montage == HitMontage)
+	{
+		HealthSystemComp->SetIsInvincible(false);
+	}
 }
 
 void APlayerCharacter::PlayerHit(float Damage) 
@@ -382,7 +475,6 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 
 			type = Weapon->GetWeaponType();
 			EWeaponSlot slot = EWeaponSlot::Primary;
-
 			switch (type) 
 			{
 				case EWeaponType::EWT_Rifle:
@@ -398,11 +490,11 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 					break;
 				}
 			}
-
 			WeaponSlot[(int)slot] = Weapon;
 			CurrentWeapon = Weapon;
 			IsHasGun = true; // 이건 추후에 BP에서 설정안하게 하면 추가하면됨
 			// 그리고 맨위에 weaponsocket같은거 attach여기서 하면될거같은데
+			UpdateCrosshair();
 			break;
 		}
 		case EInteractionType::Monitor: {
@@ -457,6 +549,18 @@ EWeaponType APlayerCharacter::GetSecondaryWeaponType() const
 	}
 
 	return EWeaponType::EWT_None;
+}
+
+void APlayerCharacter::UpdateMoveSpeed()
+{
+	if (isAiming)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 200.f;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 400.f;
+	}
 }
 
 

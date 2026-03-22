@@ -79,6 +79,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	UUserWidget* NormalCrossHairWidget;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UUserWidget> ShotgunCrossHairWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	UUserWidget* ShotgunCrossHairWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UUserWidget> SniperCrossHairWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	UUserWidget* SniperCrossHairWidget;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
@@ -114,9 +123,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input") // 2번키 - 보조무기
 		class UInputAction* ia_EquipSecondary;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input") // Shift 구르기
+		class UInputAction* ia_Roll;
 
 
 
+	//void Roll(const struct FInputActionValue& inputValue);
 
 	void Rewind(const struct FInputActionValue& inputValue); 
 
@@ -171,10 +183,10 @@ protected:
 	float AimFOV = 65.f; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float DefaultArmLength = 400.f; 
+	float DefaultArmLength = 150.f; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float AimArmLength = 200.f; 
+	float AimArmLength = 100.f; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim")
 	bool isAiming = false; 
@@ -193,8 +205,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float FireRange = 3000.f;
-
-
 	
 	UPROPERTY(EditAnywhere, BluePrintReadWrite) 
 	bool IsLookTimer = false;
@@ -202,10 +212,20 @@ protected:
 	UPROPERTY(EditAnywhere, BluePrintReadWrite)
 	bool IsDie = false;
 
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)\
+	bool IsDieAnim = false; //애니메이션을 위한 die 변수
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	EWeaponType type;
 
 	bool isCombat = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim")
+	bool IsRolling;
+
+	void UpdateCrosshair();
+
 
 public:
 	void UnEquipWeapon();
@@ -235,11 +255,15 @@ public:
 	void PlayerHit(float damage);
 	void Playerknockback();
 
+	void UpdateMoveSpeed();
+
+	
+	// 애님몽타주
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* HitMontage;
-
-	UFUNCTION()
-	void OnHitMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	
+	// 플레이어의 애님인스턴스 자체를 가져오는 변수
+	UAnimInstance* AnimInstance;
 
 private:
 	void KnockbackEnd();
