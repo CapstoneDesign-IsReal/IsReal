@@ -11,7 +11,7 @@ EBTNodeResult::Type UTElite_ChargeAttack::ExecuteTask(UBehaviorTreeComponent& Ow
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
-
+	return EBTNodeResult::Succeeded;
 }
 
 EBTNodeResult::Type UTElite_ChargeAttack::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
