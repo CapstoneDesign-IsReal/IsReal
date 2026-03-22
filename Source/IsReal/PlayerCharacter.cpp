@@ -208,61 +208,77 @@ void APlayerCharacter::Rewind(const FInputActionValue& inputValue)
 
 void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 {
-	// 위젯 생성 (없으면 생성)
+	// 몽타주 실행 중
+	if (AnimInstance && AnimInstance->Montage_IsPlaying(nullptr))
+	{
+		// 시계 보는 중이면 닫기
+		if (IsLookTimer)
+		{
+			if (ToggleClockMontage)
+			{
+				AnimInstance->Montage_Stop(0.2f, ToggleClockMontage);
+			}
+
+			if (ClockWidgetInstance)
+			{
+				ClockWidgetInstance->RemoveFromParent();
+			}
+
+			SpringArmComp->TargetArmLength = 200;
+			IsLookTimer = false;
+		}
+
+		return;
+	}
+
+	// 몽타주 없으면 그냥 토글
+
 	if (!ClockWidgetInstance && ClockWidgetClass)
 	{
 		ClockWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), ClockWidgetClass);
 	}
 
-	// 토글: 열려 있으면 → 닫고 / 안 열렸으면 → 열기
-	if (ClockWidgetInstance)
+	if (!ClockWidgetInstance) return;
+
+	if (!IsLookTimer)
 	{
-		if (IsLookTimer)
+		// 혹시 조준 중이면 강제 해제
+		if (isAiming)
 		{
-			// 닫기
-			ClockWidgetInstance->RemoveFromParent();
-			SpringArmComp->TargetArmLength = 200;
-			UE_LOG(LogTemp, Warning, TEXT("Clock UI Closed"));
+			DoAimEnd();
 		}
-		else
+		// 열기
+		if (AnimInstance && ToggleClockMontage)
 		{
-			// 열기
-			ClockWidgetInstance->AddToViewport();
-			SpringArmComp->TargetArmLength = 100;
-			UE_LOG(LogTemp, Warning, TEXT("Clock UI Opened"));
+			AnimInstance->Montage_Play(ToggleClockMontage);
 		}
 
-		// 상태 반전
-		IsLookTimer = !IsLookTimer;
+		ClockWidgetInstance->AddToViewport();
+		SpringArmComp->TargetArmLength = 100;
+		IsLookTimer = true;
 	}
 }
 
 
 void APlayerCharacter::DoAimStart()
 {
+	if (IsLookTimer) return; //타이머 보는동안 줌 안되게
 	if (IsHasGun) {
-		if (CameraComp)
+		if (CameraComp&& SpringArmComp)
 		{
 			if (CurrentWeapon->GetWeaponType() == EWeaponType::EWT_Sniper)
 			{
 				// 저격총 
 				CameraComp->SetFieldOfView(20.f);
+				SpringArmComp->TargetArmLength = 50.f;
+				SpringArmComp->SocketOffset = FVector(0.f, 20.f, 70.f);
+				//캐릭터 메시 안보이게 하기 
+				GetMesh()->SetOwnerNoSee(true);
 			}
 			else
 			{
 				// 일반 무기
 				CameraComp->SetFieldOfView(AimFOV);
-			}
-		}
-		if (SpringArmComp)
-		{
-			if (CurrentWeapon->GetWeaponType() == EWeaponType::EWT_Sniper)
-			{
-				// 저격총 
-				SpringArmComp->TargetArmLength = 50.f;
-				SpringArmComp->SocketOffset = FVector(0.f, 20.f, 70.f);
-			}
-			else {
 				SpringArmComp->TargetArmLength = AimArmLength;
 				SpringArmComp->SocketOffset = FVector(0.f, 40.f, 70.f);
 			}
@@ -276,14 +292,12 @@ void APlayerCharacter::DoAimStart()
 void APlayerCharacter::DoAimEnd()
 {
 	if (IsHasGun) {
-		if (CameraComp)
+		if (CameraComp && SpringArmComp)
 		{
 			CameraComp->SetFieldOfView(DefaultFOV);
-		}
-		if (SpringArmComp)
-		{
 			SpringArmComp->TargetArmLength = DefaultArmLength;
 			SpringArmComp->SocketOffset = FVector(0.f, 70.f, 50.f);
+			GetMesh()->SetOwnerNoSee(false);
 		}
 		isAiming = false;
 		UpdateMoveSpeed();
@@ -388,6 +402,21 @@ void APlayerCharacter::Playerknockback()
 {
 	// Rolling 중이면 Return; 데미지는 입고 모션은 안풀리고 
 	HealthSystemComp->SetIsInvincible(true);
+
+	if (IsLookTimer) { //시계를 보고 있었으면 시계를 끄기 
+		if (AnimInstance && ToggleClockMontage)
+		{
+			AnimInstance->Montage_Stop(0.1f, ToggleClockMontage);
+		}
+
+		if (ClockWidgetInstance)
+		{
+			ClockWidgetInstance->RemoveFromParent();
+		}
+
+		SpringArmComp->TargetArmLength = 200;
+		IsLookTimer = false;
+	}
 
 	if (AnimInstance && HitMontage)
 	{

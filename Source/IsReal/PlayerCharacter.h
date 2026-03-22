@@ -259,6 +259,10 @@ public:
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* HitMontage;
 
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* ToggleClockMontage;
+
+
 
 	// 애님몽타주가 끝나는 시점을 알려주는 델리게이트 함수
 	UFUNCTION()
