@@ -13,6 +13,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Interactable.h"
 #include "WeaponSystem.h"
+#include "WeaponBox.h"
 #include "CoreSystem.h"
 #include "HealthComponent.h"
 #include "DrawDebugHelpers.h"
@@ -479,6 +480,38 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 					slot = EWeaponSlot::Secondary;
 					break;
 				}
+			}
+			WeaponSlot[(int)slot] = Weapon;
+			CurrentWeapon = Weapon;
+			IsHasGun = true; // 이건 추후에 BP에서 설정안하게 하면 추가하면됨
+			// 그리고 맨위에 weaponsocket같은거 attach여기서 하면될거같은데
+			UpdateCrosshair();
+			break;
+		}
+		case EInteractionType::Box: {
+			IInteractable::Execute_Interact(HitActor, this);
+			AWeaponBox* weaponbox = Cast<AWeaponBox>(HitActor);
+			AWeaponSystem* Weapon = weaponbox->SpawnWeapon();
+			Weapon->SetOwner(this);
+			UE_LOG(LogTemp, Warning, TEXT("gun type: %s"),
+				*StaticEnum<EWeaponType>()->GetNameStringByValue((int64)Weapon->GetWeaponType()));
+
+			type = Weapon->GetWeaponType();
+			EWeaponSlot slot = EWeaponSlot::Primary;
+			switch (type)
+			{
+			case EWeaponType::EWT_Rifle:
+			case EWeaponType::EWT_Shotgun:
+			case EWeaponType::EWT_Sniper:
+			{
+				slot = EWeaponSlot::Primary;
+				break;
+			}
+			case EWeaponType::EWT_Pistol:
+			{
+				slot = EWeaponSlot::Secondary;
+				break;
+			}
 			}
 			WeaponSlot[(int)slot] = Weapon;
 			CurrentWeapon = Weapon;

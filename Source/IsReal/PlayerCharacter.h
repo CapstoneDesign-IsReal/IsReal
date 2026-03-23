@@ -10,6 +10,7 @@ class UNiagaraSystem;
 class AWeaponSystem;
 class UCoreSystem;
 class UHealthComponent;
+class AWeaponBox;
 
 #include "PlayerCharacter.generated.h"
 
@@ -262,9 +263,6 @@ public:
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* HitMontage;
 
-	UPROPERTY(EditAnywhere)
-	UAnimMontage* ToggleClockMontage;
-	
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* ToggleClockMontage;
 
