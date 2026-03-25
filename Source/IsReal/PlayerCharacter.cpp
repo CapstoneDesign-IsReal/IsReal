@@ -338,6 +338,7 @@ void APlayerCharacter::DoShootingEnd()
 void APlayerCharacter::Reload(const FInputActionValue& inputValue)
 {	
 	if (IsShooting) return;
+	if (IsRolling) return;
 	if (CurrentWeapon && IsHasGun) {
 		CurrentWeapon->WeaponReload();
 	}
@@ -404,6 +405,10 @@ void APlayerCharacter::Playerknockback() // delete
 
 	GetWorld()->GetTimerManager().SetTimer(KnockbackTimer, this, &APlayerCharacter::KnockbackEnd, 1.0f, false);
 
+	if (isAiming)
+	{
+		DoAimEnd();
+	}
 	if (IsLookTimer) { //시계를 보고 있었으면 시계를 끄기 
 		if (AnimInstance && ToggleClockMontage)
 		{
