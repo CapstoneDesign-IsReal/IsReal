@@ -9,6 +9,7 @@
 #include "GenericTeamAgentInterface.h"
 #include "Enemy.generated.h"
 
+class UEnemyHitComponent;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEnemyLowHPDelegate);
 /**
  *
@@ -51,6 +52,8 @@ protected:
 
 	FTimerHandle CoolTimeHandle;	//timer handler
 	UEnemyEventSubsystem* EnemyEventSubsystem;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UEnemyHitComponent* EnemyHitComp;
 	bool bIsLowHPTriggered = false;
 public:
 	// Called every frame

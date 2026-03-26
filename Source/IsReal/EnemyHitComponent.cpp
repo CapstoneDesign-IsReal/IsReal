@@ -35,7 +35,7 @@ void UEnemyHitComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	// ...
 }
 
-float UEnemyHitComponent::DamageProcess(float Damage, FName HitBone)
+float UEnemyHitComponent::DamageProcess(int Damage, FName HitBone)
 {
 	return Damage * CalDamageMultiplier(HitBone);
 }
@@ -55,7 +55,7 @@ float UEnemyHitComponent::CalDamageMultiplier(FName BoneName)
 	while (!TargetBone.IsNone())
 	{
 		BoneInfo = PartInfo->GetPartInfoByBoneName(TargetBone);
-
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *TargetBone.ToString());
 		if(BoneInfo != nullptr)
 			return BoneInfo->DamageMultiplier;
 

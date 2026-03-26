@@ -11,6 +11,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "CoreSystem.h"
+#include "EnemyHitComponent.h"
 #include "GenericTeamAgentInterface.h"
 
 // Sets default values
@@ -25,6 +26,8 @@ AEnemy::AEnemy()
 
 	GetCharacterMovement()->bUseRVOAvoidance = true;
 	GetCharacterMovement()->AvoidanceConsiderationRadius = 100.0f;
+
+	EnemyHitComp = CreateDefaultSubobject<UEnemyHitComponent>(TEXT("EnemyHitComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -89,16 +92,20 @@ void AEnemy::Chase(AActor* target)
 void AEnemy::Hit(int damage, FName HitBoneName)
 {
 	auto EnemyController = Cast<AEnemyController>(GetController());
-	APlayerCharacter* CurrentPlayer = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	//APlayerCharacter* CurrentPlayer = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	UBlackboardComponent* BlackboardComp = EnemyController->GetBlackboardComponent();
 
-	if (!EnemyController || CurrentPlayer || BlackboardComp) {
+	if (!EnemyController || !BlackboardComp /* || !CurrentPlayer*/) {
 		UE_LOG(LogTemp, Warning, TEXT("<Controller Unpossessed Error>: Ptr Access Error"));
+		return;
 	}
+	UE_LOG(LogTemp, Warning, TEXT("HitBone : %s"), *HitBoneName.ToString());	//for debug
 
-	HP = HP - damage;
+	float ProcessedDamage = EnemyHitComp->DamageProcess(damage, HitBoneName);
 
-	UE_LOG(LogTemp, Warning, TEXT("Enemy HP : %f"), HP);
+	HP = HP - ProcessedDamage;
+
+	UE_LOG(LogTemp, Warning, TEXT("Enemy HP : %f"), HP);	//for debug
 
 	//Implement Dodge when 50% HP
 	if (HP <= MaxHP / 2.0 && !bIsLowHPTriggered && HP > 0) {
@@ -120,8 +127,8 @@ void AEnemy::Hit(int damage, FName HitBoneName)
 		}
 
 		//=======================================
-		UCoreSystem* PlayerCoreSystem = CurrentPlayer->FindComponentByClass<UCoreSystem>();
-		PlayerCoreSystem->CoreHeal(TimeEnergy);
+		//UCoreSystem* PlayerCoreSystem = CurrentPlayer->FindComponentByClass<UCoreSystem>();
+		//PlayerCoreSystem->CoreHeal(TimeEnergy);
 		//=======================================
 	}
 }
