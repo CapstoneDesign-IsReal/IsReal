@@ -265,10 +265,24 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* ToggleClockMontage;
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* GetRifleMontage;
 
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* GetPistolMontage;
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	// 플레이어의 애님인스턴스 자체를 가져오는 변수
 	UAnimInstance* AnimInstance;
 
 private:
 	void KnockbackEnd();
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	void AttachWeapon(AWeaponSystem* Weapon);
+	void FirstGetPrimary(); // 주무기를 interact 할때
+	void FirstGetSecondary();// 보조무기를 interact 할때
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+	void MontageEnded(UAnimMontage* Montage, bool bInterruted);
+
 };

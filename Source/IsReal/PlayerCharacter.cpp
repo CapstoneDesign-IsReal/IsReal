@@ -19,6 +19,13 @@
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+#include "Rifle.h"
+#include "ShotGun.h"
+#include "SniperRifle.h"
+#include "Pistol.h"
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 // Sets default values
 APlayerCharacter::APlayerCharacter()  
 {
@@ -519,9 +526,17 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			}
 			}
 			WeaponSlot[(int)slot] = Weapon;
+			//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			//기존 무기 제거
+			if (CurrentWeapon) 
+			{
+				CurrentWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			}
+			//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 			CurrentWeapon = Weapon;
 			IsHasGun = true; // 이건 추후에 BP에서 설정안하게 하면 추가하면됨
 			// 그리고 맨위에 weaponsocket같은거 attach여기서 하면될거같은데
+			AttachWeapon(Weapon);
 			UpdateCrosshair();
 			break;
 		}
@@ -538,6 +553,91 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 	}
 
 }
+void APlayerCharacter::AttachWeapon(AWeaponSystem* Weapon)
+{
+	if (!Weapon) return;
+
+	FName SocketName = NAME_None;
+
+	if (Weapon->IsA(ARifle::StaticClass()))
+	{
+		SocketName = TEXT("Rifle");
+		FirstGetPrimary();
+	}
+	else if (Weapon->IsA(AShotGun::StaticClass()))
+	{
+		SocketName = TEXT("Shotgun");
+		FirstGetPrimary();
+	}
+	else if (Weapon->IsA(ASniperRifle::StaticClass()))
+	{
+		SocketName = TEXT("Sniper");
+		FirstGetPrimary();
+	}
+	else if (Weapon->IsA(APistol::StaticClass()))
+	{
+		SocketName = TEXT("Pistol");
+		FirstGetSecondary();
+	}
+	else
+	{
+		SocketName = TEXT("Default");
+	}
+
+	if (!SocketName.IsNone())
+	{
+		Weapon->AttachToComponent(
+			GetMesh(),
+			FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+			SocketName
+		);
+	}
+}
+
+void APlayerCharacter::FirstGetPrimary()
+{
+	if (AnimInstance && GetRifleMontage)
+	{
+		if (CurrentWeapon)
+		{
+			CurrentWeapon->CanShooting = false;
+		}
+
+		AnimInstance->Montage_Play(GetRifleMontage);
+
+		FOnMontageEnded EndDelegate;
+		EndDelegate.BindUObject(this, &APlayerCharacter::MontageEnded);
+
+		AnimInstance->Montage_SetEndDelegate(EndDelegate, GetRifleMontage);
+	}
+}
+
+void APlayerCharacter::FirstGetSecondary()
+{
+	if (AnimInstance && GetPistolMontage)
+	{
+		if (CurrentWeapon)
+		{
+			CurrentWeapon->CanShooting = false;
+		}
+
+		AnimInstance->Montage_Play(GetPistolMontage);
+
+		FOnMontageEnded EndDelegate;
+		EndDelegate.BindUObject(this, &APlayerCharacter::MontageEnded);
+
+		AnimInstance->Montage_SetEndDelegate(EndDelegate, GetPistolMontage);
+	}
+}
+
+void APlayerCharacter::MontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	if ((Montage == GetRifleMontage || Montage == GetPistolMontage) && CurrentWeapon)
+	{
+		CurrentWeapon->CanShooting = true;
+	}
+}
+
 
 AWeaponSystem* APlayerCharacter::GetPrimaryWeapon() const
 {
