@@ -224,7 +224,7 @@ void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 				ClockWidgetInstance->RemoveFromParent();
 			}
 
-			SpringArmComp->TargetArmLength = 200;
+			SpringArmComp->TargetArmLength = DefaultArmLength;
 			IsLookTimer = false;
 		}
 
@@ -421,7 +421,7 @@ void APlayerCharacter::Playerknockback() // delete
 			ClockWidgetInstance->RemoveFromParent();
 		}
 
-		SpringArmComp->TargetArmLength = 200;
+		SpringArmComp->TargetArmLength = DefaultArmLength;
 		IsLookTimer = false;
 	}
 
