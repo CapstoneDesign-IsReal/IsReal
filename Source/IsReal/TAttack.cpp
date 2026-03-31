@@ -61,7 +61,6 @@ void UTAttack::OnAttackMontageEnd(UAnimMontage* PlayedMontage, bool bInterrupted
 	//UBlackboardComponent* BlackboardComp = OwnerComp->GetBlackboardComponent();
 	//if(!BlackboardComp) FinishLatentTask(*OwnerComp, EBTNodeResult::Failed);
 
-
 	if (OwnerComp) {
 		//BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Chase));
 		FinishLatentTask(*OwnerComp, EBTNodeResult::Succeeded);

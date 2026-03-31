@@ -36,7 +36,7 @@ EBTNodeResult::Type UTChase::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint
 	if (!target)
 		return EBTNodeResult::Failed;
 
-
+	
 	currentEnemy->Chase(target);
 	return EBTNodeResult::InProgress;
 }
