@@ -31,7 +31,8 @@ enum class EEnemyState : uint8
 	Chase UMETA(DisplayName = "Chase"),
 	Attack UMETA(DisplayName = "Attack"),
 	Die UMETA(DisplayName = "Die"),
-	Nearby UMETA(DisplayName = "Nearby")
+	Nearby UMETA(DisplayName = "Nearby"),
+	Charge UMETA(DisplayName = "Charge")
 };
 
 UCLASS(Blueprintable)
