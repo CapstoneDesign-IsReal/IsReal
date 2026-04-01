@@ -48,6 +48,11 @@ protected:
 	//class UStaticMeshComponent* gunMeshComp;
 	UPROPERTY(EditAnywhere, Category = "Weapon Sound")
 	USoundBase* FireSound;
+
+	// ÃÑ±¸ È­¿° VFX
+	UPROPERTY(EditAnywhere, Category = "Weapon Muzzle VFX")
+	UNiagaraSystem* MuzzleFireVFX;
+
 private:
 	//  Weapon Type
 	EWeaponType _weapontype;

@@ -186,25 +186,23 @@ void AWeaponSystem::FireLineTrace()
 		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 0.05f, 0, 1.5f);
 	}
 
-
-	RifleMesh = PC->GetRifleMesh();
-	PistolMesh = PC->GetPistolMesh();
-
 	CurrentGun = nullptr;
 
-	if (_weapontype == EWeaponType::EWT_Rifle)
+	switch (_weapontype)
 	{
-		CurrentGun = RifleMesh;
+	case EWeaponType::EWT_Rifle:
+		CurrentGun = PC->GetRifleMesh();
+		break;
+	case EWeaponType::EWT_Pistol:
+		CurrentGun = PC->GetPistolMesh();
+		break;
+	case EWeaponType::EWT_Sniper:
+		CurrentGun = PC->GetRifleMesh(); // 일단 임시로 라이플 메쉬 사용
+		break;
+	default:
+		CurrentGun = nullptr;
+		break;
 	}
-	else if (_weapontype == EWeaponType::EWT_Pistol)
-	{
-		CurrentGun = PistolMesh;
-	}
-	else if (_weapontype == EWeaponType::EWT_Sniper) 
-	{
-		CurrentGun = RifleMesh; // 일단 임시로 라이플 메쉬 사용
-	}
-	if (!CurrentGun) return;
 
 	FVector MuzzleLocation = CurrentGun->GetSocketLocation(TEXT("WeaponSocket"));
 	//FRotator MuzzleRotation = gunMeshComp->GetSocketRotation(TEXT("WeaponSocket"));
@@ -246,6 +244,9 @@ void AWeaponSystem::FireLineTrace()
 	{
 		DrawDebugLine(GetWorld(), MuzzleLocation, EndFromMuzzle, FColor::Red, false, 0.05f, 0, 1.5f);
 	}
+
+	// 총구 화염 이펙트 재생 - MuzzleLocation에서 VFX 실행
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), MuzzleFireVFX, MuzzleLocation, GetActorRotation());
 }
 
 // 샷건 라인트레이스 - 샷건의 탄약은 예외적으로 자식 클래스(AShotGun)에서 관리합니다. 
@@ -290,29 +291,10 @@ void AWeaponSystem::ScatterFireLineTrace()
 		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 0.05f, 0, 1.5f);
 	}
 
-
-	RifleMesh = PC->GetRifleMesh();
-	PistolMesh = PC->GetPistolMesh();
-
 	CurrentGun = nullptr;
 
-	if (_weapontype == EWeaponType::EWT_Rifle)
-	{
-		CurrentGun = RifleMesh;
-	}
-	else if (_weapontype == EWeaponType::EWT_Pistol)
-	{
-		CurrentGun = PistolMesh;
-	}
-	else if (_weapontype == EWeaponType::EWT_Sniper)
-	{
-		CurrentGun = RifleMesh; // 일단 임시로 라이플 메쉬 사용
-	}
-	else if (_weapontype == EWeaponType::EWT_Shotgun)
-	{
-		CurrentGun = RifleMesh; // 일단 임시로 라이플 메쉬 사용
-	}
-	if (!CurrentGun) return;
+	if (_weapontype == EWeaponType::EWT_Shotgun) CurrentGun = PC->GetRifleMesh();  // 임시로 라이플 메쉬 사용중
+	else CurrentGun = nullptr;
 
 	FVector MuzzleLocation = CurrentGun->GetSocketLocation(TEXT("WeaponSocket"));
 	//FRotator MuzzleRotation = gunMeshComp->GetSocketRotation(TEXT("WeaponSocket"));
@@ -365,7 +347,6 @@ void AWeaponSystem::ScatterFireLineTrace()
 	}
 }
 
-
 void AWeaponSystem::PlayBloodEffect(FVector impactpoint, FVector impactnormal) 
 {
 	if (BloodVFXArray.Num() > 0)
@@ -381,5 +362,4 @@ void AWeaponSystem::PlayBloodEffect(FVector impactpoint, FVector impactnormal)
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RandBloodEffect, SurfacePoint, Rotation);
 
 	}
-
 }

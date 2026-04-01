@@ -2,7 +2,12 @@
 
 
 #include "ShotGun.h"
+#include "WeaponSystem.h"
+#include "PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
+
 
 AShotGun::AShotGun()
 {
@@ -79,6 +84,14 @@ void AShotGun::ShotGunFireLineTrace()
 		ScatterFireLineTrace();
 	}
 	UGameplayStatics::PlaySoundAtLocation(this, PumpSound, GetActorLocation());
+
+	APlayerCharacter* PC = Cast<APlayerCharacter>(GetOwner());
+	// 총구 화염 이펙트 출력
+	if (GetWeaponType() == EWeaponType::EWT_Shotgun) ShotGunMesh = PC->GetRifleMesh(); // 임시로 라이플 메시 사용
+	else ShotGunMesh = nullptr;
+
+	FVector SGMuzzleLoc = ShotGunMesh->GetSocketLocation(TEXT("WeaponSocket"));
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), MuzzleFireVFX, SGMuzzleLoc, GetActorRotation());
 
 	// 총기 반동 적용
 	ApplyRecoil();
