@@ -18,6 +18,13 @@ ASniperRifle::ASniperRifle()
 	ReloadCoolTime = 1.5f;
 }
 
+void ASniperRifle::BeginPlay()
+{
+	Super::BeginPlay();
+	// Reset Weapon Type when weapon is spawned
+	SetWeaponType(EWeaponType::EWT_Sniper);
+}
+
 void ASniperRifle::ResetAmmo()
 {
 	CurrentAmmo = 5;

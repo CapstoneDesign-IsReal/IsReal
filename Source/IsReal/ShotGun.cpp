@@ -19,6 +19,13 @@ AShotGun::AShotGun()
 	ReloadCoolTime = 2.0f;
 }
 
+void AShotGun::BeginPlay()
+{
+	Super::BeginPlay();
+	// Reset Weapon Type when weapon is spawned
+	SetWeaponType(EWeaponType::EWT_Shotgun);
+}
+
 void AShotGun::ResetAmmo()
 {
 	CurrentAmmo = 8;

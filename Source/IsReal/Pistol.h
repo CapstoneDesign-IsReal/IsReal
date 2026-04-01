@@ -14,6 +14,11 @@ UCLASS()
 class ISREAL_API APistol : public AWeaponSystem, public IInteractable
 {
 	GENERATED_BODY()
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
 public:
 	APistol();
 

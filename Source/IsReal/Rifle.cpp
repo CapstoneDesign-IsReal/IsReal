@@ -18,6 +18,13 @@ ARifle::ARifle()
 	ReloadCoolTime = 2.0f;
 }
 
+void ARifle::BeginPlay()
+{
+	Super::BeginPlay();
+	// Reset Weapon Type when weapon is spawned
+	SetWeaponType(EWeaponType::EWT_Rifle);
+}
+
 void ARifle::ResetAmmo()
 {
 	CurrentAmmo = 30;

@@ -18,6 +18,13 @@ APistol::APistol()
 	ReloadCoolTime = 1.5f;
 }
 
+void APistol::BeginPlay()
+{
+	Super::BeginPlay();
+	// Reset Weapon Type when weapon is spawned
+	SetWeaponType(EWeaponType::EWT_Pistol);
+}
+
 void APistol::ResetAmmo()
 {
 	CurrentAmmo = 10;
