@@ -583,6 +583,7 @@ void APlayerCharacter::AttachWeapon(AWeaponSystem* Weapon)
 	{
 		SocketName = TEXT("Default");
 	}
+	SetWeaponEquipped(Weapon);
 
 	if (!SocketName.IsNone())
 	{
@@ -591,6 +592,27 @@ void APlayerCharacter::AttachWeapon(AWeaponSystem* Weapon)
 			FAttachmentTransformRules::SnapToTargetNotIncludingScale,
 			SocketName
 		);
+	}
+}
+
+void APlayerCharacter::SetWeaponEquipped(AWeaponSystem* Weapon) {
+	IsRifleEquipped = false;
+	IsPistolEquipped = false;
+	IsSniperEquipped = false;
+	IsShotgunEquipped = false;
+
+	if (!Weapon)return;
+	if (Weapon->IsA(ARifle::StaticClass())) {
+		IsRifleEquipped = true;
+	}
+	else if (Weapon->IsA(AShotGun::StaticClass())) {
+		IsShotgunEquipped = true;
+	}
+	else if (Weapon->IsA(ASniperRifle::StaticClass())) {
+		IsSniperEquipped = true;
+	}
+	else if (Weapon->IsA(APistol::StaticClass())) {
+		IsPistolEquipped = true;
 	}
 }
 
