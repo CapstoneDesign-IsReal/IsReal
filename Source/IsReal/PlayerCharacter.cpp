@@ -432,11 +432,18 @@ void APlayerCharacter::Playerknockback() // delete
 		IsLookTimer = false;
 	}
 
-	if (AnimInstance && HitMontage)
-	{
-		AnimInstance->Montage_Play(HitMontage);
-	}
+	KnockbackMotion();
+
+	//if (AnimInstance && HitMontage)
+	//{
+	//	AnimInstance->Montage_Play(HitMontage);
+	//}
 }
+
+//void APlayerCharacter::KnockbackMotion()
+//{
+//
+//}
 
 void APlayerCharacter::KnockbackEnd()
 {

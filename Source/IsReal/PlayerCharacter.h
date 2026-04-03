@@ -279,6 +279,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* GetPistolMontage;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void KnockbackMotion();
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	// 플레이어의 애님인스턴스 자체를 가져오는 변수
 	UAnimInstance* AnimInstance;
