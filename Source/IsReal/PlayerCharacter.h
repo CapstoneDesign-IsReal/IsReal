@@ -216,7 +216,6 @@ protected:
 	UPROPERTY(EditAnywhere, BluePrintReadWrite)\
 	bool IsDieAnim = false; //애니메이션을 위한 die 변수
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	EWeaponType type;
 
@@ -226,6 +225,15 @@ protected:
 	bool IsRolling;
 
 	void UpdateCrosshair();
+
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)
+	bool IsRifleEquipped = false; //애니메이션을 스테이트 전환을 위한 변수
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)
+	bool IsPistolEquipped = false; //애니메이션을 스테이트 전환을 위한 변수
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)
+	bool IsSniperEquipped = false; //애니메이션을 스테이트 전환을 위한 변수
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)
+	bool IsShotgunEquipped = false; //애니메이션을 스테이트 전환을 위한 변수
 
 
 public:
@@ -265,10 +273,26 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* ToggleClockMontage;
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* GetRifleMontage;
 
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* GetPistolMontage;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void KnockbackMotion();
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	// 플레이어의 애님인스턴스 자체를 가져오는 변수
 	UAnimInstance* AnimInstance;
 
 private:
 	void KnockbackEnd();
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	void AttachWeapon(AWeaponSystem* Weapon);
+	void FirstGetPrimary(); // 주무기를 interact 할때
+	void FirstGetSecondary();// 보조무기를 interact 할때
+	void SetWeaponEquipped(AWeaponSystem* Weapon);
+	void MontageEnded(UAnimMontage* Montage, bool bInterruted);
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 };
