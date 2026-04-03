@@ -5,6 +5,8 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
 #include "NiagaraSystem.h"
+#include "PlayerCharacter.h"
+#include "AoE_Acid.h"
 #include "NiagaraFunctionLibrary.h"
 
 // Sets default values
@@ -20,9 +22,6 @@ AProjectile_AcidBomb::AProjectile_AcidBomb()
 	ProjectileMovementComp->SetUpdatedComponent(SphereComp);
 	ProjectileMeshComp->SetupAttachment(SphereComp);
 
-	if (SphereComp)
-		SphereComp->OnComponentHit.AddDynamic(this, &AProjectile_AcidBomb::OnHit);
-
 	ExplosionSize = FVector(1.f, 1.f, 1.f);
 	ExplosionRotation = FRotator::ZeroRotator;
 }
@@ -32,6 +31,8 @@ void AProjectile_AcidBomb::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (SphereComp)
+		SphereComp->OnComponentHit.AddDynamic(this, &AProjectile_AcidBomb::OnHit);
 }
 
 // Called every frame
@@ -49,8 +50,22 @@ void AProjectile_AcidBomb::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActo
 		OtherActor == GetInstigator() ||
 		OtherActor == GetOwner())	return;
 
+	if (APlayerCharacter* HitPlayer = Cast<APlayerCharacter>(OtherActor)) {
+		HitPlayer->PlayerHit(Damage);
+	}
+
 	FVector HitLocation = Hit.Location;
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ExplosionEffect, HitLocation, ExplosionRotation, ExplosionSize, true, true);
+
+	FVector SpawnPointLocation = GetActorLocation();
+	SpawnPointLocation.Z = 0.0f;
+	FRotator SpawnPointRotation = FRotator::ZeroRotator; //fix rotator paralle to ground
+
+	AAoE_Acid* SpawnedAoE  = GetWorld()->SpawnActor<AAoE_Acid>(
+		SpawnTargetAoE,
+		SpawnPointLocation,
+		SpawnPointRotation
+	);
 
 	Destroy();
 }

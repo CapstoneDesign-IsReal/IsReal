@@ -10,6 +10,7 @@ class USphereComponent;
 class UProjectileMovementComponent;
 class UNiagaraSystem;
 class UNiagaraFunctionLibrary;
+class AAoE_Acid;
 
 UCLASS(BlueprintType, Blueprintable)
 class ISREAL_API AProjectile_AcidBomb : public AActor
@@ -26,16 +27,27 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile | Components")
 	TObjectPtr<USphereComponent> SphereComp;							//handle collision
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile | Components")
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComp;	//handle projection of object
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Projectile | Components")
 	TObjectPtr<UStaticMeshComponent> ProjectileMeshComp;				//Setting Projectile Mesh
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile | VFX")
 	TObjectPtr<UNiagaraSystem> ExplosionEffect;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile | VFX")
 	FVector ExplosionSize;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile | VFX")
 	FRotator ExplosionRotation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile | AoE")
+	TSubclassOf<AAoE_Acid> SpawnTargetAoE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Params")
+	float Damage = 30.0f;
 
 public:	
 	// Called every frame
