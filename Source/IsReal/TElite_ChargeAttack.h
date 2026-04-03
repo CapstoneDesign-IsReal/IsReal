@@ -37,9 +37,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Charge Settings")
 	float MaxChargeTime = 10.0f;
 
+	
+
 private:
 	UPROPERTY(EditAnywhere)
 	float ChargeDamage = 200.0f;
+
 	float CachedOriginalSpeed;
 	float ChargeTimer;
 	bool isReadyToRun = false;
@@ -50,6 +53,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Charge Settings")
 	UAnimMontage* PreChargeMontage;
 
-	UPROPERTY(EditAnywhere, Category = "Charge Settings|VFX")
+	UPROPERTY(EditAnywhere, Category = "Charge Settings | VFX")
 	UNiagaraSystem* HitWallVFX;
+
+	UPROPERTY(EditAnywhere, Category = "Charge Settings | VFX")
+	FVector SpawnSize = FVector(1.0f, 1.0f, 1.0f);
 };

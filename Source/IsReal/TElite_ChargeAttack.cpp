@@ -75,12 +75,13 @@ void UTElite_ChargeAttack::OnChargeHitWall(UPrimitiveComponent* HitComponent, AA
 		if (HitWallVFX)
 		{
 			FRotator VFXRotation = FRotationMatrix::MakeFromZ(-Hit.ImpactNormal).Rotator();
-			FVector SpawnLoc = Hit.ImpactPoint + (Hit.ImpactNormal * 10.0f);
+			FVector SpawnLocation = Hit.ImpactPoint + (Hit.ImpactNormal * 15.0f);
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(
 				GetWorld(), 
 				HitWallVFX, 
-				SpawnLoc, 
-				VFXRotation);
+				SpawnLocation,
+				VFXRotation,
+				SpawnSize);
 		}
 	}
 }
