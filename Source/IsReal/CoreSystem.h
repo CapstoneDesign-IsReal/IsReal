@@ -50,6 +50,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
 	void SetRewindCoolTime(float CoolTime) { RewindCoolTime = CoolTime; }
 
+	// 남은 시간 알려주는 함수
+	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
+	float GetLeftCoolTime() { return (RewindCoolTime - CurruntRewindCoolTime); }
+
 	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
 	bool GetIsRewind() { return Is_Rewind; }
 
