@@ -13,7 +13,8 @@ Content/DownloadAsset/
 *.suo
 *.xcodeproj
 *.xcworkspace
-Content/DownloadAsset/
+Content/__ExternalActors__/DownloadAsset/
+Content/__ExternalObjects__/DownloadAsset/
 Content/EnemyAnimation/
 Content/Developers/
 Content/Developers/eunho/TestingLevel.umap
