@@ -217,7 +217,7 @@ protected:
 	bool IsDieAnim = false; //애니메이션을 위한 die 변수
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	EWeaponType type;
+	EWeaponType Type;
 
 	bool isCombat = false;
 
@@ -289,10 +289,10 @@ public:
 private:
 	void KnockbackEnd();
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-	void AttachWeapon(AWeaponSystem* Weapon);
-	void FirstGetPrimary(); // 주무기를 interact 할때
-	void FirstGetSecondary();// 보조무기를 interact 할때
-	void SetWeaponEquipped(AWeaponSystem* Weapon);
+	void AttachWeapon();
+	void PlayGetPrimaryMontage(); // 주무기를 interact 할때
+	void PlayGetSecondaryMontage(); // 보조무기를 interact 할때
+	void SetWeaponEquipped(); 
 	void MontageEnded(UAnimMontage* Montage, bool bInterruted);
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 };

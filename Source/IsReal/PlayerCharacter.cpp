@@ -19,13 +19,6 @@
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-#include "Rifle.h"
-#include "ShotGun.h"
-#include "SniperRifle.h"
-#include "Pistol.h"
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
 // Sets default values
 APlayerCharacter::APlayerCharacter()  
 {
@@ -173,9 +166,7 @@ void APlayerCharacter::UpdateCrosshair()
 		return;
 	}
 
-	EWeaponType Type = CurrentWeapon->GetWeaponType();
-
-	switch (Type)
+	switch (CurrentWeapon->GetWeaponType())
 	{
 	case EWeaponType::EWT_Shotgun:
 		if (ShotgunCrossHairWidget)
@@ -483,9 +474,9 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			UE_LOG(LogTemp, Warning, TEXT("gun type: %s"),
 				*StaticEnum<EWeaponType>()->GetNameStringByValue((int64)Weapon->GetWeaponType()));
 
-			type = Weapon->GetWeaponType();
+			Type = Weapon->GetWeaponType();
 			EWeaponSlot slot = EWeaponSlot::Primary;
-			switch (type) 
+			switch (Type) 
 			{
 				case EWeaponType::EWT_Rifle:
 				case EWeaponType::EWT_Shotgun:
@@ -515,9 +506,9 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			UE_LOG(LogTemp, Warning, TEXT("gun type: %s"),
 				*StaticEnum<EWeaponType>()->GetNameStringByValue((int64)Weapon->GetWeaponType()));
 
-			type = Weapon->GetWeaponType();
+			Type = Weapon->GetWeaponType();
 			EWeaponSlot slot = EWeaponSlot::Primary;
-			switch (type)
+			switch (Type)
 			{
 			case EWeaponType::EWT_Rifle:
 			case EWeaponType::EWT_Shotgun:
@@ -543,7 +534,7 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			CurrentWeapon = Weapon;
 			IsHasGun = true; // 이건 추후에 BP에서 설정안하게 하면 추가하면됨
 			// 그리고 맨위에 weaponsocket같은거 attach여기서 하면될거같은데
-			AttachWeapon(Weapon);
+			AttachWeapon();
 			UpdateCrosshair();
 			break;
 		}
@@ -560,41 +551,31 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 	}
 
 }
-void APlayerCharacter::AttachWeapon(AWeaponSystem* Weapon)
+void APlayerCharacter::AttachWeapon()
 {
-	if (!Weapon) return;
-
+	if (!CurrentWeapon) return;
 	FName SocketName = NAME_None;
+	
 
-	if (Weapon->IsA(ARifle::StaticClass()))
-	{
-		SocketName = TEXT("Rifle");
-		FirstGetPrimary();
-	}
-	else if (Weapon->IsA(AShotGun::StaticClass()))
-	{
-		SocketName = TEXT("Shotgun");
-		FirstGetPrimary();
-	}
-	else if (Weapon->IsA(ASniperRifle::StaticClass()))
-	{
-		SocketName = TEXT("Sniper");
-		FirstGetPrimary();
-	}
-	else if (Weapon->IsA(APistol::StaticClass()))
-	{
+	switch (CurrentWeapon->GetWeaponType()) { //여기서는 Type을 써도 되는게 interact한 weapon이 Weapon 변수기 때문에 Weapon 변수의 get weapon type을 해서 가져온게 Type이기 때문에 
+	case EWeaponType::EWT_Pistol:
 		SocketName = TEXT("Pistol");
-		FirstGetSecondary();
+		break;
+	case EWeaponType::EWT_Rifle:
+		SocketName = TEXT("Rifle");
+		break;
+	case EWeaponType::EWT_Sniper:
+		SocketName = TEXT("Sniper");
+		break;
+	case EWeaponType::EWT_Shotgun:
+		SocketName = TEXT("Shotgun");
+		break;
 	}
-	else
-	{
-		SocketName = TEXT("Default");
-	}
-	SetWeaponEquipped(Weapon);
+	SetWeaponEquipped();
 
 	if (!SocketName.IsNone())
 	{
-		Weapon->AttachToComponent(
+		CurrentWeapon->AttachToComponent(
 			GetMesh(),
 			FAttachmentTransformRules::SnapToTargetNotIncludingScale,
 			SocketName
@@ -602,28 +583,34 @@ void APlayerCharacter::AttachWeapon(AWeaponSystem* Weapon)
 	}
 }
 
-void APlayerCharacter::SetWeaponEquipped(AWeaponSystem* Weapon) {
+void APlayerCharacter::SetWeaponEquipped() {
 	IsRifleEquipped = false;
 	IsPistolEquipped = false;
 	IsSniperEquipped = false;
 	IsShotgunEquipped = false;
 
-	if (!Weapon)return;
-	if (Weapon->IsA(ARifle::StaticClass())) {
-		IsRifleEquipped = true;
-	}
-	else if (Weapon->IsA(AShotGun::StaticClass())) {
-		IsShotgunEquipped = true;
-	}
-	else if (Weapon->IsA(ASniperRifle::StaticClass())) {
-		IsSniperEquipped = true;
-	}
-	else if (Weapon->IsA(APistol::StaticClass())) {
+	if (!CurrentWeapon)return;
+	switch (CurrentWeapon->GetWeaponType()) {
+	case EWeaponType::EWT_Pistol:
+		PlayGetSecondaryMontage();
 		IsPistolEquipped = true;
+		break;
+	case EWeaponType::EWT_Rifle:
+		PlayGetPrimaryMontage();
+		IsRifleEquipped = true;
+		break;
+	case EWeaponType::EWT_Sniper:
+		PlayGetPrimaryMontage();
+		IsSniperEquipped = true;
+		break;
+	case EWeaponType::EWT_Shotgun:
+		PlayGetPrimaryMontage();
+		IsShotgunEquipped = true;
+		break;
 	}
 }
 
-void APlayerCharacter::FirstGetPrimary()
+void APlayerCharacter::PlayGetPrimaryMontage()
 {
 	if (AnimInstance && GetRifleMontage)
 	{
@@ -641,7 +628,7 @@ void APlayerCharacter::FirstGetPrimary()
 	}
 }
 
-void APlayerCharacter::FirstGetSecondary()
+void APlayerCharacter::PlayGetSecondaryMontage()
 {
 	if (AnimInstance && GetPistolMontage)
 	{

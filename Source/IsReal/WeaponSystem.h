@@ -89,6 +89,7 @@ public:
 
 	// Weapon Type setters and getters
 	void SetWeaponType(EWeaponType NewType);
+	UFUNCTION(BlueprintCallable)
 	EWeaponType GetWeaponType() const;
 	// Weapon Ammo setters and getters
 	void SetWeaponAmmo(int ammo);
