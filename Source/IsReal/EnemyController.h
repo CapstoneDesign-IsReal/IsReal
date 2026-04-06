@@ -35,6 +35,15 @@ enum class EEnemyState : uint8
 	Charge UMETA(DisplayName = "Charge")
 };
 
+UENUM(BlueprintType)
+enum class EAttackType : uint8
+{
+	None		UMETA(DisplayName = "None"),
+	Claw		UMETA(DisplayName = "Claw Attack"),
+	JumpAttack	UMETA(DisplayName = "Jump Attack"),
+	Charge		UMETA(DisplayName = "Charge Attack")
+};
+
 UCLASS(Blueprintable)
 class ISREAL_API AEnemyController : public AAIController
 {
