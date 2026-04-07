@@ -9,6 +9,7 @@
 
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
+#include "NiagaraComponent.h"
 
 // Sets default values
 AWeaponSystem::AWeaponSystem()
@@ -183,7 +184,7 @@ void AWeaponSystem::FireLineTrace()
 	}
 	else
 	{
-		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 0.05f, 0, 1.5f);
+		//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 0.05f, 0, 1.5f);
 	}
 
 	CurrentGun = nullptr;
@@ -223,7 +224,7 @@ void AWeaponSystem::FireLineTrace()
 
 	if (MuzzleTraceHit)
 	{
-		DrawDebugLine(GetWorld(), MuzzleLocation, TargetPoint, FColor::Red, false, 0.05f, 0, 1.5f);
+		//DrawDebugLine(GetWorld(), MuzzleLocation, TargetPoint, FColor::Red, false, 0.05f, 0, 1.5f);
 
 
 		AActor* HitActor2 = MuzzleHit.GetActor();
@@ -233,7 +234,7 @@ void AWeaponSystem::FireLineTrace()
 			AEnemy* Enemy = Cast<AEnemy>(HitActor2);
 			if (Enemy)
 			{
-				DrawDebugPoint(GetWorld(), TargetPoint, 10.0f, FColor::Blue, false, 0.1f); // 적군을 맞추면 파란 점 찍힘
+				//DrawDebugPoint(GetWorld(), TargetPoint, 10.0f, FColor::Blue, false, 0.1f); // 적군을 맞추면 파란 점 찍힘
 				UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *Enemy->GetName());
 				Enemy->Hit(Damage, MuzzleHit.BoneName);    // 총기 별 데미지 주기
 				PlayBloodEffect(TargetPoint, TargetNormal); // 피격 이펙트 재생
@@ -242,11 +243,21 @@ void AWeaponSystem::FireLineTrace()
 	}
 	else
 	{
-		DrawDebugLine(GetWorld(), MuzzleLocation, EndFromMuzzle, FColor::Red, false, 0.05f, 0, 1.5f);
+		//DrawDebugLine(GetWorld(), MuzzleLocation, EndFromMuzzle, FColor::Red, false, 0.05f, 0, 1.5f);
 	}
 
 	// 총구 화염 이펙트 재생 - MuzzleLocation에서 VFX 실행
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), MuzzleFireVFX, MuzzleLocation, GetActorRotation());
+	
+	// Bullet Trail VFX 재생
+	UNiagaraComponent* TrailNiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		GetWorld(),
+		BulletTrailVFX,
+		MuzzleLocation
+	);
+
+	TrailNiagaraComp->SetVectorParameter(TEXT("start"), MuzzleLocation);
+	TrailNiagaraComp->SetVectorParameter(TEXT("end"), (EndFromMuzzle - MuzzleLocation));
 }
 
 // 샷건 라인트레이스 - 샷건의 탄약은 예외적으로 자식 클래스(AShotGun)에서 관리합니다. 
@@ -288,7 +299,7 @@ void AWeaponSystem::ScatterFireLineTrace()
 	}
 	else
 	{
-		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 0.05f, 0, 1.5f);
+		//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 0.05f, 0, 1.5f);
 	}
 
 	CurrentGun = nullptr;
@@ -320,7 +331,7 @@ void AWeaponSystem::ScatterFireLineTrace()
 	);
 	//ECC_Visibility : �����̴� ��ü�� ä�θ� ����
 
-	DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Red, false, 1.0f); // 샷건 탄환이 퍼지는 범위 시각화
+	//DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Red, false, 1.0f); // 샷건 탄환이 퍼지는 범위 시각화
 
 	if (MuzzleTraceHit)
 	{
@@ -334,7 +345,7 @@ void AWeaponSystem::ScatterFireLineTrace()
 			AEnemy* Enemy = Cast<AEnemy>(HitActor2);
 			if (Enemy)
 			{
-				DrawDebugLine(GetWorld(), MuzzleLocation, TargetPoint, FColor::Blue, false, 1.0f); // 적군을 맞추면 파란 점 찍힘
+				//DrawDebugLine(GetWorld(), MuzzleLocation, TargetPoint, FColor::Blue, false, 1.0f); // 적군을 맞추면 파란 점 찍힘
 				UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *Enemy->GetName());
 				Enemy->Hit(Damage, MuzzleHit.BoneName);    // 총기 별 데미지 주기
 				PlayBloodEffect(TargetPoint, TargetNormal); // 피격 이펙트 재생
@@ -343,8 +354,18 @@ void AWeaponSystem::ScatterFireLineTrace()
 	}
 	else
 	{
-		DrawDebugLine(GetWorld(), MuzzleLocation, EndFromMuzzle, FColor::Red, false, 1.0f);
+		//DrawDebugLine(GetWorld(), MuzzleLocation, EndFromMuzzle, FColor::Red, false, 1.0f);
 	}
+
+	// Bullet Trail VFX 재생
+	UNiagaraComponent* TrailNiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		GetWorld(),
+		BulletTrailVFX,
+		MuzzleLocation
+	);
+
+	TrailNiagaraComp->SetVectorParameter(TEXT("start"), MuzzleLocation);
+	TrailNiagaraComp->SetVectorParameter(TEXT("end"), (EndFromMuzzle - MuzzleLocation));
 }
 
 void AWeaponSystem::PlayBloodEffect(FVector impactpoint, FVector impactnormal) 

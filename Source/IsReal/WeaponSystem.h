@@ -50,8 +50,12 @@ protected:
 	USoundBase* FireSound;
 
 	// ÃÑ±¸ È­¿° VFX
-	UPROPERTY(EditAnywhere, Category = "Weapon Muzzle VFX")
+	UPROPERTY(EditAnywhere, Category = "Weapon VFX")
 	UNiagaraSystem* MuzzleFireVFX;
+
+	// ÃÑ¾Ë ±ËÀû VFX
+	UPROPERTY(EditAnywhere, Category = "Weapon VFX")
+	UNiagaraSystem* BulletTrailVFX;
 
 private:
 	//  Weapon Type
