@@ -235,6 +235,9 @@ protected:
 	UPROPERTY(EditAnywhere, BluePrintReadWrite)
 	bool IsShotgunEquipped = false; //애니메이션을 스테이트 전환을 위한 변수
 
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)
+	bool CanInteractBox = true; //무기를 interact할 때 계속 눌러서 equip하는 것을 방지하는 변수 처음에는 true여야 한다.
+
 
 public:
 	void UnEquipWeapon();
@@ -289,10 +292,12 @@ public:
 private:
 	void KnockbackEnd();
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-	void AttachWeapon();
-	void PlayGetPrimaryMontage(); // 주무기를 interact 할때
-	void PlayGetSecondaryMontage(); // 보조무기를 interact 할때
-	void SetWeaponEquipped(); 
+	void AttachWeapon(); //CurrentWeapon만 Attach하게 하는 함수
+	void PlayGetPrimaryMontage(); // 주무기를 interact하는 함수
+	void PlayGetSecondaryMontage(); // 보조무기를 interact 함수
+	void SetWeaponEquipped(); // Equipped 불변수를 셋팅하는 함수
 	void MontageEnded(UAnimMontage* Montage, bool bInterruted);
+	//void MontageBlendOut(UAnimMontage* Montage, bool bInterruted); //애니메이션이 중간에 끊길 때 사용할 함수.
+
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 };

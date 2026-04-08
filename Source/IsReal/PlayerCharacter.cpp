@@ -359,6 +359,7 @@ void APlayerCharacter::EquipWeapon(EWeaponSlot NewSlot)
 		IsHasGun = true;
 		UE_LOG(LogTemp, Warning, TEXT("Equipped Weapon Slot: %d"), (int)NewSlot);
 	}
+	AttachWeapon();
 	UpdateCrosshair();
 }
 
@@ -389,6 +390,26 @@ void APlayerCharacter::PlayerDie() {
 	//AnimInstance->Montage_Play(DieMontage);
 	DoShootingEnd(); // 죽을 때 발사 멈추기
 	DoAimEnd(); // 죽을 때 조준 멈추기
+	//모든 무기 제거
+	for (int i = 0; i < WeaponSlot.Num(); i++)
+	{
+		AWeaponSystem* Weapon = WeaponSlot[i];
+
+		if (Weapon)
+		{
+			Weapon->Destroy(); // ⭐ 레벨에서 삭제
+		}
+	}
+
+	//슬롯 정리
+	CurrentWeapon = nullptr;
+	WeaponSlot[0] = nullptr;
+	WeaponSlot[1] = nullptr;
+	IsHasGun = false;
+	IsRifleEquipped = false;
+	IsPistolEquipped = false;
+	IsSniperEquipped = false;
+	IsShotgunEquipped = false;
 	SpringArmComp->TargetArmLength = 400.f;
 }
 
@@ -431,7 +452,7 @@ void APlayerCharacter::Playerknockback() // delete
 	//}
 }
 
-//void APlayerCharacter::KnockbackMotion()
+//void APlayerCharacter::KnockbackMotion() //얘는 블프에서 실행될 함수라 만들면 두번 실행된다고 오류가난다.
 //{
 //
 //}
@@ -499,6 +520,7 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			break;
 		}
 		case EInteractionType::Box: {
+			if (!CanInteractBox)return;
 			IInteractable::Execute_Interact(HitActor, this);
 			AWeaponBox* weaponbox = Cast<AWeaponBox>(HitActor);
 			AWeaponSystem* Weapon = weaponbox->SpawnWeapon();
@@ -523,14 +545,15 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 				break;
 			}
 			}
-			WeaponSlot[(int)slot] = Weapon;
-			//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-			//기존 무기 제거
-			if (CurrentWeapon) 
-			{
-				CurrentWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			// @@@@@@@@@@@@@기존 같은 슬롯의 무기는 무조건 Detach하고 없애고 
+			AWeaponSystem* OldWeapon = WeaponSlot[(int)slot];
+			if (OldWeapon) {
+				OldWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+				OldWeapon->Destroy();
 			}
-			//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			// @@@@@@@@@@@@그 다음에 새무기 넣기
+			WeaponSlot[(int)slot] = Weapon;
+			
 			CurrentWeapon = Weapon;
 			IsHasGun = true; // 이건 추후에 BP에서 설정안하게 하면 추가하면됨
 			// 그리고 맨위에 weaponsocket같은거 attach여기서 하면될거같은데
@@ -554,6 +577,20 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 void APlayerCharacter::AttachWeapon()
 {
 	if (!CurrentWeapon) return;
+
+	for (int i = 0; i < WeaponSlot.Num(); i++) //CurrentWeapon이 아닌 얘들만 숨겨줌
+	{
+		AWeaponSystem* Weapon = WeaponSlot[i];
+		if (Weapon && Weapon != CurrentWeapon)
+		{
+			Weapon->SetActorHiddenInGame(true);
+		}
+	}
+
+	// 그래도 혹시 모르니 현재 무기만 보이게 한번더 설정한다.
+	CurrentWeapon->SetActorHiddenInGame(false);
+
+
 	FName SocketName = NAME_None;
 	
 
@@ -607,6 +644,8 @@ void APlayerCharacter::SetWeaponEquipped() {
 		PlayGetPrimaryMontage();
 		IsShotgunEquipped = true;
 		break;
+	default:
+		break;
 	}
 }
 
@@ -617,6 +656,7 @@ void APlayerCharacter::PlayGetPrimaryMontage()
 		if (CurrentWeapon)
 		{
 			CurrentWeapon->CanShooting = false;
+			CanInteractBox = false;
 		}
 
 		AnimInstance->Montage_Play(GetRifleMontage);
@@ -635,6 +675,7 @@ void APlayerCharacter::PlayGetSecondaryMontage()
 		if (CurrentWeapon)
 		{
 			CurrentWeapon->CanShooting = false;
+			CanInteractBox = false;
 		}
 
 		AnimInstance->Montage_Play(GetPistolMontage);
@@ -651,6 +692,7 @@ void APlayerCharacter::MontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	if ((Montage == GetRifleMontage || Montage == GetPistolMontage) && CurrentWeapon)
 	{
 		CurrentWeapon->CanShooting = true;
+		CanInteractBox = true;
 	}
 }
 
