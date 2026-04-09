@@ -12,6 +12,15 @@ void UEnemyEventSubsystem::EnemyDieNotify(AEnemy* diedEnemy, float TimeEnergy)
 	UE_LOG(LogTemp, Log, TEXT("Enemy Die"));
 }  
 
+void UEnemyEventSubsystem::PlayerDieNotifyToEnemy()
+{
+	if (PlayerDieDelegate.IsBound()) {
+		PlayerDieDelegate.Broadcast();
+	}
+	
+	UE_LOG(LogTemp, Log, TEXT("Player Die Delegate Broadcast."));
+}
+
 void UEnemyEventSubsystem::AddEnemytoArray(AEnemy* spawnedEnemy)
 {
 	AliveEnemyArray.AddUnique(spawnedEnemy);
