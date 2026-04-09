@@ -33,4 +33,13 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Possibility | Attack Ranges")
 	float ChargeMaxRange = 1500.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Possibility | Attack Preference")
+	float ClawAttackPreference = 2.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Possibility | Attack Preference")
+	float JumpAttackPreference = 1.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Possibility | Attack Preference")
+	float ChargeAttackPreference = 1.0f;
 };
