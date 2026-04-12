@@ -18,6 +18,7 @@
 #include "HealthComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraComponent.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()  
@@ -50,6 +51,12 @@ APlayerCharacter::APlayerCharacter()
 
 	// health system Component
 	HealthSystemComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthSystemComp"));
+
+	SkeletalMeshForEffect = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMeshForEffect"));
+	SkeletalMeshForEffect->SetupAttachment(GetMesh()); // 일단 캐릭터 메시에 붙임
+
+	MovementEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("MovementEffect"));
+	MovementEffect->SetupAttachment(SkeletalMeshForEffect);
 
 }
 
@@ -109,6 +116,13 @@ void APlayerCharacter::BeginPlay()
 		);
 	}
 	AnimInstance = GetMesh()->GetAnimInstance();
+
+
+	if (MovementEffect)
+	{
+		MovementEffect->Deactivate();
+	}
+	SkeletalMeshForEffect->SetHiddenInGame(true);
 }
 
 // Called every frame
@@ -193,6 +207,21 @@ void APlayerCharacter::UpdateCrosshair()
 	}
 }
 
+void APlayerCharacter::StartAfterImage()
+{
+	if (MovementEffect)
+	{
+		MovementEffect->Activate();
+	}
+}
+
+void APlayerCharacter::StopAfterImage()
+{
+	if (MovementEffect)
+	{
+		MovementEffect->Deactivate();
+	}
+}
 
 
 void APlayerCharacter::Rewind(const FInputActionValue& inputValue)

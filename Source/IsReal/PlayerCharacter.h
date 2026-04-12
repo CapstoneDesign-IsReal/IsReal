@@ -11,6 +11,7 @@ class AWeaponSystem;
 class UCoreSystem;
 class UHealthComponent;
 class AWeaponBox;
+class UNiagaraComponent;
 
 #include "PlayerCharacter.generated.h"
 
@@ -238,6 +239,11 @@ protected:
 	UPROPERTY(EditAnywhere, BluePrintReadWrite)
 	bool CanInteractBox = true; //무기를 interact할 때 계속 눌러서 equip하는 것을 방지하는 변수 처음에는 true여야 한다.
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	UNiagaraComponent* MovementEffect; //잔상 나이아가라 컴포넌트
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	USkeletalMeshComponent* SkeletalMeshForEffect; //잔상 나이아가라를 붙일 스켈레탈 메시 (왜냐면 기본 우리 캐릭터 메시로 하면 스파클이 이상하게 생겨서 하나 만들어서 거기에 붙인다.)
 
 public:
 	void UnEquipWeapon();
@@ -268,6 +274,9 @@ public:
 	void Playerknockback();
 
 	void UpdateMoveSpeed();
+
+	void StartAfterImage(); // 잔상 보이게 하는 함수
+	void StopAfterImage(); // 잔상 안보이게 하는 함수
 
 	
 	// 애님몽타주
