@@ -143,6 +143,7 @@ void AWeaponSystem::FireLineTrace()
 	if (!CanShooting) return;
 	if (CurrentAmmo <= 0) {
 		UE_LOG(LogTemp, Warning, TEXT("No Ammo!"));
+		UGameplayStatics::PlaySoundAtLocation(this, NoAmmoSound, GetActorLocation());
 		return;
 	}
 	// 한발 쏠 때마다 ammo -1 

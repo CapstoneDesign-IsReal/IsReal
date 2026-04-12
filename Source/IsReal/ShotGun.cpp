@@ -74,6 +74,7 @@ void AShotGun::ShotGunFireLineTrace()
 	// 샷건의 탄약 관리는 예외적으로 자식 클래스에서 직접 구현
 	if (CurrentAmmo <= 0) {
 		UE_LOG(LogTemp, Warning, TEXT("No Ammo!"));
+		UGameplayStatics::PlaySoundAtLocation(this, NoAmmoSound, GetActorLocation());
 		return;
 	}
 
