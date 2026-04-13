@@ -142,6 +142,7 @@ protected:
 
 	virtual void DoAimStart();
 
+	UFUNCTION(BlueprintCallable)
 	virtual void DoAimEnd();
 
 	virtual void DoShootingStart();

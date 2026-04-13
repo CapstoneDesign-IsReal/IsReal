@@ -288,11 +288,12 @@ void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 
 void APlayerCharacter::DoAimStart()
 {
+	if (IsRolling) return;
 	if (IsLookTimer) return; //타이머 보는동안 줌 안되게
 	if (IsHasGun) {
 		if (CameraComp&& SpringArmComp)
 		{
-			if (CurrentWeapon->GetWeaponType() == EWeaponType::EWT_Sniper)
+			if (CurrentWeapon && CurrentWeapon->GetWeaponType() == EWeaponType::EWT_Sniper)
 			{
 				// 저격총 
 				CameraComp->SetFieldOfView(20.f);
@@ -300,6 +301,8 @@ void APlayerCharacter::DoAimStart()
 				SpringArmComp->SocketOffset = FVector(0.f, 20.f, 70.f);
 				//캐릭터 메시 안보이게 하기 
 				GetMesh()->SetOwnerNoSee(true);
+				//총도 숨기기 (크로스헤어에 삐죽 튀어나오기 때문에)
+				CurrentWeapon->SetActorHiddenInGame(true);
 			}
 			else
 			{
@@ -323,7 +326,11 @@ void APlayerCharacter::DoAimEnd()
 			CameraComp->SetFieldOfView(DefaultFOV);
 			SpringArmComp->TargetArmLength = DefaultArmLength;
 			SpringArmComp->SocketOffset = FVector(0.f, 70.f, 50.f);
-			GetMesh()->SetOwnerNoSee(false);
+			if (CurrentWeapon && CurrentWeapon->GetWeaponType() == EWeaponType::EWT_Sniper)
+			{
+				GetMesh()->SetOwnerNoSee(false);
+				CurrentWeapon->SetActorHiddenInGame(false);
+			}
 		}
 		isAiming = false;
 		UpdateMoveSpeed();
@@ -383,13 +390,17 @@ void APlayerCharacter::EquipSecondaryWeapon(const struct FInputActionValue& inpu
 
 void APlayerCharacter::EquipWeapon(EWeaponSlot NewSlot)
 {
+	if (IsRolling)
+		return;
 	if (WeaponSlot[(int)NewSlot]) {
+		DoAimEnd();
+		DoShootingEnd();
 		CurrentWeapon = WeaponSlot[(int)NewSlot];
 		IsHasGun = true;
 		UE_LOG(LogTemp, Warning, TEXT("Equipped Weapon Slot: %d"), (int)NewSlot);
+		AttachWeapon();
+		UpdateCrosshair();
 	}
-	AttachWeapon();
-	UpdateCrosshair();
 }
 
 void APlayerCharacter::UnEquipWeapon()
@@ -419,6 +430,7 @@ void APlayerCharacter::PlayerDie() {
 	//AnimInstance->Montage_Play(DieMontage);
 	DoShootingEnd(); // 죽을 때 발사 멈추기
 	DoAimEnd(); // 죽을 때 조준 멈추기
+	StopAfterImage();
 	//모든 무기 제거
 	for (int i = 0; i < WeaponSlot.Num(); i++)
 	{
@@ -550,6 +562,7 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 		}
 		case EInteractionType::Box: {
 			if (!CanInteractBox)return;
+			if (IsRolling)return;
 			IInteractable::Execute_Interact(HitActor, this);
 			AWeaponBox* weaponbox = Cast<AWeaponBox>(HitActor);
 			AWeaponSystem* Weapon = weaponbox->SpawnWeapon();
