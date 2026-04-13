@@ -190,21 +190,24 @@ void AWeaponSystem::FireLineTrace()
 
 	CurrentGun = nullptr;
 
-	switch (_weapontype)
-	{
-	case EWeaponType::EWT_Rifle:
-		CurrentGun = PC->GetRifleMesh();
-		break;
-	case EWeaponType::EWT_Pistol:
-		CurrentGun = PC->GetPistolMesh();
-		break;
-	case EWeaponType::EWT_Sniper:
-		CurrentGun = PC->GetRifleMesh(); // 일단 임시로 라이플 메쉬 사용
-		break;
-	default:
-		CurrentGun = nullptr;
-		break;
-	}
+	CurrentGun = FindComponentByClass<USkeletalMeshComponent>();
+
+	//switch (_weapontype)
+	//{
+	//case EWeaponType::EWT_Rifle:
+	//	CurrentGun = PC->GetRifleMesh();
+	//	break;
+	//case EWeaponType::EWT_Pistol:
+	//	CurrentGun = PC->GetPistolMesh();
+	//	break;
+	//case EWeaponType::EWT_Sniper:
+	//	CurrentGun = PC->GetRifleMesh(); // 일단 임시로 라이플 메쉬 사용
+	//	break;
+	//default:
+	//	CurrentGun = nullptr;
+	//	break;
+	//}
+
 
 	FVector MuzzleLocation = CurrentGun->GetSocketLocation(TEXT("WeaponSocket"));
 	//FRotator MuzzleRotation = gunMeshComp->GetSocketRotation(TEXT("WeaponSocket"));
@@ -305,8 +308,9 @@ void AWeaponSystem::ScatterFireLineTrace()
 
 	CurrentGun = nullptr;
 
-	if (_weapontype == EWeaponType::EWT_Shotgun) CurrentGun = PC->GetRifleMesh();  // 임시로 라이플 메쉬 사용중
-	else CurrentGun = nullptr;
+	//if (_weapontype == EWeaponType::EWT_Shotgun) CurrentGun = PC->GetRifleMesh();  // 임시로 라이플 메쉬 사용중
+	//else CurrentGun = nullptr;
+	CurrentGun = FindComponentByClass<USkeletalMeshComponent>();
 
 	FVector MuzzleLocation = CurrentGun->GetSocketLocation(TEXT("WeaponSocket"));
 	//FRotator MuzzleRotation = gunMeshComp->GetSocketRotation(TEXT("WeaponSocket"));
