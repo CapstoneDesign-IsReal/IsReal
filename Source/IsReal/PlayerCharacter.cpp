@@ -322,14 +322,7 @@ void APlayerCharacter::DoShootingStart()
 	if (IsHasGun) {
 		IsShooting = true;
 		UpdateMoveSpeed();
-		if (CurrentWeapon->GetWeaponAmmo() > 0) 
-		{
-			CurrentWeapon->WeaponFire();
-		}
-		else
-		{
-			CurrentWeapon->WeaponStopFire();
-		}
+		CurrentWeapon->WeaponFire();
 	}
 }
 

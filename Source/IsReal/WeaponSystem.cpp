@@ -79,9 +79,6 @@ void AWeaponSystem::WeaponReload()
 		if (isReloading == false)
 		{
 			isReloading = true;
-			// Play Weapon Reload Sound
-			UGameplayStatics::PlaySoundAtLocation(this, ReloadSound, GetActorLocation());
-
 			// 리로드 쿨타임 타이머 시작
 			GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &AWeaponSystem::WeaponReloadCooldown, ReloadCoolTime, false);
 
@@ -143,12 +140,13 @@ bool AWeaponSystem::IsReloading(){ return isReloading; }
 
 void AWeaponSystem::FireLineTrace()
 {
-	if (!CanShooting) return;
 	if (CurrentAmmo <= 0) {
 		UE_LOG(LogTemp, Warning, TEXT("No Ammo!"));
 		UGameplayStatics::PlaySoundAtLocation(this, NoAmmoSound, GetActorLocation());
 		return;
 	}
+	if (!CanShooting) return;
+	
 	// 한발 쏠 때마다 ammo -1 
 	CurrentAmmo--;
 	// 사운드 재생
