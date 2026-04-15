@@ -79,6 +79,9 @@ void AWeaponSystem::WeaponReload()
 		if (isReloading == false)
 		{
 			isReloading = true;
+			// Play Weapon Reload Sound
+			UGameplayStatics::PlaySoundAtLocation(this, ReloadSound, GetActorLocation());
+
 			// 리로드 쿨타임 타이머 시작
 			GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &AWeaponSystem::WeaponReloadCooldown, ReloadCoolTime, false);
 

@@ -15,7 +15,7 @@ ASniperRifle::ASniperRifle()
 	PitchRecoilAmount = 1.3f;
 	YawRecoilAmount = 0.05f;
 
-	ReloadCoolTime = 1.5f;
+	ReloadCoolTime = 2.0f;
 }
 
 void ASniperRifle::BeginPlay()

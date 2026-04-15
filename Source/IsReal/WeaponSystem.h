@@ -54,6 +54,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Weapon Sound")
 	USoundBase* NoAmmoSound;
 
+	// Reload Sound
+	UPROPERTY(EditAnywhere, Category = "Weapon Sound")
+	USoundBase* ReloadSound;
+
 	// Muzzle Fire VFX
 	UPROPERTY(EditAnywhere, Category = "Weapon VFX")
 	UNiagaraSystem* MuzzleFireVFX;
