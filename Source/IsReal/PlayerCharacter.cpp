@@ -296,9 +296,9 @@ void APlayerCharacter::DoAimStart()
 			if (CurrentWeapon && CurrentWeapon->GetWeaponType() == EWeaponType::EWT_Sniper)
 			{
 				// 저격총 
-				CameraComp->SetFieldOfView(20.f);
-				SpringArmComp->TargetArmLength = 50.f;
-				SpringArmComp->SocketOffset = FVector(0.f, 20.f, 70.f);
+				CameraComp->SetFieldOfView(SniperFOV);
+				SpringArmComp->TargetArmLength = SniperArmLength;
+				SpringArmComp->SocketOffset = SniperSocketOffset;
 				//캐릭터 메시 안보이게 하기 
 				GetMesh()->SetOwnerNoSee(true);
 				//총도 숨기기 (크로스헤어에 삐죽 튀어나오기 때문에)
@@ -403,24 +403,24 @@ void APlayerCharacter::EquipWeapon(EWeaponSlot NewSlot)
 	}
 }
 
-void APlayerCharacter::UnEquipWeapon()
+void APlayerCharacter::UnEquipWeapon() 
 {
 	if(IsShooting || isAiming) 
 	{
 		DoShootingEnd(); // 발사 중이면 발사 종료
 		DoAimEnd(); // 조준 중이면 조준 종료
 	}
-	if (WeaponSlot[(int)EWeaponSlot::Secondary] == nullptr) // 보조무기가 없다면
-	{
-		IsHasGun = false;
-		CurrentWeapon = nullptr;
-		WeaponSlot[(int)EWeaponSlot::Primary] = nullptr;
-	}
-	else												   // 보조무기가 있으면 보조로 교체
-	{
-		CurrentWeapon = WeaponSlot[(int)EWeaponSlot::Secondary];
-		WeaponSlot[(int)EWeaponSlot::Primary] = nullptr;
-	}
+	// 애니메이션 스테이트 전환에서 총안든 상태로 전환
+	IsRifleEquipped = false;
+	IsPistolEquipped = false;
+	IsSniperEquipped = false;
+	IsShotgunEquipped = false;
+
+	IsHasGun = false;
+	CurrentWeapon = nullptr;
+	WeaponSlot[(int)EWeaponSlot::Primary] = nullptr;
+	WeaponSlot[(int)EWeaponSlot::Secondary] = nullptr;
+
 	UE_LOG(LogTemp, Warning, TEXT("Unequipped Weapon"));
 }
 
@@ -438,19 +438,9 @@ void APlayerCharacter::PlayerDie() {
 
 		if (Weapon)
 		{
-			Weapon->Destroy(); // ⭐ 레벨에서 삭제
+			Weapon->Destroy(); // 레벨에서 삭제
 		}
 	}
-
-	//슬롯 정리
-	CurrentWeapon = nullptr;
-	WeaponSlot[0] = nullptr;
-	WeaponSlot[1] = nullptr;
-	IsHasGun = false;
-	IsRifleEquipped = false;
-	IsPistolEquipped = false;
-	IsSniperEquipped = false;
-	IsShotgunEquipped = false;
 	SpringArmComp->TargetArmLength = 400.f;
 }
 
@@ -644,7 +634,7 @@ void APlayerCharacter::AttachWeapon()
 		SocketName = TEXT("Rifle");
 		break;
 	case EWeaponType::EWT_Sniper:
-		SocketName = TEXT("Sniper");
+		SocketName = TEXT("Sniper_L");
 		break;
 	case EWeaponType::EWT_Shotgun:
 		SocketName = TEXT("Shotgun");

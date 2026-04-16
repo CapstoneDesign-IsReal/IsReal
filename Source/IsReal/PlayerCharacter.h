@@ -246,6 +246,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
 	USkeletalMeshComponent* SkeletalMeshForEffect; //잔상 나이아가라를 붙일 스켈레탈 메시 (왜냐면 기본 우리 캐릭터 메시로 하면 스파클이 이상하게 생겨서 하나 만들어서 거기에 붙인다.)
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sniper")
+	float SniperFOV = 20.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sniper")
+	float SniperArmLength = 50.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sniper")
+	FVector SniperSocketOffset = FVector(0.f, 20.f, 70.f);
+
+
+
 public:
 	void UnEquipWeapon();
 	bool GetIsDie() { return IsDie; }
