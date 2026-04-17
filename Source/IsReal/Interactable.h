@@ -14,6 +14,7 @@ enum class EInteractionType : uint8
 	CCTV,
 	Monitor,
 	Card,
+	Box,
 	None
 };
 

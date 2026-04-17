@@ -10,6 +10,8 @@ class UNiagaraSystem;
 class AWeaponSystem;
 class UCoreSystem;
 class UHealthComponent;
+class AWeaponBox;
+class UNiagaraComponent;
 
 #include "PlayerCharacter.generated.h"
 
@@ -49,7 +51,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	UStaticMeshComponent* GetPistolMesh() const { return Pistol1; }
 
-
+private:
+	// 델리게이트용 Subsystem
+	UCoreEventSubsystem* coresubsystem;
 
 protected:
 	// Called every frame
@@ -79,6 +83,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	UUserWidget* NormalCrossHairWidget;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UUserWidget> ShotgunCrossHairWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	UUserWidget* ShotgunCrossHairWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UUserWidget> SniperCrossHairWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	UUserWidget* SniperCrossHairWidget;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
@@ -114,9 +127,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input") // 2번키 - 보조무기
 		class UInputAction* ia_EquipSecondary;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input") // Shift 구르기
+		class UInputAction* ia_Roll;
 
 
 
+	//void Roll(const struct FInputActionValue& inputValue);
 
 	void Rewind(const struct FInputActionValue& inputValue); 
 
@@ -128,6 +144,7 @@ protected:
 
 	virtual void DoAimStart();
 
+	UFUNCTION(BlueprintCallable)
 	virtual void DoAimEnd();
 
 	virtual void DoShootingStart();
@@ -171,10 +188,10 @@ protected:
 	float AimFOV = 65.f; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float DefaultArmLength = 400.f; 
+	float DefaultArmLength = 150.f; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float AimArmLength = 200.f; 
+	float AimArmLength = 100.f; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aim")
 	bool isAiming = false; 
@@ -186,12 +203,13 @@ protected:
 	FTimerHandle AutoFireTimer;  
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	FTimerHandle KnockbackTimer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	bool IsShooting = false; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float FireRange = 3000.f;
-
-
 	
 	UPROPERTY(EditAnywhere, BluePrintReadWrite) 
 	bool IsLookTimer = false;
@@ -199,10 +217,47 @@ protected:
 	UPROPERTY(EditAnywhere, BluePrintReadWrite)
 	bool IsDie = false;
 
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)
+	bool IsDieAnim = false; //애니메이션을 위한 die 변수
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	EWeaponType type;
+	EWeaponType Type;
 
 	bool isCombat = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anim")
+	bool IsRolling;
+
+	void UpdateCrosshair();
+
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)
+	bool IsRifleEquipped = false; //애니메이션을 스테이트 전환을 위한 변수
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)
+	bool IsPistolEquipped = false; //애니메이션을 스테이트 전환을 위한 변수
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)
+	bool IsSniperEquipped = false; //애니메이션을 스테이트 전환을 위한 변수
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)
+	bool IsShotgunEquipped = false; //애니메이션을 스테이트 전환을 위한 변수
+
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)
+	bool CanInteractBox = true; //무기를 interact할 때 계속 눌러서 equip하는 것을 방지하는 변수 처음에는 true여야 한다.
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	UNiagaraComponent* MovementEffect; //잔상 나이아가라 컴포넌트
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	USkeletalMeshComponent* SkeletalMeshForEffect; //잔상 나이아가라를 붙일 스켈레탈 메시 (왜냐면 기본 우리 캐릭터 메시로 하면 스파클이 이상하게 생겨서 하나 만들어서 거기에 붙인다.)
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sniper")
+	float SniperFOV = 20.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sniper")
+	float SniperArmLength = 50.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sniper")
+	FVector SniperSocketOffset = FVector(0.f, 20.f, 70.f);
+
+
 
 public:
 	void UnEquipWeapon();
@@ -210,6 +265,7 @@ public:
 	// 전투 상태 getters and setters
 	bool GetIsCombat() { return isCombat; }
 	void SetIsCombat(bool combat) { isCombat = combat; }
+	bool GetIsAiming() { return isAiming; }
 
 	// 슬롯에 들어있는 무기 자체 반환
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
@@ -228,4 +284,44 @@ public:
 
 	void PlayerDie();
 
+	void PlayerHit(float damage);
+	void Playerknockback();
+
+	void UpdateMoveSpeed();
+
+	void StartAfterImage(); // 잔상 보이게 하는 함수
+	void StopAfterImage(); // 잔상 안보이게 하는 함수
+
+	
+	// 애님몽타주
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* HitMontage;
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* ToggleClockMontage;
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* GetRifleMontage;
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* GetPistolMontage;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void KnockbackMotion();
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	// 플레이어의 애님인스턴스 자체를 가져오는 변수
+	UAnimInstance* AnimInstance;
+
+private:
+	void KnockbackEnd();
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	void AttachWeapon(); //CurrentWeapon만 Attach하게 하는 함수
+	void DetachWeapon();
+	void PlayGetPrimaryMontage(); // 주무기를 interact하는 함수
+	void PlayGetSecondaryMontage(); // 보조무기를 interact 함수
+	void SetWeaponEquipped(); // Equipped 불변수를 셋팅하는 함수
+	void MontageEnded(UAnimMontage* Montage, bool bInterruted);
+	//void MontageBlendOut(UAnimMontage* Montage, bool bInterruted); //애니메이션이 중간에 끊길 때 사용할 함수.
+
+	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 };

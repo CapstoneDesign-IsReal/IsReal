@@ -9,45 +9,51 @@
 #include "HealthComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class ISREAL_API UHealthComponent : public UActorComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
-	UHealthComponent();
+public:
+    // Sets default values for this component's properties
+    UHealthComponent();
 
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
+    // Called when the game starts
+    virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+public:
+    // Called every frame
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	float GetPlayerHP();
+    float GetPlayerHP();
+
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	bool GetIsInvincible() const { return IsInvincible; }
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void SetIsInvincible(bool bInvincible) { IsInvincible = bInvincible; }
 
 	void hit(float damage);
 
 	//Player Current HP
 	UPROPERTY(EditAnywhere, BluePrintReadWrite)
 	float PlayerHP = 100.0;
-	
-	// µ¨¸®°ÔÀÌÆ®¿ë Subsystem
+
+	// ë¸ë¦¬ê²Œì´íŠ¸ìš© Subsystem
 	UCoreEventSubsystem* coresubsys;
 private:
 
-	void heal();
-	void ExitCombat();
-	void ResetHP();
-	
-	float LastHitTime = 0.0f;
-	float CombatExitDelay = 5.0f; // °ø°İÀ» ¹ŞÀº ÈÄ ÀüÅõ »óÅÂ¿¡¼­ ¹ş¾î³ª´Â ½Ã°£ (ÃÊ)
+    void heal();
+    void ExitCombat();
+    void ResetHP();
 
+    float LastHitTime = 0.0f;
+    float CombatExitDelay = 5.0f; // ê³µê²©ì„ ë°›ì€ í›„ ì „íˆ¬ ìƒíƒœì—ì„œ ë²—ì–´ë‚˜ëŠ” ì‹œê°„ (ì´ˆ)
 
-	APlayerCharacter* player;
+    bool IsInvincible = false;
 
-	FTimerHandle LastHitTimeHandle; // ¸¶Áö¸· °ø°İ ½Ã°£À» ÃßÀûÇÏ´Â Å¸ÀÌ¸Ó ÇÚµé
-	FTimerHandle RegenTimerHandle; // Ã¼·Â È¸º¹ Å¸ÀÌ¸Ó ÇÚµé
+    APlayerCharacter* player;
+
+    FTimerHandle LastHitTimeHandle; // ë§ˆì§€ë§‰ ê³µê²© ì‹œê°„ì„ ì¶”ì í•˜ëŠ” íƒ€ì´ë¨¸ í•¸ë“¤
+    FTimerHandle RegenTimerHandle; // ì²´ë ¥ íšŒë³µ íƒ€ì´ë¨¸ í•¸ë“¤
 };

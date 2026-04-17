@@ -4,16 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "WeaponSystem.h"
-#include "Interactable.h"
 #include "SniperRifle.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ISREAL_API ASniperRifle : public AWeaponSystem, public IInteractable
+class ISREAL_API ASniperRifle : public AWeaponSystem
 {
 	GENERATED_BODY()
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
 public:
 	ASniperRifle();
 
@@ -23,8 +27,6 @@ public:
 	virtual void WeaponStopFire() override;
 	virtual void WeaponReload() override;
 
-	virtual void Interact_Implementation(AActor* Interactor) override;
-	virtual EInteractionType GetInteractionType_Implementation() override;
 private:
 	// 연타 방지용 타이머
 	float LastFireTime = -1000.f;

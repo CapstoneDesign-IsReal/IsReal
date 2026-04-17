@@ -36,7 +36,9 @@ float UHealthComponent::GetPlayerHP() { return PlayerHP; }
 
 void UHealthComponent::hit(float damage) 
 {
+	if (GetIsInvincible()) return;
 	PlayerHP -= damage;
+	player->Playerknockback();
 	if (PlayerHP <= 0) {
 		player->PlayerDie();
 	}

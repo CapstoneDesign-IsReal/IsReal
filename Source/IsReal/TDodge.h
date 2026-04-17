@@ -9,7 +9,7 @@
 #include "BehaviorTree/BTTaskNode.h"
 #include "TDodge.generated.h"
 
-
+class UAnimMontage;
 /**
  * 
  */
@@ -21,9 +21,17 @@ class ISREAL_API UTDodge : public UBTTaskNode
 private:
 	UPROPERTY(EditAnywhere)
 	FBlackboardKeySelector DestinationKey;
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	UAnimMontage* DodgeMontage;	//set in Behavior Tree Blueprint
+
+protected:
+	virtual EBTNodeResult::Type AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
 public:
 	UTDodge();
-	void ExceptionCheck();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
+
+	UFUNCTION(BlueprintCallable)
+	void OnDodgeMontageEnd(UAnimMontage* PlayedMontage, bool bInterrupted, UBehaviorTreeComponent* OwnerComp);
 };

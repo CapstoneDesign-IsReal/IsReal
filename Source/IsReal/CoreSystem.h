@@ -39,14 +39,27 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
 	void RewindOnDeath();
 
+	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
+	void PauseRewind();
+	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
+	void UnPauseRewind();
+
 	// 과거 체류시간 getter, setter
 	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
 	float GetRewindCoolTime() { return RewindCoolTime; }
 	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
 	void SetRewindCoolTime(float CoolTime) { RewindCoolTime = CoolTime; }
 
+	// 남은 시간 알려주는 함수
+	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
+	float GetLeftCoolTime() { return (RewindCoolTime - CurruntRewindCoolTime); }
+
 	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
 	bool GetIsRewind() { return Is_Rewind; }
+
+	// coreHeal - 외부에서 core 회복을 위한 함수
+	void CoreHeal(int value);
+
 private:
 	// Rewind State
 	bool Is_Rewind = false;
@@ -61,8 +74,6 @@ private:
 	FTimerHandle RewindTimerHandle;
 	// Rewind Cooldown function
 	void RewindCooldown();
-	// Core Heal
-	void CoreHeal();
 
 	// Rewind Effect
 	UPROPERTY(EditAnywhere, Category = "VFX")

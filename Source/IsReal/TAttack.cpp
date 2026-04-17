@@ -40,7 +40,6 @@ EBTNodeResult::Type UTAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uin
 			currentEnemy->StopAnimMontage(AttackMontage);
 		return EBTNodeResult::Succeeded;
 	}
-
 	
 	if(!AttackMontage) return EBTNodeResult::Failed;
 	currentEnemy->PlayAnimMontage(AttackMontage);
@@ -61,7 +60,6 @@ void UTAttack::OnAttackMontageEnd(UAnimMontage* PlayedMontage, bool bInterrupted
 {
 	//UBlackboardComponent* BlackboardComp = OwnerComp->GetBlackboardComponent();
 	//if(!BlackboardComp) FinishLatentTask(*OwnerComp, EBTNodeResult::Failed);
-
 
 	if (OwnerComp) {
 		//BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Chase));

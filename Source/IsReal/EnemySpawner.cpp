@@ -4,6 +4,7 @@
 #include "EnemySpawner.h"
 #include "Enemy.h"
 
+
 // Sets default values
 AEnemySpawner::AEnemySpawner()
 {
@@ -14,6 +15,10 @@ AEnemySpawner::AEnemySpawner()
 // Called when the game starts or when spawned
 void AEnemySpawner::BeginPlay()
 {
+	if (GetGameInstance()) {
+		CoreEventSubsystem = GetGameInstance()->GetSubsystem<UCoreEventSubsystem>();
+		CoreEventSubsystem->RewindDoneDelegate.AddUObject(this, &AEnemySpawner::ResetEnemy);
+	}
 	if (GetWorld()) {
 		EnemyEventSubsystem = GetWorld()->GetSubsystem<UEnemyEventSubsystem>();
 	}
@@ -38,7 +43,7 @@ void AEnemySpawner::SpawnEnemy()
 	SpawnPointLocation = GetActorLocation();
 	SpawnPointRotation = GetActorRotation();
 
-	AEnemy* spawnedEnemy = GetWorld()->SpawnActor<AEnemy>(
+	SpawnedEnemy = GetWorld()->SpawnActor<AEnemy>(
 		SpawningTarget,
 		SpawnPointLocation,
 		SpawnPointRotation,
@@ -46,12 +51,27 @@ void AEnemySpawner::SpawnEnemy()
 	);
 
 	//setting initial Setting if needed
-	if (spawnedEnemy) {
-		InitialSetting(spawnedEnemy);
+	if (SpawnedEnemy) {
+		InitialSetting(SpawnedEnemy);
 	}
 }
 
 void AEnemySpawner::InitialSetting(AEnemy* spawned)
 {
-	EnemyEventSubsystem->AddEnemyArray(spawned);
+	EnemyEventSubsystem->AddEnemytoArray(spawned);
+}
+
+void AEnemySpawner::ResetEnemy()
+{
+	//do not reset when all enemy die
+	if (EnemyEventSubsystem->isAllEnemyDie())
+		return;
+
+	//do reset
+	if (IsValid(SpawnedEnemy)) {
+		EnemyEventSubsystem->DeleteEnemyfromArray(SpawnedEnemy);
+		SpawnedEnemy->Destroy();
+	}
+		
+	SpawnEnemy();
 }

@@ -8,7 +8,8 @@
 
 class AEnemy;
 
-DECLARE_MULTICAST_DELEGATE(FEnemyDieDelegate);
+DECLARE_MULTICAST_DELEGATE_OneParam(FEnemyDieDelegate, float);
+DECLARE_MULTICAST_DELEGATE(FPlayerDieDelegate);
 /**
  * 
  */
@@ -19,9 +20,12 @@ class ISREAL_API UEnemyEventSubsystem : public UWorldSubsystem
 	
 public:
 	FEnemyDieDelegate EnemyDieDelegate;	//for external class
+	FPlayerDieDelegate PlayerDieDelegate;
 
-	void EnemyDieNotify(AEnemy* diedEnemy);
-	void AddEnemyArray(AEnemy* spawnedEnemy);
+	void EnemyDieNotify(AEnemy* diedEnemy, float TimeEnergy);
+	void PlayerDieNotifyToEnemy();
+	void AddEnemytoArray(AEnemy* spawnedEnemy);
+	void DeleteEnemyfromArray(AEnemy* diedEnemy);
 	bool isAllEnemyDie();
 private:
 	UPROPERTY()

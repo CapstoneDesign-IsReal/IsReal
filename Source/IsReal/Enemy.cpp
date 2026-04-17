@@ -9,6 +9,9 @@
 #include "EnemyEventSubsystem.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "CoreSystem.h"
+#include "EnemyHitComponent.h"
 #include "GenericTeamAgentInterface.h"
 
 // Sets default values
@@ -23,6 +26,8 @@ AEnemy::AEnemy()
 
 	GetCharacterMovement()->bUseRVOAvoidance = true;
 	GetCharacterMovement()->AvoidanceConsiderationRadius = 100.0f;
+
+	EnemyHitComp = CreateDefaultSubobject<UEnemyHitComponent>(TEXT("EnemyHitComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -52,14 +57,11 @@ void AEnemy::Attack(APawn* target)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Attack Called"));
 	//Attack implement
-	auto player = Cast<APlayerCharacter>(target);
+	APlayerCharacter* Player = Cast<APlayerCharacter>(target);
 
-	if (player == nullptr) return;
-	UHealthComponent* playerHP = player->FindComponentByClass<UHealthComponent>();
+	if (!Player)	return;
 
-	if (playerHP == nullptr) return;
-	playerHP->hit(AttackDamage);
-	UE_LOG(LogTemp, Warning, TEXT("Current HP: %f"), playerHP->GetPlayerHP());
+	Player->PlayerHit(AttackDamage);
 }
 
 float AEnemy::getAttackRange()
@@ -87,22 +89,23 @@ void AEnemy::Chase(AActor* target)
 	EnemyController->MoveToActor(target);
 }
 
-void AEnemy::Hit(int damage)
+void AEnemy::Hit(int damage, FName HitBoneName)
 {
 	auto EnemyController = Cast<AEnemyController>(GetController());
+	//APlayerCharacter* CurrentPlayer = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	UBlackboardComponent* BlackboardComp = EnemyController->GetBlackboardComponent();
 
-	if (!EnemyController) {
-		UE_LOG(LogTemp, Warning, TEXT("<Controller Unpossessed Error>: No Controller"));
-	}
-	if (!BlackboardComp) {
-		UE_LOG(LogTemp, Warning, TEXT("<Perception Process Error>: No BlackBoard"));
+	if (!EnemyController || !BlackboardComp /* || !CurrentPlayer*/) {
+		UE_LOG(LogTemp, Warning, TEXT("<Controller Unpossessed Error>: Ptr Access Error"));
 		return;
 	}
+	UE_LOG(LogTemp, Warning, TEXT("HitBone : %s"), *HitBoneName.ToString());	//for debug
 
-	HP = HP - damage;
+	float ProcessedDamage = EnemyHitComp->DamageProcess(damage, HitBoneName);
 
-	UE_LOG(LogTemp, Warning, TEXT("Enemy HP : %f"), HP);
+	HP = HP - ProcessedDamage;
+
+	UE_LOG(LogTemp, Warning, TEXT("Enemy HP : %f"), HP);	//for debug
 
 	//Implement Dodge when 50% HP
 	if (HP <= MaxHP / 2.0 && !bIsLowHPTriggered && HP > 0) {
@@ -120,8 +123,13 @@ void AEnemy::Hit(int damage)
 		BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Die));
 
 		if (EnemyEventSubsystem) {
-			EnemyEventSubsystem->EnemyDieNotify(this);
+			EnemyEventSubsystem->EnemyDieNotify(this, TimeEnergy);
 		}
+
+		//=======================================
+		//UCoreSystem* PlayerCoreSystem = CurrentPlayer->FindComponentByClass<UCoreSystem>();
+		//PlayerCoreSystem->CoreHeal(TimeEnergy);
+		//=======================================
 	}
 }
 

@@ -46,18 +46,30 @@ protected:
 	// 무기 컴포넌트 // 이거 Weaponsystem으로 가져옴  25/11/16 (코드 리팩토링) 이건 삭제할지 안할지 물어봐야함
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GunMesh)
 	//class UStaticMeshComponent* gunMeshComp;
+	// Bullet Fire Sound
 	UPROPERTY(EditAnywhere, Category = "Weapon Sound")
 	USoundBase* FireSound;
+	
+	// Need to Reload Sound
+	UPROPERTY(EditAnywhere, Category = "Weapon Sound")
+	USoundBase* NoAmmoSound;
+
+	// Muzzle Fire VFX
+	UPROPERTY(EditAnywhere, Category = "Weapon VFX")
+	UNiagaraSystem* MuzzleFireVFX;
+
+	// Bullet Trail VFX
+	UPROPERTY(EditAnywhere, Category = "Weapon VFX")
+	UNiagaraSystem* BulletTrailVFX;
+
 private:
 	//  Weapon Type
 	EWeaponType _weapontype;
 
 	FVector StartVector;
 	FVector FwDirection;
-	;
-	UStaticMeshComponent* RifleMesh;
-	UStaticMeshComponent* PistolMesh;
-	UStaticMeshComponent* CurrentGun; //현재 총이 메시 어떤건지 담을 변수 
+	
+	USkeletalMeshComponent* CurrentGun; //현재 총이 메시 어떤건지 담을 변수 
 
 	// Reload State
 	bool isReloading = false;
@@ -71,6 +83,11 @@ private:
 protected:
 	float ReloadCoolTime;
 
+	// 총기 반동 변수
+	float PitchRecoilAmount;  // vertical recoil
+	float YawRecoilAmount;    // horizontal recoil
+	// 총기 반동 함수
+	void ApplyRecoil();
 public:
 	// 델리게이트용 Subsystem
 	UCoreEventSubsystem* coresubsys;
@@ -79,6 +96,7 @@ public:
 
 	// Weapon Type setters and getters
 	void SetWeaponType(EWeaponType NewType);
+	UFUNCTION(BlueprintCallable)
 	EWeaponType GetWeaponType() const;
 	// Weapon Ammo setters and getters
 	void SetWeaponAmmo(int ammo);
@@ -97,6 +115,12 @@ public:
 	// 라인트레이스로 총 구현할 함수
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void FireLineTrace();
+	// 샷건 라인트레이스 함수
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void ScatterFireLineTrace();
+
+	UPROPERTY(BlueprintReadWrite, Category = "Combat")
+	bool CanShooting = true;
 
 public:	
 	// Sets default values for this actor's properties
@@ -110,5 +134,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
 
 };

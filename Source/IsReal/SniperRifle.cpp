@@ -11,7 +11,18 @@ ASniperRifle::ASniperRifle()
 	FireRate = 1.5f;
 	TotalAmmo = 25;
 
-	ReloadCoolTime = 1.5f;
+	// 반동 변수
+	PitchRecoilAmount = 1.3f;
+	YawRecoilAmount = 0.05f;
+
+	ReloadCoolTime = 2.0f;
+}
+
+void ASniperRifle::BeginPlay()
+{
+	Super::BeginPlay();
+	// Reset Weapon Type when weapon is spawned
+	SetWeaponType(EWeaponType::EWT_Sniper);
 }
 
 void ASniperRifle::ResetAmmo()
@@ -46,16 +57,4 @@ void ASniperRifle::WeaponStopFire()
 void ASniperRifle::WeaponReload()
 {
 	AWeaponSystem::WeaponReload(); // 기본 리로드 기능 호출
-}
-
-void ASniperRifle::Interact_Implementation(AActor* Interactor)
-{
-	SetWeaponType(EWeaponType::EWT_Sniper);
-	//Destroy(); // 흠..Destroy가 있으면 한 몇초동안 아웃라이너에 남아있다가 사라짐
-	// 이 사실을 가지고 한 몇초 플레이를 한다면 총알이 발사가 안됨. 
-}
-
-EInteractionType ASniperRifle::GetInteractionType_Implementation()
-{
-	return EInteractionType::Gun;
 }

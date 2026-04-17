@@ -11,7 +11,18 @@ APistol::APistol()
 	FireRate = 0.5f;
 	TotalAmmo = 50;
 
+	// 반동 변수
+	PitchRecoilAmount = 0.6f;
+	YawRecoilAmount = 0.15f;
+
 	ReloadCoolTime = 1.5f;
+}
+
+void APistol::BeginPlay()
+{
+	Super::BeginPlay();
+	// Reset Weapon Type when weapon is spawned
+	SetWeaponType(EWeaponType::EWT_Pistol);
 }
 
 void APistol::ResetAmmo()
@@ -47,16 +58,4 @@ void APistol::WeaponStopFire()
 void APistol::WeaponReload()
 {
 	AWeaponSystem::WeaponReload(); // 기본 리로드 기능 호출
-}
-
-void APistol::Interact_Implementation(AActor* Interactor)
-{
-	SetWeaponType(EWeaponType::EWT_Pistol);
-	//Destroy(); // 흠..Destroy가 있으면 한 몇초동안 아웃라이너에 남아있다가 사라짐
-	// 이 사실을 가지고 한 몇초 플레이를 한다면 총알이 발사가 안됨. 
-}
-
-EInteractionType APistol::GetInteractionType_Implementation()
-{
-	return EInteractionType::Gun;
 }

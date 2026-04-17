@@ -48,6 +48,10 @@ void UCoreSystem::TryReWind()
 			GetWorld()->GetTimerManager().SetTimer(RewindTimerHandle, this, &UCoreSystem::RewindCooldown, 1.0f, true);
 			// to past
 			Is_Rewind = true;
+			if (OwnerCharacter)
+			{
+				OwnerCharacter->StartAfterImage();
+			}
 			RewindCore -= 100;
 			if (RewindVFX) 
 			{
@@ -82,7 +86,10 @@ void UCoreSystem::RewindCooldown()
 
 		// ����� �ö�
 		Is_Rewind = false;
-
+		if (OwnerCharacter)
+		{
+			OwnerCharacter->StopAfterImage();
+		}
 		// delegate trigger
 		if (GameInstance) 
 		{
@@ -90,16 +97,6 @@ void UCoreSystem::RewindCooldown()
 			if (coresubsystem)
 			{
 				coresubsystem->RewindDone();
-			}
-		}
-
-		// ��� ���� �׾����� �ھ� ȸ��
-		
-		if (enemyeventsubsys)
-		{
-			if (enemyeventsubsys->isAllEnemyDie())
-			{
-				CoreHeal();
 			}
 		}
 
@@ -147,8 +144,20 @@ void UCoreSystem::RewindOnDeath()   // ���� �� ����� ��
 	UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
 }
 
-void UCoreSystem::CoreHeal() 
+void UCoreSystem::CoreHeal(int value) 
 {
-	RewindCore += 100;
+	RewindCore += value;
 	if (RewindCore >= 300) RewindCore = 300;   // Max Rewind Core �̻����� �ȿö󰡰�
+}
+
+void UCoreSystem::PauseRewind() 
+{
+	GetWorld()->GetTimerManager().PauseTimer(RewindTimerHandle);
+	UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Rewind Paused"), true, true, FLinearColor::Green, 2.0f);
+}
+
+void UCoreSystem::UnPauseRewind() 
+{
+	GetWorld()->GetTimerManager().UnPauseTimer(RewindTimerHandle);
+	UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Rewind Unpaused"), true, true, FLinearColor::Green, 2.0f);
 }

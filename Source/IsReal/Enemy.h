@@ -9,6 +9,7 @@
 #include "GenericTeamAgentInterface.h"
 #include "Enemy.generated.h"
 
+class UEnemyHitComponent;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEnemyLowHPDelegate);
 /**
  *
@@ -44,11 +45,15 @@ protected:
 	float AttackCoolTime = 0.0f;	//notify Attack or Not
 	UPROPERTY(EditAnywhere, Category = "Enemy Params")
 	float AttackSpeed = 10.0f;		//Attack Speed
+	UPROPERTY(EditAnywhere, Category = "Enemy Params | Time")
+	float TimeEnergy = 10.0f;	
 	UPROPERTY(EditAnywhere, Category = "AI")
 	FGenericTeamId TeamID;
 
 	FTimerHandle CoolTimeHandle;	//timer handler
 	UEnemyEventSubsystem* EnemyEventSubsystem;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UEnemyHitComponent* EnemyHitComp;
 	bool bIsLowHPTriggered = false;
 public:
 	// Called every frame
@@ -66,7 +71,7 @@ public:
 	//void Chase(APawn* target);
 	void Chase(AActor*);
 	UFUNCTION(BlueprintCallable)
-	void Hit(int damage);
+	void Hit(int damage, FName HitBoneName);
 	UFUNCTION(BlueprintCallable)
 	void DestroyEnemy();
 	virtual FGenericTeamId GetGenericTeamId() const override;

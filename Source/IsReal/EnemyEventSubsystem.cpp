@@ -3,18 +3,32 @@
 
 #include "EnemyEventSubsystem.h"
 
-void UEnemyEventSubsystem::EnemyDieNotify(AEnemy* diedEnemy)
+void UEnemyEventSubsystem::EnemyDieNotify(AEnemy* diedEnemy, float TimeEnergy)
 {
 	if (EnemyDieDelegate.IsBound())	{
-		EnemyDieDelegate.Broadcast();
+		EnemyDieDelegate.Broadcast(TimeEnergy);
 	}
-	AliveEnemyArray.RemoveSwap(diedEnemy);
+	DeleteEnemyfromArray(diedEnemy);
 	UE_LOG(LogTemp, Log, TEXT("Enemy Die"));
 }  
 
-void UEnemyEventSubsystem::AddEnemyArray(AEnemy* spawnedEnemy)
+void UEnemyEventSubsystem::PlayerDieNotifyToEnemy()
+{
+	if (PlayerDieDelegate.IsBound()) {
+		PlayerDieDelegate.Broadcast();
+	}
+	
+	UE_LOG(LogTemp, Log, TEXT("Player Die Delegate Broadcast."));
+}
+
+void UEnemyEventSubsystem::AddEnemytoArray(AEnemy* spawnedEnemy)
 {
 	AliveEnemyArray.AddUnique(spawnedEnemy);
+}
+
+void UEnemyEventSubsystem::DeleteEnemyfromArray(AEnemy* diedEnemy)
+{
+	AliveEnemyArray.RemoveSwap(diedEnemy);
 }
 
 //return true if all enemy die
