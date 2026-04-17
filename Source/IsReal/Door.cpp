@@ -20,6 +20,13 @@ ADoor::ADoor()
 	DoorButton->SetupAttachment(RootComponent);
 
 
+	LockedDisplayComp = CreateDefaultSubobject<UChildActorComponent>(TEXT("LockedDisplayComp"));
+	LockedDisplayComp->SetupAttachment(RootComponent);
+
+	UnlockedDisplayComp = CreateDefaultSubobject<UChildActorComponent>(TEXT("UnlockedDisplayComp"));
+	UnlockedDisplayComp->SetupAttachment(RootComponent);
+
+
 }
 
 void ADoor::BeginPlay()
@@ -33,14 +40,31 @@ void ADoor::BeginPlay()
 	// 열림 위치 계산
 	LeftOpenPos = LeftClosedPos + FVector(0.f, -200.f, 0.f);
 	RightOpenPos = RightClosedPos + FVector(0.f, 200.f, 0.f);
+
+	if (LockedDisplayComp) LockedDisplayComp->SetHiddenInGame(false);
+	if (UnlockedDisplayComp) UnlockedDisplayComp->SetHiddenInGame(true);
+
+	
 }
 
 void ADoor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!bMoving) return;
+	
+	if (!bIsDisplayUnlocked)
+	{
+		if (IsCardPresent() == false) // 작성하신 함수 그대로 사용!
+		{
+			bIsDisplayUnlocked = true; // 이제 다음 틱부터는 이 안으로 안 들어옴 (최적화)
 
+			if (LockedDisplayComp) LockedDisplayComp->SetHiddenInGame(true);
+			if (UnlockedDisplayComp) UnlockedDisplayComp->SetHiddenInGame(false);
+
+			UE_LOG(LogTemp, Warning, TEXT("Card Disappeared! UI Updated via Tick."));
+		}
+	}
+	if (!bMoving) return;
 	// 목표 위치 선택
 	FVector TargetLeft = _IsOpen ? LeftOpenPos : LeftClosedPos;
 	FVector TargetRight = _IsOpen ? RightOpenPos : RightClosedPos;
@@ -84,6 +108,8 @@ void ADoor::Interact_Implementation(AActor* Interactor)
 	
 	_IsOpen = !_IsOpen;
 	bMoving = true;
+	
+	
 }
 
 EInteractionType ADoor::GetInteractionType_Implementation()

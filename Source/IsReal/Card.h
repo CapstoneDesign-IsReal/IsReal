@@ -19,7 +19,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Card")
 	UStaticMeshComponent* CardMesh;
 
-	
+
 	virtual void Interact_Implementation(AActor* Interactor)override;
 	virtual EInteractionType GetInteractionType_Implementation()override;
 };

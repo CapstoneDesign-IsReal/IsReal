@@ -52,6 +52,11 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Door")
 	float MoveSpeed = 1.0f;
 
-	
+	UPROPERTY(VisibleAnywhere, Category = "Door_Display")
+	UChildActorComponent* LockedDisplayComp;
+
+	UPROPERTY(VisibleAnywhere, Category = "Door_Display")
+	UChildActorComponent* UnlockedDisplayComp;
+	bool bIsDisplayUnlocked = false;
 	bool IsCardPresent() const;
 };
