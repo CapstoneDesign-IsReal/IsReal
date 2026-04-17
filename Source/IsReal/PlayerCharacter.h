@@ -11,6 +11,7 @@ class AWeaponSystem;
 class UCoreSystem;
 class UHealthComponent;
 class AWeaponBox;
+class UNiagaraComponent;
 
 #include "PlayerCharacter.generated.h"
 
@@ -141,6 +142,7 @@ protected:
 
 	virtual void DoAimStart();
 
+	UFUNCTION(BlueprintCallable)
 	virtual void DoAimEnd();
 
 	virtual void DoShootingStart();
@@ -217,7 +219,7 @@ protected:
 	bool IsDieAnim = false; //애니메이션을 위한 die 변수
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	EWeaponType type;
+	EWeaponType Type;
 
 	bool isCombat = false;
 
@@ -234,6 +236,25 @@ protected:
 	bool IsSniperEquipped = false; //애니메이션을 스테이트 전환을 위한 변수
 	UPROPERTY(EditAnywhere, BluePrintReadWrite)
 	bool IsShotgunEquipped = false; //애니메이션을 스테이트 전환을 위한 변수
+
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)
+	bool CanInteractBox = true; //무기를 interact할 때 계속 눌러서 equip하는 것을 방지하는 변수 처음에는 true여야 한다.
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	UNiagaraComponent* MovementEffect; //잔상 나이아가라 컴포넌트
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+	USkeletalMeshComponent* SkeletalMeshForEffect; //잔상 나이아가라를 붙일 스켈레탈 메시 (왜냐면 기본 우리 캐릭터 메시로 하면 스파클이 이상하게 생겨서 하나 만들어서 거기에 붙인다.)
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sniper")
+	float SniperFOV = 20.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sniper")
+	float SniperArmLength = 50.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sniper")
+	FVector SniperSocketOffset = FVector(0.f, 20.f, 70.f);
+
 
 
 public:
@@ -266,6 +287,9 @@ public:
 
 	void UpdateMoveSpeed();
 
+	void StartAfterImage(); // 잔상 보이게 하는 함수
+	void StopAfterImage(); // 잔상 안보이게 하는 함수
+
 	
 	// 애님몽타주
 	UPROPERTY(EditAnywhere)
@@ -289,10 +313,12 @@ public:
 private:
 	void KnockbackEnd();
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-	void AttachWeapon(AWeaponSystem* Weapon);
-	void FirstGetPrimary(); // 주무기를 interact 할때
-	void FirstGetSecondary();// 보조무기를 interact 할때
-	void SetWeaponEquipped(AWeaponSystem* Weapon);
+	void AttachWeapon(); //CurrentWeapon만 Attach하게 하는 함수
+	void PlayGetPrimaryMontage(); // 주무기를 interact하는 함수
+	void PlayGetSecondaryMontage(); // 보조무기를 interact 함수
+	void SetWeaponEquipped(); // Equipped 불변수를 셋팅하는 함수
 	void MontageEnded(UAnimMontage* Montage, bool bInterruted);
+	//void MontageBlendOut(UAnimMontage* Montage, bool bInterruted); //애니메이션이 중간에 끊길 때 사용할 함수.
+
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 };

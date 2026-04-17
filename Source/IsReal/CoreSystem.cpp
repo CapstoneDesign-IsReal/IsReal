@@ -48,6 +48,10 @@ void UCoreSystem::TryReWind()
 			GetWorld()->GetTimerManager().SetTimer(RewindTimerHandle, this, &UCoreSystem::RewindCooldown, 1.0f, true);
 			// to past
 			Is_Rewind = true;
+			if (OwnerCharacter)
+			{
+				OwnerCharacter->StartAfterImage();
+			}
 			RewindCore -= 100;
 			if (RewindVFX) 
 			{
@@ -82,7 +86,10 @@ void UCoreSystem::RewindCooldown()
 
 		// ����� �ö�
 		Is_Rewind = false;
-
+		if (OwnerCharacter)
+		{
+			OwnerCharacter->StopAfterImage();
+		}
 		// delegate trigger
 		if (GameInstance) 
 		{

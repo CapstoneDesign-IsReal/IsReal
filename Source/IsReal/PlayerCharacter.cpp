@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿une// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "PlayerCharacter.h"
@@ -18,13 +18,7 @@
 #include "HealthComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-#include "Rifle.h"
-#include "ShotGun.h"
-#include "SniperRifle.h"
-#include "Pistol.h"
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+#include "NiagaraComponent.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()  
@@ -57,6 +51,12 @@ APlayerCharacter::APlayerCharacter()
 
 	// health system Component
 	HealthSystemComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthSystemComp"));
+
+	SkeletalMeshForEffect = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMeshForEffect"));
+	SkeletalMeshForEffect->SetupAttachment(GetMesh()); // 일단 캐릭터 메시에 붙임
+
+	MovementEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("MovementEffect"));
+	MovementEffect->SetupAttachment(SkeletalMeshForEffect);
 
 }
 
@@ -116,6 +116,13 @@ void APlayerCharacter::BeginPlay()
 		);
 	}
 	AnimInstance = GetMesh()->GetAnimInstance();
+
+
+	if (MovementEffect)
+	{
+		MovementEffect->Deactivate();
+	}
+	SkeletalMeshForEffect->SetHiddenInGame(true);
 }
 
 // Called every frame
@@ -173,9 +180,7 @@ void APlayerCharacter::UpdateCrosshair()
 		return;
 	}
 
-	EWeaponType Type = CurrentWeapon->GetWeaponType();
-
-	switch (Type)
+	switch (CurrentWeapon->GetWeaponType())
 	{
 	case EWeaponType::EWT_Shotgun:
 		if (ShotgunCrossHairWidget)
@@ -202,6 +207,21 @@ void APlayerCharacter::UpdateCrosshair()
 	}
 }
 
+void APlayerCharacter::StartAfterImage()
+{
+	if (MovementEffect)
+	{
+		MovementEffect->Activate();
+	}
+}
+
+void APlayerCharacter::StopAfterImage()
+{
+	if (MovementEffect)
+	{
+		MovementEffect->Deactivate();
+	}
+}
 
 
 void APlayerCharacter::Rewind(const FInputActionValue& inputValue)
@@ -268,18 +288,21 @@ void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 
 void APlayerCharacter::DoAimStart()
 {
+	if (IsRolling) return;
 	if (IsLookTimer) return; //타이머 보는동안 줌 안되게
 	if (IsHasGun) {
 		if (CameraComp&& SpringArmComp)
 		{
-			if (CurrentWeapon->GetWeaponType() == EWeaponType::EWT_Sniper)
+			if (CurrentWeapon && CurrentWeapon->GetWeaponType() == EWeaponType::EWT_Sniper)
 			{
 				// 저격총 
-				CameraComp->SetFieldOfView(20.f);
-				SpringArmComp->TargetArmLength = 50.f;
-				SpringArmComp->SocketOffset = FVector(0.f, 20.f, 70.f);
+				CameraComp->SetFieldOfView(SniperFOV);
+				SpringArmComp->TargetArmLength = SniperArmLength;
+				SpringArmComp->SocketOffset = SniperSocketOffset;
 				//캐릭터 메시 안보이게 하기 
 				GetMesh()->SetOwnerNoSee(true);
+				//총도 숨기기 (크로스헤어에 삐죽 튀어나오기 때문에)
+				CurrentWeapon->SetActorHiddenInGame(true);
 			}
 			else
 			{
@@ -303,7 +326,11 @@ void APlayerCharacter::DoAimEnd()
 			CameraComp->SetFieldOfView(DefaultFOV);
 			SpringArmComp->TargetArmLength = DefaultArmLength;
 			SpringArmComp->SocketOffset = FVector(0.f, 70.f, 50.f);
-			GetMesh()->SetOwnerNoSee(false);
+			if (CurrentWeapon && CurrentWeapon->GetWeaponType() == EWeaponType::EWT_Sniper)
+			{
+				GetMesh()->SetOwnerNoSee(false);
+				CurrentWeapon->SetActorHiddenInGame(false);
+			}
 		}
 		isAiming = false;
 		UpdateMoveSpeed();
@@ -356,32 +383,37 @@ void APlayerCharacter::EquipSecondaryWeapon(const struct FInputActionValue& inpu
 
 void APlayerCharacter::EquipWeapon(EWeaponSlot NewSlot)
 {
+	if (IsRolling)
+		return;
 	if (WeaponSlot[(int)NewSlot]) {
+		DoAimEnd();
+		DoShootingEnd();
 		CurrentWeapon = WeaponSlot[(int)NewSlot];
 		IsHasGun = true;
 		UE_LOG(LogTemp, Warning, TEXT("Equipped Weapon Slot: %d"), (int)NewSlot);
+		AttachWeapon();
+		UpdateCrosshair();
 	}
-	UpdateCrosshair();
 }
 
-void APlayerCharacter::UnEquipWeapon()
+void APlayerCharacter::UnEquipWeapon() 
 {
 	if(IsShooting || isAiming) 
 	{
 		DoShootingEnd(); // 발사 중이면 발사 종료
 		DoAimEnd(); // 조준 중이면 조준 종료
 	}
-	if (WeaponSlot[(int)EWeaponSlot::Secondary] == nullptr) // 보조무기가 없다면
-	{
-		IsHasGun = false;
-		CurrentWeapon = nullptr;
-		WeaponSlot[(int)EWeaponSlot::Primary] = nullptr;
-	}
-	else												   // 보조무기가 있으면 보조로 교체
-	{
-		CurrentWeapon = WeaponSlot[(int)EWeaponSlot::Secondary];
-		WeaponSlot[(int)EWeaponSlot::Primary] = nullptr;
-	}
+	// 애니메이션 스테이트 전환에서 총안든 상태로 전환
+	IsRifleEquipped = false;
+	IsPistolEquipped = false;
+	IsSniperEquipped = false;
+	IsShotgunEquipped = false;
+
+	IsHasGun = false;
+	CurrentWeapon = nullptr;
+	WeaponSlot[(int)EWeaponSlot::Primary] = nullptr;
+	WeaponSlot[(int)EWeaponSlot::Secondary] = nullptr;
+
 	UE_LOG(LogTemp, Warning, TEXT("Unequipped Weapon"));
 }
 
@@ -391,6 +423,17 @@ void APlayerCharacter::PlayerDie() {
 	//AnimInstance->Montage_Play(DieMontage);
 	DoShootingEnd(); // 죽을 때 발사 멈추기
 	DoAimEnd(); // 죽을 때 조준 멈추기
+	StopAfterImage();
+	//모든 무기 제거
+	for (int i = 0; i < WeaponSlot.Num(); i++)
+	{
+		AWeaponSystem* Weapon = WeaponSlot[i];
+
+		if (Weapon)
+		{
+			Weapon->Destroy(); // 레벨에서 삭제
+		}
+	}
 	SpringArmComp->TargetArmLength = 400.f;
 }
 
@@ -433,7 +476,7 @@ void APlayerCharacter::Playerknockback() // delete
 	//}
 }
 
-//void APlayerCharacter::KnockbackMotion()
+//void APlayerCharacter::KnockbackMotion() //얘는 블프에서 실행될 함수라 만들면 두번 실행된다고 오류가난다.
 //{
 //
 //}
@@ -476,9 +519,9 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			UE_LOG(LogTemp, Warning, TEXT("gun type: %s"),
 				*StaticEnum<EWeaponType>()->GetNameStringByValue((int64)Weapon->GetWeaponType()));
 
-			type = Weapon->GetWeaponType();
+			Type = Weapon->GetWeaponType();
 			EWeaponSlot slot = EWeaponSlot::Primary;
-			switch (type) 
+			switch (Type) 
 			{
 				case EWeaponType::EWT_Rifle:
 				case EWeaponType::EWT_Shotgun:
@@ -501,6 +544,8 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			break;
 		}
 		case EInteractionType::Box: {
+			if (!CanInteractBox)return;
+			if (IsRolling)return;
 			IInteractable::Execute_Interact(HitActor, this);
 			AWeaponBox* weaponbox = Cast<AWeaponBox>(HitActor);
 			AWeaponSystem* Weapon = weaponbox->SpawnWeapon();
@@ -508,9 +553,9 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			UE_LOG(LogTemp, Warning, TEXT("gun type: %s"),
 				*StaticEnum<EWeaponType>()->GetNameStringByValue((int64)Weapon->GetWeaponType()));
 
-			type = Weapon->GetWeaponType();
+			Type = Weapon->GetWeaponType();
 			EWeaponSlot slot = EWeaponSlot::Primary;
-			switch (type)
+			switch (Type)
 			{
 			case EWeaponType::EWT_Rifle:
 			case EWeaponType::EWT_Shotgun:
@@ -525,18 +570,19 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 				break;
 			}
 			}
-			WeaponSlot[(int)slot] = Weapon;
-			//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-			//기존 무기 제거
-			if (CurrentWeapon) 
-			{
-				CurrentWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			// @@@@@@@@@@@@@기존 같은 슬롯의 무기는 무조건 Detach하고 없애고 
+			AWeaponSystem* OldWeapon = WeaponSlot[(int)slot];
+			if (OldWeapon) {
+				OldWeapon->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+				OldWeapon->Destroy();
 			}
-			//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+			// @@@@@@@@@@@@그 다음에 새무기 넣기
+			WeaponSlot[(int)slot] = Weapon;
+			
 			CurrentWeapon = Weapon;
 			IsHasGun = true; // 이건 추후에 BP에서 설정안하게 하면 추가하면됨
 			// 그리고 맨위에 weaponsocket같은거 attach여기서 하면될거같은데
-			AttachWeapon(Weapon);
+			AttachWeapon();
 			UpdateCrosshair();
 			break;
 		}
@@ -553,41 +599,45 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 	}
 
 }
-void APlayerCharacter::AttachWeapon(AWeaponSystem* Weapon)
+void APlayerCharacter::AttachWeapon()
 {
-	if (!Weapon) return;
+	if (!CurrentWeapon) return;
+
+	for (int i = 0; i < WeaponSlot.Num(); i++) //CurrentWeapon이 아닌 얘들만 숨겨줌
+	{
+		AWeaponSystem* Weapon = WeaponSlot[i];
+		if (Weapon && Weapon != CurrentWeapon)
+		{
+			Weapon->SetActorHiddenInGame(true);
+		}
+	}
+
+	// 그래도 혹시 모르니 현재 무기만 보이게 한번더 설정한다.
+	CurrentWeapon->SetActorHiddenInGame(false);
+
 
 	FName SocketName = NAME_None;
+	
 
-	if (Weapon->IsA(ARifle::StaticClass()))
-	{
-		SocketName = TEXT("Rifle");
-		FirstGetPrimary();
-	}
-	else if (Weapon->IsA(AShotGun::StaticClass()))
-	{
-		SocketName = TEXT("Shotgun");
-		FirstGetPrimary();
-	}
-	else if (Weapon->IsA(ASniperRifle::StaticClass()))
-	{
-		SocketName = TEXT("Sniper");
-		FirstGetPrimary();
-	}
-	else if (Weapon->IsA(APistol::StaticClass()))
-	{
+	switch (CurrentWeapon->GetWeaponType()) { //여기서는 Type을 써도 되는게 interact한 weapon이 Weapon 변수기 때문에 Weapon 변수의 get weapon type을 해서 가져온게 Type이기 때문에 
+	case EWeaponType::EWT_Pistol:
 		SocketName = TEXT("Pistol");
-		FirstGetSecondary();
+		break;
+	case EWeaponType::EWT_Rifle:
+		SocketName = TEXT("Rifle");
+		break;
+	case EWeaponType::EWT_Sniper:
+		SocketName = TEXT("Sniper_L");
+		break;
+	case EWeaponType::EWT_Shotgun:
+		SocketName = TEXT("Shotgun");
+		break;
 	}
-	else
-	{
-		SocketName = TEXT("Default");
-	}
-	SetWeaponEquipped(Weapon);
+	SetWeaponEquipped();
 
 	if (!SocketName.IsNone())
 	{
-		Weapon->AttachToComponent(
+		CurrentWeapon->AttachToComponent(
 			GetMesh(),
 			FAttachmentTransformRules::SnapToTargetNotIncludingScale,
 			SocketName
@@ -595,34 +645,43 @@ void APlayerCharacter::AttachWeapon(AWeaponSystem* Weapon)
 	}
 }
 
-void APlayerCharacter::SetWeaponEquipped(AWeaponSystem* Weapon) {
+void APlayerCharacter::SetWeaponEquipped() {
 	IsRifleEquipped = false;
 	IsPistolEquipped = false;
 	IsSniperEquipped = false;
 	IsShotgunEquipped = false;
 
-	if (!Weapon)return;
-	if (Weapon->IsA(ARifle::StaticClass())) {
-		IsRifleEquipped = true;
-	}
-	else if (Weapon->IsA(AShotGun::StaticClass())) {
-		IsShotgunEquipped = true;
-	}
-	else if (Weapon->IsA(ASniperRifle::StaticClass())) {
-		IsSniperEquipped = true;
-	}
-	else if (Weapon->IsA(APistol::StaticClass())) {
+	if (!CurrentWeapon)return;
+	switch (CurrentWeapon->GetWeaponType()) {
+	case EWeaponType::EWT_Pistol:
+		PlayGetSecondaryMontage();
 		IsPistolEquipped = true;
+		break;
+	case EWeaponType::EWT_Rifle:
+		PlayGetPrimaryMontage();
+		IsRifleEquipped = true;
+		break;
+	case EWeaponType::EWT_Sniper:
+		PlayGetPrimaryMontage();
+		IsSniperEquipped = true;
+		break;
+	case EWeaponType::EWT_Shotgun:
+		PlayGetPrimaryMontage();
+		IsShotgunEquipped = true;
+		break;
+	default:
+		break;
 	}
 }
 
-void APlayerCharacter::FirstGetPrimary()
+void APlayerCharacter::PlayGetPrimaryMontage()
 {
 	if (AnimInstance && GetRifleMontage)
 	{
 		if (CurrentWeapon)
 		{
 			CurrentWeapon->CanShooting = false;
+			CanInteractBox = false;
 		}
 
 		AnimInstance->Montage_Play(GetRifleMontage);
@@ -634,13 +693,14 @@ void APlayerCharacter::FirstGetPrimary()
 	}
 }
 
-void APlayerCharacter::FirstGetSecondary()
+void APlayerCharacter::PlayGetSecondaryMontage()
 {
 	if (AnimInstance && GetPistolMontage)
 	{
 		if (CurrentWeapon)
 		{
 			CurrentWeapon->CanShooting = false;
+			CanInteractBox = false;
 		}
 
 		AnimInstance->Montage_Play(GetPistolMontage);
@@ -657,6 +717,7 @@ void APlayerCharacter::MontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	if ((Montage == GetRifleMontage || Montage == GetPistolMontage) && CurrentWeapon)
 	{
 		CurrentWeapon->CanShooting = true;
+		CanInteractBox = true;
 	}
 }
 
