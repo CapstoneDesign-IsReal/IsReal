@@ -1,4 +1,4 @@
-﻿une// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "PlayerCharacter.h"
@@ -123,6 +123,15 @@ void APlayerCharacter::BeginPlay()
 		MovementEffect->Deactivate();
 	}
 	SkeletalMeshForEffect->SetHiddenInGame(true);
+
+	UGameInstance* GameInst = GetWorld()->GetGameInstance();
+	if (GameInst)
+	{
+		coresubsystem = GameInst->GetSubsystem<UCoreEventSubsystem>();
+
+		coresubsystem->RewindDoneDelegate.AddUObject(this, &APlayerCharacter::DetachWeapon);
+	}
+
 }
 
 // Called every frame
@@ -424,16 +433,7 @@ void APlayerCharacter::PlayerDie() {
 	DoShootingEnd(); // 죽을 때 발사 멈추기
 	DoAimEnd(); // 죽을 때 조준 멈추기
 	StopAfterImage();
-	//모든 무기 제거
-	for (int i = 0; i < WeaponSlot.Num(); i++)
-	{
-		AWeaponSystem* Weapon = WeaponSlot[i];
-
-		if (Weapon)
-		{
-			Weapon->Destroy(); // 레벨에서 삭제
-		}
-	}
+	DetachWeapon();
 	SpringArmComp->TargetArmLength = 400.f;
 }
 
@@ -510,37 +510,6 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 		switch (InteractionType) {
 		case EInteractionType::Door: {
 			IInteractable::Execute_Interact(HitActor, this);
-			break;
-		}
-		case EInteractionType::Gun: {
-			IInteractable::Execute_Interact(HitActor, this);
-			AWeaponSystem* Weapon = Cast<AWeaponSystem>(HitActor);
-			Weapon->SetOwner(this);
-			UE_LOG(LogTemp, Warning, TEXT("gun type: %s"),
-				*StaticEnum<EWeaponType>()->GetNameStringByValue((int64)Weapon->GetWeaponType()));
-
-			Type = Weapon->GetWeaponType();
-			EWeaponSlot slot = EWeaponSlot::Primary;
-			switch (Type) 
-			{
-				case EWeaponType::EWT_Rifle:
-				case EWeaponType::EWT_Shotgun:
-				case EWeaponType::EWT_Sniper:
-				{
-					slot = EWeaponSlot::Primary;
-					break;
-				}
-				case EWeaponType::EWT_Pistol:
-				{
-					slot = EWeaponSlot::Secondary;
-					break;
-				}
-			}
-			WeaponSlot[(int)slot] = Weapon;
-			CurrentWeapon = Weapon;
-			IsHasGun = true; // 이건 추후에 BP에서 설정안하게 하면 추가하면됨
-			// 그리고 맨위에 weaponsocket같은거 attach여기서 하면될거같은데
-			UpdateCrosshair();
 			break;
 		}
 		case EInteractionType::Box: {
@@ -644,6 +613,21 @@ void APlayerCharacter::AttachWeapon()
 		);
 	}
 }
+
+// 모든 무기 제거
+void APlayerCharacter::DetachWeapon() 
+{
+	for (int i = 0; i < WeaponSlot.Num(); i++)
+	{
+		AWeaponSystem* Weapon = WeaponSlot[i];
+
+		if (Weapon)
+		{
+			Weapon->Destroy(); // 레벨에서 삭제
+		}
+	}
+}
+
 
 void APlayerCharacter::SetWeaponEquipped() {
 	IsRifleEquipped = false;

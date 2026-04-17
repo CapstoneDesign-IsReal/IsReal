@@ -51,7 +51,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	UStaticMeshComponent* GetPistolMesh() const { return Pistol1; }
 
-
+private:
+	// 델리게이트용 Subsystem
+	UCoreEventSubsystem* coresubsystem;
 
 protected:
 	// Called every frame
@@ -215,7 +217,7 @@ protected:
 	UPROPERTY(EditAnywhere, BluePrintReadWrite)
 	bool IsDie = false;
 
-	UPROPERTY(EditAnywhere, BluePrintReadWrite)\
+	UPROPERTY(EditAnywhere, BluePrintReadWrite)
 	bool IsDieAnim = false; //애니메이션을 위한 die 변수
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
@@ -314,6 +316,7 @@ private:
 	void KnockbackEnd();
 	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	void AttachWeapon(); //CurrentWeapon만 Attach하게 하는 함수
+	void DetachWeapon();
 	void PlayGetPrimaryMontage(); // 주무기를 interact하는 함수
 	void PlayGetSecondaryMontage(); // 보조무기를 interact 함수
 	void SetWeaponEquipped(); // Equipped 불변수를 셋팅하는 함수

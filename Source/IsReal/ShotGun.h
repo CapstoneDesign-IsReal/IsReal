@@ -4,14 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "WeaponSystem.h"
-#include "Interactable.h"
 #include "ShotGun.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ISREAL_API AShotGun : public AWeaponSystem, public IInteractable
+class ISREAL_API AShotGun : public AWeaponSystem
 {
 	GENERATED_BODY()
 
@@ -27,9 +26,6 @@ public:
 	virtual void WeaponFire() override;
 	virtual void WeaponStopFire() override;
 	virtual void WeaponReload() override;
-
-	virtual void Interact_Implementation(AActor* Interactor) override;
-	virtual EInteractionType GetInteractionType_Implementation() override;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	int shotgunPellet = 8;
