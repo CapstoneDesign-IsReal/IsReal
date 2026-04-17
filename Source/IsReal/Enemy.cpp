@@ -58,7 +58,6 @@ void AEnemy::Attack(APawn* target)
 	UE_LOG(LogTemp, Warning, TEXT("Attack Called"));
 	//Attack implement
 	APlayerCharacter* Player = Cast<APlayerCharacter>(target);
-
 	if (!Player)	return;
 
 	Player->PlayerHit(AttackDamage);
@@ -126,10 +125,10 @@ void AEnemy::Hit(int damage, FName HitBoneName)
 			EnemyEventSubsystem->EnemyDieNotify(this, TimeEnergy);
 		}
 
-		//=======================================
-		//UCoreSystem* PlayerCoreSystem = CurrentPlayer->FindComponentByClass<UCoreSystem>();
-		//PlayerCoreSystem->CoreHeal(TimeEnergy);
-		//=======================================
+		//Core Heal
+		UCoreSystem* PlayerCoreSystem = CurrentPlayer->FindComponentByClass<UCoreSystem>();
+		PlayerCoreSystem->CoreHeal(TimeEnergy);
+		
 	}
 }
 
