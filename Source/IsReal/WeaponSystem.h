@@ -46,12 +46,21 @@ protected:
 	// 무기 컴포넌트 // 이거 Weaponsystem으로 가져옴  25/11/16 (코드 리팩토링) 이건 삭제할지 안할지 물어봐야함
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GunMesh)
 	//class UStaticMeshComponent* gunMeshComp;
+	// Bullet Fire Sound
 	UPROPERTY(EditAnywhere, Category = "Weapon Sound")
 	USoundBase* FireSound;
+	
+	// Need to Reload Sound
+	UPROPERTY(EditAnywhere, Category = "Weapon Sound")
+	USoundBase* NoAmmoSound;
 
-	// 총구 화염 VFX
-	UPROPERTY(EditAnywhere, Category = "Weapon Muzzle VFX")
+	// Muzzle Fire VFX
+	UPROPERTY(EditAnywhere, Category = "Weapon VFX")
 	UNiagaraSystem* MuzzleFireVFX;
+
+	// Bullet Trail VFX
+	UPROPERTY(EditAnywhere, Category = "Weapon VFX")
+	UNiagaraSystem* BulletTrailVFX;
 
 private:
 	//  Weapon Type
@@ -59,10 +68,8 @@ private:
 
 	FVector StartVector;
 	FVector FwDirection;
-	;
-	UStaticMeshComponent* RifleMesh;
-	UStaticMeshComponent* PistolMesh;
-	UStaticMeshComponent* CurrentGun; //현재 총이 메시 어떤건지 담을 변수 
+	
+	USkeletalMeshComponent* CurrentGun; //현재 총이 메시 어떤건지 담을 변수 
 
 	// Reload State
 	bool isReloading = false;
