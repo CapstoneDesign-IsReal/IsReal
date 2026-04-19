@@ -64,11 +64,11 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	auto pc = Cast<APlayerController>(Controller); 
-	if (pc) 
+	auto pc = Cast<APlayerController>(Controller);
+	if (pc)
 	{
-		pc->PlayerCameraManager->ViewPitchMin = -50.f; 
-		pc->PlayerCameraManager->ViewPitchMax = 50.f; 
+		pc->PlayerCameraManager->ViewPitchMin = -50.f;
+		pc->PlayerCameraManager->ViewPitchMax = 50.f;
 
 		auto subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer());
 
@@ -79,11 +79,11 @@ void APlayerCharacter::BeginPlay()
 	}
 	if (NormalCrossHairWidgetClass) {
 		NormalCrossHairWidget = CreateWidget<UUserWidget>(GetController<APlayerController>(), NormalCrossHairWidgetClass);
-		
 
-		if (NormalCrossHairWidget) 
+
+		if (NormalCrossHairWidget)
 		{
-			NormalCrossHairWidget->AddToViewport(); 
+			NormalCrossHairWidget->AddToViewport();
 		}
 	}
 	if (AimCrossHairWidgetClass) {
@@ -94,6 +94,10 @@ void APlayerCharacter::BeginPlay()
 	}
 	if (SniperCrossHairWidgetClass) {
 		SniperCrossHairWidget = CreateWidget<UUserWidget>(GetController<APlayerController>(), SniperCrossHairWidgetClass);
+	}
+
+	if (SniperAmmoWidgetClass) {
+		SniperAmmoWidget = CreateWidget<UUserWidget>(GetController<APlayerController>(), SniperAmmoWidgetClass);
 	}
 
 	WeaponSlot.SetNum(2); // 2가지 무기 슬롯 초기화
@@ -180,6 +184,7 @@ void APlayerCharacter::UpdateCrosshair()
 	if (AimCrossHairWidget) AimCrossHairWidget->RemoveFromParent();
 	if (ShotgunCrossHairWidget) ShotgunCrossHairWidget->RemoveFromParent();
 	if (SniperCrossHairWidget) SniperCrossHairWidget->RemoveFromParent();
+	if (SniperAmmoWidget) SniperAmmoWidget->RemoveFromParent();
 
 	// 총 없으면 Normal UI
 	if (!CurrentWeapon || !IsHasGun)
@@ -201,6 +206,8 @@ void APlayerCharacter::UpdateCrosshair()
 		{
 			if (SniperCrossHairWidget)
 				SniperCrossHairWidget->AddToViewport();
+			if (SniperAmmoWidget) 
+				SniperAmmoWidget->AddToViewport();
 		}
 		// 조준 안하면 아무것도 안 띄움
 		break;
