@@ -251,7 +251,7 @@ void APlayerCharacter::Rewind(const FInputActionValue& inputValue)
 
 void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 {
-	// 몽타주 실행 중
+	// 몽타주 실행 중일 때
 	if (AnimInstance && AnimInstance->Montage_IsPlaying(nullptr))
 	{
 		// 시계 보는 중이면 닫기
@@ -269,19 +269,18 @@ void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 
 			SpringArmComp->TargetArmLength = DefaultArmLength;
 			IsLookTimer = false;
+			CurrentWeapon->CanShooting = true;
 		}
 
 		return;
 	}
 
-	// 몽타주 없으면 그냥 토글
+	// 위젯 생성 및 준비하기
 
 	if (!ClockWidgetInstance && ClockWidgetClass)
 	{
 		ClockWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), ClockWidgetClass);
 	}
-
-	if (!ClockWidgetInstance) return;
 
 	if (!IsLookTimer)
 	{
@@ -293,6 +292,9 @@ void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 		// 열기
 		if (AnimInstance && ToggleClockMontage)
 		{
+			if (CurrentWeapon) {
+				CurrentWeapon->CanShooting = false;
+			}
 			AnimInstance->Montage_Play(ToggleClockMontage);
 		}
 
@@ -358,7 +360,7 @@ void APlayerCharacter::DoShootingStart()
 {
 	// 재장전 중일 때는 발사 못하게 막기
 	if (!CurrentWeapon || IsDie) return;
-	if (CurrentWeapon->IsReloading()) return;
+	if (CurrentWeapon->GetIsReloading()) return;
 
 	// 가지고 있는 무기에 따라 fire가 다르게 나감 // 근데 굳이 switch문 안써도 될거같음
 
@@ -384,7 +386,8 @@ void APlayerCharacter::Reload(const FInputActionValue& inputValue)
 	if (IsShooting) return;
 	if (IsRolling) return;
 	if (CurrentWeapon && IsHasGun) {
-		CurrentWeapon->WeaponReload();
+		//CurrentWeapon->WeaponReload();
+		if (CurrentWeapon->GetIsReloading() == true) return;
 	}
 }
 

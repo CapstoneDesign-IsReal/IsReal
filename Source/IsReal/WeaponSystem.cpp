@@ -73,31 +73,15 @@ void AWeaponSystem::WeaponReload()
 		UE_LOG(LogTemp, Warning, TEXT("No More Ammo to Reload!"));
 		return;
 	}
+	
+	// 필요한 총알 수 계산
+	int NeededAmmo = MaxAmmo - CurrentAmmo;
+	if (NeededAmmo <= 0) return; // 이미 총알이 가득 찬 경우
 
-	if (!(GetWorld()->GetTimerManager().IsTimerActive(ReloadTimerHandle)))
-	{
-		if (isReloading == false)
-		{
-			isReloading = true;
-			// 리로드 쿨타임 타이머 시작
-			GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &AWeaponSystem::WeaponReloadCooldown, ReloadCoolTime, false);
+	int LoadedAmmo = FMath::Min(NeededAmmo, TotalAmmo); // 실제로 장전할 총알 수
 
-			// 필요한 총알 수 계산
-			int NeededAmmo = MaxAmmo - CurrentAmmo;
-			if (NeededAmmo <= 0) return; // 이미 총알이 가득 찬 경우
-
-			int LoadedAmmo = FMath::Min(NeededAmmo, TotalAmmo); // 실제로 장전할 총알 수
-
-			CurrentAmmo += LoadedAmmo; // 현재 총알 수 증가
-			TotalAmmo -= LoadedAmmo;
-		}
-	}	
-}
-void AWeaponSystem::WeaponReloadCooldown()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Reload Complete!"));
-	GetWorld()->GetTimerManager().ClearTimer(ReloadTimerHandle);
-	isReloading = false;
+	CurrentAmmo += LoadedAmmo; // 현재 총알 수 증가
+	TotalAmmo -= LoadedAmmo;
 }
 
 void AWeaponSystem::ApplyRecoil()
@@ -136,7 +120,8 @@ void AWeaponSystem::SetWeaponAmmo(int ammo) { CurrentAmmo = ammo; }
 
 int AWeaponSystem::GetWeaponAmmo() { return CurrentAmmo; }
 
-bool AWeaponSystem::IsReloading(){ return isReloading; }
+bool AWeaponSystem::GetIsReloading(){ return isReloading; }
+void AWeaponSystem::SetIsReloading(bool value) { isReloading = value; }
 
 void AWeaponSystem::FireLineTrace()
 {

@@ -14,8 +14,6 @@ ARifle::ARifle()
 	// 반동 변수
 	PitchRecoilAmount = 0.35f;
 	YawRecoilAmount = 0.08f;
-
-	ReloadCoolTime = 2.0f;
 }
 
 void ARifle::BeginPlay()
