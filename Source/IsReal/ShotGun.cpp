@@ -20,8 +20,6 @@ AShotGun::AShotGun()
 	// 반동 변수
 	PitchRecoilAmount = 1.0f;
 	YawRecoilAmount = 0.2f;
-
-	ReloadCoolTime = 2.0f;
 }
 
 void AShotGun::BeginPlay()
