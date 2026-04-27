@@ -11,9 +11,9 @@ AEnemy_Elite::AEnemy_Elite()
 	ChargeHitBox->SetupAttachment(GetRootComponent());
 
 	LeftClawHitBox = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftClawHitBox"));
-	LeftClawHitBox->SetupAttachment(GetMesh());
+	LeftClawHitBox->SetupAttachment(GetMesh(), FName("hand_l"));
 	RightClawHitBox = CreateDefaultSubobject<UBoxComponent>(TEXT("RightClawHitBox"));
-	RightClawHitBox->SetupAttachment(GetMesh());
+	RightClawHitBox->SetupAttachment(GetMesh(), FName("hand_r"));
 }
 
 void AEnemy_Elite::WarnJumpAttack()

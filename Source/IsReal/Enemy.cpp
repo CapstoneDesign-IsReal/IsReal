@@ -91,10 +91,10 @@ void AEnemy::Chase(AActor* target)
 void AEnemy::Hit(int damage, FName HitBoneName)
 {
 	auto EnemyController = Cast<AEnemyController>(GetController());
-	//APlayerCharacter* CurrentPlayer = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	APlayerCharacter* CurrentPlayer = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	UBlackboardComponent* BlackboardComp = EnemyController->GetBlackboardComponent();
 
-	if (!EnemyController || !BlackboardComp /* || !CurrentPlayer*/) {
+	if (!EnemyController || !BlackboardComp  || !CurrentPlayer) {
 		UE_LOG(LogTemp, Warning, TEXT("<Controller Unpossessed Error>: Ptr Access Error"));
 		return;
 	}
