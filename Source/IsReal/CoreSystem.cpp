@@ -41,7 +41,7 @@ void UCoreSystem::TryReWind()
 {
 	FVector CurrentLocation = OwnerCharacter->GetActorLocation();
 
-	if (RewindCore >= 100 && !(GetWorld()->GetTimerManager().IsTimerActive(RewindTimerHandle))) 
+	if (RewindCore >= 100 && !(GetWorld()->GetTimerManager().IsTimerActive(RewindTimerHandle)) && GetIsEnterBoss() == false)
 	{
 		if (Is_Rewind == false)
 		{
@@ -67,7 +67,7 @@ void UCoreSystem::TryReWind()
 	}
 	else 
 	{
-		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Can't Rewind"), true, true, FLinearColor::Green, 2.0f);
+		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Can't Rewind, Game Over"), true, true, FLinearColor::Green, 2.0f);
 	}
 }
 
@@ -110,6 +110,12 @@ void UCoreSystem::RewindCooldown()
 		OwnerCharacter->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, NewLocation, OwnerCharacter->GetActorRotation());
 		UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
+
+		// if core is less than 100, game is over
+		if (RewindCore < 100) {
+			UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Can't Rewind, Game Over"), true, true, FLinearColor::Green, 2.0f);
+			// 추후 게임 오버 화면 추가
+		}
 	}
 }
 
@@ -142,6 +148,12 @@ void UCoreSystem::RewindOnDeath()   // ���� �� ����� ��
 	OwnerCharacter->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RewindVFX, NewLocation, OwnerCharacter->GetActorRotation());
 	UE_LOG(LogTemp, Warning, TEXT("Rewind Triggered -> Moved to: %s"), *NewLocation.ToString());
+
+	// if core is less than 100, game is over
+	if (RewindCore < 100) {
+		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Can't Rewind, Game Over"), true, true, FLinearColor::Green, 2.0f);
+		// 추후 게임 오버 화면 추가
+	}
 }
 
 void UCoreSystem::CoreHeal(int value) 

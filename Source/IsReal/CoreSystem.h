@@ -57,6 +57,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
 	bool GetIsRewind() { return Is_Rewind; }
 
+	// 보스방 입장 여부 getter, setter
+	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
+	bool GetIsEnterBoss() { return Is_EnterBossRoom; }
+	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
+	void SetIsEnterBoss(bool isBossRoom) { Is_EnterBossRoom = isBossRoom; }
+
 	// coreHeal - 외부에서 core 회복을 위한 함수
 	void CoreHeal(int value);
 
@@ -74,6 +80,10 @@ private:
 	FTimerHandle RewindTimerHandle;
 	// Rewind Cooldown function
 	void RewindCooldown();
+
+	// boss room enter check flag. when player enter boss room(3stage), for cheking to rewind or not
+	UPROPERTY(EditAnywhere, Category = "CoreSystem")
+	bool Is_EnterBossRoom = false;
 
 	// Rewind Effect
 	UPROPERTY(EditAnywhere, Category = "VFX")
