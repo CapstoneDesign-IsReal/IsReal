@@ -14,8 +14,6 @@ ASniperRifle::ASniperRifle()
 	// 반동 변수
 	PitchRecoilAmount = 1.3f;
 	YawRecoilAmount = 0.05f;
-
-	ReloadCoolTime = 2.0f;
 }
 
 void ASniperRifle::BeginPlay()

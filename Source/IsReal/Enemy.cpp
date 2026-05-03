@@ -58,7 +58,6 @@ void AEnemy::Attack(APawn* target)
 	UE_LOG(LogTemp, Warning, TEXT("Attack Called"));
 	//Attack implement
 	APlayerCharacter* Player = Cast<APlayerCharacter>(target);
-
 	if (!Player)	return;
 
 	Player->PlayerHit(AttackDamage);
@@ -92,10 +91,10 @@ void AEnemy::Chase(AActor* target)
 void AEnemy::Hit(int damage, FName HitBoneName)
 {
 	auto EnemyController = Cast<AEnemyController>(GetController());
-	//APlayerCharacter* CurrentPlayer = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	APlayerCharacter* CurrentPlayer = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	UBlackboardComponent* BlackboardComp = EnemyController->GetBlackboardComponent();
 
-	if (!EnemyController || !BlackboardComp /* || !CurrentPlayer*/) {
+	if (!EnemyController || !BlackboardComp  || !CurrentPlayer) {
 		UE_LOG(LogTemp, Warning, TEXT("<Controller Unpossessed Error>: Ptr Access Error"));
 		return;
 	}
@@ -126,10 +125,10 @@ void AEnemy::Hit(int damage, FName HitBoneName)
 			EnemyEventSubsystem->EnemyDieNotify(this, TimeEnergy);
 		}
 
-		//=======================================
-		//UCoreSystem* PlayerCoreSystem = CurrentPlayer->FindComponentByClass<UCoreSystem>();
-		//PlayerCoreSystem->CoreHeal(TimeEnergy);
-		//=======================================
+		//Core Heal
+		UCoreSystem* PlayerCoreSystem = CurrentPlayer->FindComponentByClass<UCoreSystem>();
+		PlayerCoreSystem->CoreHeal(TimeEnergy);
+		
 	}
 }
 

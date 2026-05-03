@@ -73,15 +73,12 @@ private:
 
 	// Reload State
 	bool isReloading = false;
-	FTimerHandle ReloadTimerHandle;
-	void WeaponReloadCooldown();
 
 	UPROPERTY(EditAnywhere, Category = "VFX")
 	TArray<UNiagaraSystem*> BloodVFXArray; 
 
 	void PlayBloodEffect(FVector ImpactLocation, FVector ImpactNormal);
 protected:
-	float ReloadCoolTime;
 
 	// 총기 반동 변수
 	float PitchRecoilAmount;  // vertical recoil
@@ -102,11 +99,15 @@ public:
 	void SetWeaponAmmo(int ammo);
 	int GetWeaponAmmo();
 	// IsReloading getter
-	bool IsReloading();
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	bool GetIsReloading();
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void SetIsReloading(bool value);
 
 	// Weapon System Functions
 	virtual void WeaponFire();
 	virtual void WeaponStopFire();
+	UFUNCTION(BlueprintCallable, Category = "Combat")
 	virtual void WeaponReload();
 
 	// 총 연속 쏘기 관리할 타이머 핸들러 

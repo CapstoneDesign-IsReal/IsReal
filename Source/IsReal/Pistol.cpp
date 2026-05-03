@@ -14,8 +14,6 @@ APistol::APistol()
 	// 반동 변수
 	PitchRecoilAmount = 0.6f;
 	YawRecoilAmount = 0.15f;
-
-	ReloadCoolTime = 1.5f;
 }
 
 void APistol::BeginPlay()
