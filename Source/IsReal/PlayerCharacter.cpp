@@ -19,6 +19,8 @@
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraComponent.h"
+#include "EnemyEventSubsystem.h"
+
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()  
@@ -38,12 +40,6 @@ APlayerCharacter::APlayerCharacter()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
 	CameraComp->bUsePawnControlRotation = false;
-
-
-	Rifle1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RifleMesh")); //여기까지하면 블루프린트에 생김 
-	Rifle1->SetupAttachment(GetMesh());
-	Pistol1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PistolMesh")); //여기까지하면 블루프린트에 생김 
-	Pistol1->SetupAttachment(GetMesh());
 
 
 	// core system Component
@@ -102,25 +98,7 @@ void APlayerCharacter::BeginPlay()
 
 	WeaponSlot.SetNum(2); // 2가지 무기 슬롯 초기화
 
-	if (Rifle1)
-	{
-		Rifle1->AttachToComponent(
-			GetMesh(),
-			FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-			TEXT("Rifle")
-		);
-	}
-
-	if (Pistol1)
-	{
-		Pistol1->AttachToComponent(
-			GetMesh(),
-			FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-			TEXT("Pistol")
-		);
-	}
 	AnimInstance = GetMesh()->GetAnimInstance();
-
 
 	if (MovementEffect)
 	{
@@ -135,6 +113,10 @@ void APlayerCharacter::BeginPlay()
 
 		coresubsystem->RewindDoneDelegate.AddUObject(this, &APlayerCharacter::DetachWeapon);
 	}
+	if (GetWorld()) {
+		EnemyEventSubsystem = GetWorld()->GetSubsystem<UEnemyEventSubsystem>();
+	}
+
 
 }
 
@@ -173,6 +155,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		PlayerInput->BindAction(ia_EquipPrimary, ETriggerEvent::Started, this, &APlayerCharacter::EquipPrimaryWeapon);
 		PlayerInput->BindAction(ia_EquipSecondary, ETriggerEvent::Started, this, &APlayerCharacter::EquipSecondaryWeapon);
+
+		PlayerInput->BindAction(ia_Zoom, ETriggerEvent::Triggered, this, &APlayerCharacter::Wheel);
 
 	}
 
@@ -249,6 +233,19 @@ void APlayerCharacter::Rewind(const FInputActionValue& inputValue)
 	}
 }
 
+void APlayerCharacter::Wheel(const FInputActionValue& inputValue) {
+	float Axis = inputValue.Get<float>();
+
+	if (!isAiming)return;
+	if (!CurrentWeapon||CurrentWeapon->GetWeaponType() != EWeaponType::EWT_Sniper) return;
+	CurrentSniperFOV -= Axis * ZoomSpeed; //5.f만큼 확대 및 축소가 되는셈
+
+	CurrentSniperFOV = FMath::Clamp(CurrentSniperFOV, MaxSniperFOV, MinSniperFOV);
+
+	CameraComp->SetFieldOfView(CurrentSniperFOV);
+
+}
+
 void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 {
 	// 몽타주 실행 중일 때
@@ -269,7 +266,9 @@ void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 
 			SpringArmComp->TargetArmLength = DefaultArmLength;
 			IsLookTimer = false;
+			if (CurrentWeapon) {
 			CurrentWeapon->CanShooting = true;
+			}
 		}
 
 		return;
@@ -314,13 +313,18 @@ void APlayerCharacter::DoAimStart()
 			if (CurrentWeapon && CurrentWeapon->GetWeaponType() == EWeaponType::EWT_Sniper)
 			{
 				// 저격총 
-				CameraComp->SetFieldOfView(SniperFOV);
+				//CameraComp->SetFieldOfView(SniperFOV);
+				CurrentSniperFOV = MinSniperFOV;
+				CameraComp->SetFieldOfView(CurrentSniperFOV);
 				SpringArmComp->TargetArmLength = SniperArmLength;
 				SpringArmComp->SocketOffset = SniperSocketOffset;
 				//캐릭터 메시 안보이게 하기 
 				GetMesh()->SetOwnerNoSee(true);
 				//총도 숨기기 (크로스헤어에 삐죽 튀어나오기 때문에)
-				CurrentWeapon->SetActorHiddenInGame(true);
+				if (CurrentWeapon)
+				{
+					CurrentWeapon->SetActorHiddenInGame(true);
+				}
 			}
 			else
 			{
@@ -437,6 +441,8 @@ void APlayerCharacter::UnEquipWeapon()
 }
 
 void APlayerCharacter::PlayerDie() {
+	//플레이어 사망 처리 함수에 다음과 같은 코드 추가
+	EnemyEventSubsystem->PlayerDieNotifyToEnemy();
 	IsDie = true;
 	IsDieAnim = true;
 	//AnimInstance->Montage_Play(DieMontage);
@@ -459,10 +465,10 @@ void APlayerCharacter::Playerknockback() // delete
 
 	GetWorld()->GetTimerManager().SetTimer(KnockbackTimer, this, &APlayerCharacter::KnockbackEnd, 1.0f, false);
 
-	if (isAiming)
-	{
-		DoAimEnd();
-	}
+	//if (isAiming)
+	//{
+	//	//DoAimEnd();
+	//}
 	if (IsLookTimer) { //시계를 보고 있었으면 시계를 끄기 
 		if (AnimInstance && ToggleClockMontage)
 		{
@@ -549,6 +555,7 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 				break;
 			}
 			}
+			DoAimEnd();
 			// @@@@@@@@@@@@@기존 같은 슬롯의 무기는 무조건 Detach하고 없애고 
 			AWeaponSystem* OldWeapon = WeaponSlot[(int)slot];
 			if (OldWeapon) {
@@ -606,7 +613,7 @@ void APlayerCharacter::AttachWeapon()
 		SocketName = TEXT("Rifle");
 		break;
 	case EWeaponType::EWT_Sniper:
-		SocketName = TEXT("Sniper_L");
+		SocketName = TEXT("Sniper_R");
 		break;
 	case EWeaponType::EWT_Shotgun:
 		SocketName = TEXT("Shotgun");
@@ -636,6 +643,11 @@ void APlayerCharacter::DetachWeapon()
 			Weapon->Destroy(); // 레벨에서 삭제
 		}
 	}
+	if (CurrentWeapon) {
+		CurrentWeapon = nullptr;
+		IsHasGun = false;
+	}
+	UpdateCrosshair();
 }
 
 

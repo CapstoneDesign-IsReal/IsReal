@@ -86,7 +86,7 @@ void AShotGun::ShotGunFireLineTrace()
 
 	APlayerCharacter* PC = Cast<APlayerCharacter>(GetOwner());
 	// 총구 화염 이펙트 출력
-	if (GetWeaponType() == EWeaponType::EWT_Shotgun) ShotGunMesh = PC->GetRifleMesh(); // 임시로 라이플 메시 사용
+	if (GetWeaponType() == EWeaponType::EWT_Shotgun) ShotGunMesh = FindComponentByClass<USkeletalMeshComponent>(); // 샷건 가져옴
 	else ShotGunMesh = nullptr;
 
 	FVector SGMuzzleLoc = ShotGunMesh->GetSocketLocation(TEXT("WeaponSocket"));
