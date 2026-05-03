@@ -33,6 +33,7 @@ protected:
 	UEnemyEventSubsystem* EnemyEventSubsystem;
 	UCoreEventSubsystem* CoreEventSubsystem;
 
+	UPROPERTY()
 	AEnemy* SpawnedEnemy;
 protected:
 	// Called when the game starts or when spawned

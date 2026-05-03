@@ -9,6 +9,7 @@
 
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
+#include "NiagaraComponent.h"
 
 // Sets default values
 AWeaponSystem::AWeaponSystem()
@@ -72,31 +73,15 @@ void AWeaponSystem::WeaponReload()
 		UE_LOG(LogTemp, Warning, TEXT("No More Ammo to Reload!"));
 		return;
 	}
+	
+	// 필요한 총알 수 계산
+	int NeededAmmo = MaxAmmo - CurrentAmmo;
+	if (NeededAmmo <= 0) return; // 이미 총알이 가득 찬 경우
 
-	if (!(GetWorld()->GetTimerManager().IsTimerActive(ReloadTimerHandle)))
-	{
-		if (isReloading == false)
-		{
-			isReloading = true;
-			// 리로드 쿨타임 타이머 시작
-			GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &AWeaponSystem::WeaponReloadCooldown, ReloadCoolTime, false);
+	int LoadedAmmo = FMath::Min(NeededAmmo, TotalAmmo); // 실제로 장전할 총알 수
 
-			// 필요한 총알 수 계산
-			int NeededAmmo = MaxAmmo - CurrentAmmo;
-			if (NeededAmmo <= 0) return; // 이미 총알이 가득 찬 경우
-
-			int LoadedAmmo = FMath::Min(NeededAmmo, TotalAmmo); // 실제로 장전할 총알 수
-
-			CurrentAmmo += LoadedAmmo; // 현재 총알 수 증가
-			TotalAmmo -= LoadedAmmo;
-		}
-	}	
-}
-void AWeaponSystem::WeaponReloadCooldown()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Reload Complete!"));
-	GetWorld()->GetTimerManager().ClearTimer(ReloadTimerHandle);
-	isReloading = false;
+	CurrentAmmo += LoadedAmmo; // 현재 총알 수 증가
+	TotalAmmo -= LoadedAmmo;
 }
 
 void AWeaponSystem::ApplyRecoil()
@@ -135,15 +120,18 @@ void AWeaponSystem::SetWeaponAmmo(int ammo) { CurrentAmmo = ammo; }
 
 int AWeaponSystem::GetWeaponAmmo() { return CurrentAmmo; }
 
-bool AWeaponSystem::IsReloading(){ return isReloading; }
+bool AWeaponSystem::GetIsReloading(){ return isReloading; }
+void AWeaponSystem::SetIsReloading(bool value) { isReloading = value; }
 
 void AWeaponSystem::FireLineTrace()
 {
-	if (!CanShooting) return;
 	if (CurrentAmmo <= 0) {
 		UE_LOG(LogTemp, Warning, TEXT("No Ammo!"));
+		UGameplayStatics::PlaySoundAtLocation(this, NoAmmoSound, GetActorLocation());
 		return;
 	}
+	if (!CanShooting) return;
+	
 	// 한발 쏠 때마다 ammo -1 
 	CurrentAmmo--;
 	// 사운드 재생
@@ -183,26 +171,29 @@ void AWeaponSystem::FireLineTrace()
 	}
 	else
 	{
-		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 0.05f, 0, 1.5f);
+		//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 0.05f, 0, 1.5f);
 	}
 
 	CurrentGun = nullptr;
 
-	switch (_weapontype)
-	{
-	case EWeaponType::EWT_Rifle:
-		CurrentGun = PC->GetRifleMesh();
-		break;
-	case EWeaponType::EWT_Pistol:
-		CurrentGun = PC->GetPistolMesh();
-		break;
-	case EWeaponType::EWT_Sniper:
-		CurrentGun = PC->GetRifleMesh(); // 일단 임시로 라이플 메쉬 사용
-		break;
-	default:
-		CurrentGun = nullptr;
-		break;
-	}
+	CurrentGun = FindComponentByClass<USkeletalMeshComponent>();
+
+	//switch (_weapontype)
+	//{
+	//case EWeaponType::EWT_Rifle:
+	//	CurrentGun = PC->GetRifleMesh();
+	//	break;
+	//case EWeaponType::EWT_Pistol:
+	//	CurrentGun = PC->GetPistolMesh();
+	//	break;
+	//case EWeaponType::EWT_Sniper:
+	//	CurrentGun = PC->GetRifleMesh(); // 일단 임시로 라이플 메쉬 사용
+	//	break;
+	//default:
+	//	CurrentGun = nullptr;
+	//	break;
+	//}
+
 
 	FVector MuzzleLocation = CurrentGun->GetSocketLocation(TEXT("WeaponSocket"));
 	//FRotator MuzzleRotation = gunMeshComp->GetSocketRotation(TEXT("WeaponSocket"));
@@ -223,7 +214,7 @@ void AWeaponSystem::FireLineTrace()
 
 	if (MuzzleTraceHit)
 	{
-		DrawDebugLine(GetWorld(), MuzzleLocation, TargetPoint, FColor::Red, false, 0.05f, 0, 1.5f);
+		//DrawDebugLine(GetWorld(), MuzzleLocation, TargetPoint, FColor::Red, false, 0.05f, 0, 1.5f);
 
 
 		AActor* HitActor2 = MuzzleHit.GetActor();
@@ -233,7 +224,7 @@ void AWeaponSystem::FireLineTrace()
 			AEnemy* Enemy = Cast<AEnemy>(HitActor2);
 			if (Enemy)
 			{
-				DrawDebugPoint(GetWorld(), TargetPoint, 10.0f, FColor::Blue, false, 0.1f); // 적군을 맞추면 파란 점 찍힘
+				//DrawDebugPoint(GetWorld(), TargetPoint, 10.0f, FColor::Blue, false, 0.1f); // 적군을 맞추면 파란 점 찍힘
 				UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *Enemy->GetName());
 				Enemy->Hit(Damage, MuzzleHit.BoneName);    // 총기 별 데미지 주기
 				PlayBloodEffect(TargetPoint, TargetNormal); // 피격 이펙트 재생
@@ -242,11 +233,21 @@ void AWeaponSystem::FireLineTrace()
 	}
 	else
 	{
-		DrawDebugLine(GetWorld(), MuzzleLocation, EndFromMuzzle, FColor::Red, false, 0.05f, 0, 1.5f);
+		//DrawDebugLine(GetWorld(), MuzzleLocation, EndFromMuzzle, FColor::Red, false, 0.05f, 0, 1.5f);
 	}
 
 	// 총구 화염 이펙트 재생 - MuzzleLocation에서 VFX 실행
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), MuzzleFireVFX, MuzzleLocation, GetActorRotation());
+	
+	// Bullet Trail VFX 재생
+	UNiagaraComponent* TrailNiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		GetWorld(),
+		BulletTrailVFX,
+		MuzzleLocation
+	);
+
+	TrailNiagaraComp->SetVectorParameter(TEXT("start"), MuzzleLocation);
+	TrailNiagaraComp->SetVectorParameter(TEXT("end"), (EndFromMuzzle - MuzzleLocation));
 }
 
 // 샷건 라인트레이스 - 샷건의 탄약은 예외적으로 자식 클래스(AShotGun)에서 관리합니다. 
@@ -288,13 +289,14 @@ void AWeaponSystem::ScatterFireLineTrace()
 	}
 	else
 	{
-		DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 0.05f, 0, 1.5f);
+		//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 0.05f, 0, 1.5f);
 	}
 
 	CurrentGun = nullptr;
 
-	if (_weapontype == EWeaponType::EWT_Shotgun) CurrentGun = PC->GetRifleMesh();  // 임시로 라이플 메쉬 사용중
-	else CurrentGun = nullptr;
+	//if (_weapontype == EWeaponType::EWT_Shotgun) CurrentGun = PC->GetRifleMesh();  // 임시로 라이플 메쉬 사용중
+	//else CurrentGun = nullptr;
+	CurrentGun = FindComponentByClass<USkeletalMeshComponent>();
 
 	FVector MuzzleLocation = CurrentGun->GetSocketLocation(TEXT("WeaponSocket"));
 	//FRotator MuzzleRotation = gunMeshComp->GetSocketRotation(TEXT("WeaponSocket"));
@@ -320,7 +322,7 @@ void AWeaponSystem::ScatterFireLineTrace()
 	);
 	//ECC_Visibility : �����̴� ��ü�� ä�θ� ����
 
-	DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Red, false, 1.0f); // 샷건 탄환이 퍼지는 범위 시각화
+	//DrawDebugSphere(GetWorld(), SphereCenter, SphereRadius, 12, FColor::Red, false, 1.0f); // 샷건 탄환이 퍼지는 범위 시각화
 
 	if (MuzzleTraceHit)
 	{
@@ -334,7 +336,7 @@ void AWeaponSystem::ScatterFireLineTrace()
 			AEnemy* Enemy = Cast<AEnemy>(HitActor2);
 			if (Enemy)
 			{
-				DrawDebugLine(GetWorld(), MuzzleLocation, TargetPoint, FColor::Blue, false, 1.0f); // 적군을 맞추면 파란 점 찍힘
+				//DrawDebugLine(GetWorld(), MuzzleLocation, TargetPoint, FColor::Blue, false, 1.0f); // 적군을 맞추면 파란 점 찍힘
 				UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *Enemy->GetName());
 				Enemy->Hit(Damage, MuzzleHit.BoneName);    // 총기 별 데미지 주기
 				PlayBloodEffect(TargetPoint, TargetNormal); // 피격 이펙트 재생
@@ -343,8 +345,18 @@ void AWeaponSystem::ScatterFireLineTrace()
 	}
 	else
 	{
-		DrawDebugLine(GetWorld(), MuzzleLocation, EndFromMuzzle, FColor::Red, false, 1.0f);
+		//DrawDebugLine(GetWorld(), MuzzleLocation, EndFromMuzzle, FColor::Red, false, 1.0f);
 	}
+
+	// Bullet Trail VFX 재생
+	UNiagaraComponent* TrailNiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		GetWorld(),
+		BulletTrailVFX,
+		MuzzleLocation
+	);
+
+	TrailNiagaraComp->SetVectorParameter(TEXT("start"), MuzzleLocation);
+	TrailNiagaraComp->SetVectorParameter(TEXT("end"), (EndFromMuzzle - MuzzleLocation));
 }
 
 void AWeaponSystem::PlayBloodEffect(FVector impactpoint, FVector impactnormal) 

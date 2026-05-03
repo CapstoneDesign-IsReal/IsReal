@@ -20,8 +20,6 @@ AShotGun::AShotGun()
 	// 반동 변수
 	PitchRecoilAmount = 1.0f;
 	YawRecoilAmount = 0.2f;
-
-	ReloadCoolTime = 2.0f;
 }
 
 void AShotGun::BeginPlay()
@@ -74,6 +72,7 @@ void AShotGun::ShotGunFireLineTrace()
 	// 샷건의 탄약 관리는 예외적으로 자식 클래스에서 직접 구현
 	if (CurrentAmmo <= 0) {
 		UE_LOG(LogTemp, Warning, TEXT("No Ammo!"));
+		UGameplayStatics::PlaySoundAtLocation(this, NoAmmoSound, GetActorLocation());
 		return;
 	}
 
@@ -95,16 +94,4 @@ void AShotGun::ShotGunFireLineTrace()
 
 	// 총기 반동 적용
 	ApplyRecoil();
-}
-
-void AShotGun::Interact_Implementation(AActor* Interactor)
-{
-	SetWeaponType(EWeaponType::EWT_Shotgun);
-	//Destroy(); // 흠..Destroy가 있으면 한 몇초동안 아웃라이너에 남아있다가 사라짐
-	// 이 사실을 가지고 한 몇초 플레이를 한다면 총알이 발사가 안됨. 
-}
-
-EInteractionType AShotGun::GetInteractionType_Implementation()
-{
-	return EInteractionType::Gun;
 }
