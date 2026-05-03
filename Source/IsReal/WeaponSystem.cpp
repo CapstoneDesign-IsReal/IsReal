@@ -178,23 +178,6 @@ void AWeaponSystem::FireLineTrace()
 
 	CurrentGun = FindComponentByClass<USkeletalMeshComponent>();
 
-	//switch (_weapontype)
-	//{
-	//case EWeaponType::EWT_Rifle:
-	//	CurrentGun = PC->GetRifleMesh();
-	//	break;
-	//case EWeaponType::EWT_Pistol:
-	//	CurrentGun = PC->GetPistolMesh();
-	//	break;
-	//case EWeaponType::EWT_Sniper:
-	//	CurrentGun = PC->GetRifleMesh(); // 일단 임시로 라이플 메쉬 사용
-	//	break;
-	//default:
-	//	CurrentGun = nullptr;
-	//	break;
-	//}
-
-
 	FVector MuzzleLocation = CurrentGun->GetSocketLocation(TEXT("WeaponSocket"));
 	//FRotator MuzzleRotation = gunMeshComp->GetSocketRotation(TEXT("WeaponSocket"));
 

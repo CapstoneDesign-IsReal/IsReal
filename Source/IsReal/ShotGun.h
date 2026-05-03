@@ -38,5 +38,5 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Weapon Sound")
 	USoundBase* PumpSound;
 
-	UStaticMeshComponent* ShotGunMesh;
+	USkeletalMeshComponent* ShotGunMesh;
 };

@@ -12,6 +12,7 @@ class UCoreSystem;
 class UHealthComponent;
 class AWeaponBox;
 class UNiagaraComponent;
+class UEnemyEventSubsystem;
 
 #include "PlayerCharacter.generated.h"
 
@@ -40,16 +41,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GunMesh)
 	class UStaticMeshComponent* gunMeshComp;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GunMesh) // To use WeaponSystem
-		class UStaticMeshComponent* Rifle1;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = GunMesh) 
-		class UStaticMeshComponent* Pistol1;
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	UStaticMeshComponent* GetRifleMesh() const { return Rifle1; }
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	UStaticMeshComponent* GetPistolMesh() const { return Pistol1; }
 
 private:
 	// 델리게이트용 Subsystem
@@ -137,6 +129,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input") // Shift 구르기
 		class UInputAction* ia_Roll;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input") // 저격총 상태에서 줌 
+		class UInputAction* ia_Zoom;
+
 
 
 	//void Roll(const struct FInputActionValue& inputValue);
@@ -161,6 +156,8 @@ protected:
 	// 주무기, 보조무기 장착 인풋 함수
 	void EquipPrimaryWeapon(const struct FInputActionValue& inputValue);
 	void EquipSecondaryWeapon(const struct FInputActionValue& inputValue);
+
+	void Wheel(const struct FInputActionValue& inputValue);
 
 
 
@@ -264,6 +261,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sniper")
 	FVector SniperSocketOffset = FVector(0.f, 20.f, 70.f);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sniper")
+	float MinSniperFOV = 40.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sniper")
+	float MaxSniperFOV = 5.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sniper")
+	float ZoomSpeed = 5.f;
+
+	float CurrentSniperFOV;
+
 
 
 public:
@@ -321,7 +329,6 @@ public:
 
 private:
 	void KnockbackEnd();
-	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	void AttachWeapon(); //CurrentWeapon만 Attach하게 하는 함수
 	void DetachWeapon();
 	void PlayGetPrimaryMontage(); // 주무기를 interact하는 함수
@@ -330,5 +337,5 @@ private:
 	void MontageEnded(UAnimMontage* Montage, bool bInterruted);
 	//void MontageBlendOut(UAnimMontage* Montage, bool bInterruted); //애니메이션이 중간에 끊길 때 사용할 함수.
 
-	//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	UEnemyEventSubsystem* EnemyEventSubsystem; //캐릭터가 죽으면 적의 공격을 멈추기위해 가져옴.
 };
