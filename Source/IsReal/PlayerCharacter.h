@@ -327,10 +327,11 @@ public:
 	// 플레이어의 애님인스턴스 자체를 가져오는 변수
 	UAnimInstance* AnimInstance;
 
+	void DetachWeapon(); //CoreSystem.cpp에서 참조해야함
 private:
 	void KnockbackEnd();
 	void AttachWeapon(); //CurrentWeapon만 Attach하게 하는 함수
-	void DetachWeapon();
+	
 	void PlayGetPrimaryMontage(); // 주무기를 interact하는 함수
 	void PlayGetSecondaryMontage(); // 보조무기를 interact 함수
 	void SetWeaponEquipped(); // Equipped 불변수를 셋팅하는 함수

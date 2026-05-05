@@ -226,6 +226,7 @@ void APlayerCharacter::StopAfterImage()
 
 void APlayerCharacter::Rewind(const FInputActionValue& inputValue)
 {
+	if (IsLookTimer) return;
 	if (IsDie) return;
 	if (CoreSystemComp) 
 	{
@@ -248,7 +249,11 @@ void APlayerCharacter::Wheel(const FInputActionValue& inputValue) {
 
 void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 {
-	// 몽타주 실행 중일 때
+	if (IsDie || IsDieAnim)
+	{
+		return;
+	}
+	// 몽타주 실행 중인데 그게 시계 보는거면 닫기
 	if (AnimInstance && AnimInstance->Montage_IsPlaying(nullptr))
 	{
 		// 시계 보는 중이면 닫기
@@ -280,7 +285,7 @@ void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 	{
 		ClockWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), ClockWidgetClass);
 	}
-
+	// 위젯 보이게 하기
 	if (!IsLookTimer)
 	{
 		// 혹시 조준 중이면 강제 해제
@@ -433,7 +438,7 @@ void APlayerCharacter::UnEquipWeapon()
 	IsShotgunEquipped = false;
 
 	IsHasGun = false;
-	CurrentWeapon = nullptr;
+	if (CurrentWeapon) CurrentWeapon = nullptr;
 	WeaponSlot[(int)EWeaponSlot::Primary] = nullptr;
 	WeaponSlot[(int)EWeaponSlot::Secondary] = nullptr;
 
@@ -448,8 +453,25 @@ void APlayerCharacter::PlayerDie() {
 	//AnimInstance->Montage_Play(DieMontage);
 	DoShootingEnd(); // 죽을 때 발사 멈추기
 	DoAimEnd(); // 죽을 때 조준 멈추기
+
+	// 시계 켜진 상태로 죽으면 강제로 끄기
+	if (IsLookTimer)
+	{
+		if (AnimInstance && ToggleClockMontage)
+		{
+			AnimInstance->Montage_Stop(0.1f, ToggleClockMontage);
+		}
+
+		if (ClockWidgetInstance)
+		{
+			ClockWidgetInstance->RemoveFromParent();
+		}
+
+		IsLookTimer = false;
+	}
+
 	StopAfterImage();
-	DetachWeapon();
+	//DetachWeapon();
 	SpringArmComp->TargetArmLength = 400.f;
 }
 
@@ -643,10 +665,7 @@ void APlayerCharacter::DetachWeapon()
 			Weapon->Destroy(); // 레벨에서 삭제
 		}
 	}
-	if (CurrentWeapon) {
-		CurrentWeapon = nullptr;
-		IsHasGun = false;
-	}
+	UnEquipWeapon();
 	UpdateCrosshair();
 }
 
