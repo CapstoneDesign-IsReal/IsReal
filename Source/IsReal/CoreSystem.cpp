@@ -4,6 +4,7 @@
 #include "CoreSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
+#include "Blueprint/UserWidget.h"
 #include "GameFramework/Character.h"
 
 #include "NiagaraFunctionLibrary.h"
@@ -39,6 +40,8 @@ void UCoreSystem::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 
 void UCoreSystem::TryReWind() 
 {
+	if (!OwnerCharacter) OwnerCharacter = Cast<APlayerCharacter>(GetOwner());
+	if (OwnerCharacter == nullptr) return;
 	FVector CurrentLocation = OwnerCharacter->GetActorLocation();
 
 	if (RewindCore >= 100 && !(GetWorld()->GetTimerManager().IsTimerActive(RewindTimerHandle)) && GetIsEnterBoss() == false)
@@ -114,7 +117,15 @@ void UCoreSystem::RewindCooldown()
 		// if core is less than 100, game is over
 		if (RewindCore < 100) {
 			UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Can't Rewind, Game Over"), true, true, FLinearColor::Green, 2.0f);
-			// 추후 게임 오버 화면 추가
+			// 게임 오버 화면
+			if (!GameOverWidgetInstance && GameOverWidgetClass)
+			{
+				GameOverWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), GameOverWidgetClass);
+				if (GameOverWidgetInstance)
+				{
+					GameOverWidgetInstance->AddToViewport();
+				}
+			}
 		}
 	}
 }
@@ -152,7 +163,15 @@ void UCoreSystem::RewindOnDeath()   // ���� �� ����� ��
 	// if core is less than 100, game is over
 	if (RewindCore < 100) {
 		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Can't Rewind, Game Over"), true, true, FLinearColor::Green, 2.0f);
-		// 추후 게임 오버 화면 추가
+		// 게임 오버 화면
+		if (!GameOverWidgetInstance && GameOverWidgetClass)
+		{
+			GameOverWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), GameOverWidgetClass);
+			if (GameOverWidgetInstance)
+			{
+				GameOverWidgetInstance->AddToViewport();
+			}
+		}
 	}
 }
 

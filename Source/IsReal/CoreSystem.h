@@ -63,6 +63,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CoreSystem")
 	void SetIsEnterBoss(bool isBossRoom) { Is_EnterBossRoom = isBossRoom; }
 
+	// Game Over UI Widget
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<UUserWidget> GameOverWidgetClass;
+
+	UPROPERTY()
+	UUserWidget* GameOverWidgetInstance = nullptr;
+
 	// coreHeal - 외부에서 core 회복을 위한 함수
 	void CoreHeal(int value);
 
