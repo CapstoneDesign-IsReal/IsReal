@@ -32,7 +32,18 @@ enum class EEnemyState : uint8
 	Attack UMETA(DisplayName = "Attack"),
 	Die UMETA(DisplayName = "Die"),
 	Nearby UMETA(DisplayName = "Nearby"),
-	Charge UMETA(DisplayName = "Charge")
+	Charge UMETA(DisplayName = "Charge"),
+};
+
+UENUM()
+enum class EBossState : uint8
+{
+	Idle UMETA(DisplayName = "Idle"),
+	Chase UMETA(DisplayName = "Chase"),
+	Attack UMETA(DisplayName = "Attack"),
+	Die UMETA(DisplayName = "Die"),
+	Nearby UMETA(DisplayName = "Nearby"),
+	Groggy UMETA(DisplayName = "Groggy"),
 };
 
 UENUM(BlueprintType)
