@@ -103,6 +103,8 @@ void AEnemy::Hit(int damage, FName HitBoneName)
 	float ProcessedDamage = EnemyHitComp->DamageProcess(damage, HitBoneName);
 
 	HP = HP - ProcessedDamage;
+	
+	//EnemyController->ReportDamaged(ProcessedDamage);
 
 	UE_LOG(LogTemp, Warning, TEXT("Enemy HP : %f"), HP);	//for debug
 

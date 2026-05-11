@@ -69,6 +69,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	UEnvQuery* DodgeEQS;
 
+	void ReportDamaged(float Damage);
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	FName LowHPKeyName = TEXT("isLowHP");
@@ -86,6 +88,9 @@ protected:
 
 	UFUNCTION()
 	void HandleSensedSight(AActor* Actor);
+
+	UFUNCTION()
+	void HandleSensedDamage(AActor* Actor);
 
 	UFUNCTION()
 	void Dodge();

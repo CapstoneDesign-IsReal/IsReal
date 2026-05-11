@@ -299,6 +299,8 @@ public:
 	void StartAfterImage(); // 잔상 보이게 하는 함수
 	void StopAfterImage(); // 잔상 안보이게 하는 함수
 
+	void ReportDamaged();
+
 	
 	// 애님몽타주
 	UPROPERTY(EditAnywhere)

@@ -11,6 +11,7 @@
 #include "Perception/AIPerceptionTypes.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 
@@ -59,6 +60,8 @@ void AEnemyController::PerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 		if (AIStimulus.WasSuccessfullySensed()) //if Enemy Sense something by Damage
 		{
 			//do something
+			UE_LOG(LogTemp, Warning, TEXT("EnemyController: Damage Sensed"));
+			HandleSensedDamage(UpdatedActor);
 		}
 	}
 }
@@ -128,6 +131,25 @@ void AEnemyController::HandleSensedSight(AActor* Actor)
 	}
 }
 
+void AEnemyController::HandleSensedDamage(AActor* Actor)
+{
+	UBlackboardComponent* BlackboardComp = GetBlackboardComponent();
+	if (!BlackboardComp) {
+		UE_LOG(LogTemp, Warning, TEXT("<Perception Process Error>: No BlackBoard"));
+		return;
+	}
+	//Setting Blackboard Key value to Move Enemy
+	APlayerCharacter* target = Cast<APlayerCharacter>(Actor);
+	if (target) {
+		BlackboardComp->SetValueAsObject(TEXT("sensedTarget"), Actor);
+		BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EEnemyState::Chase));
+	}
+	else
+	{
+		return;
+	}
+}
+
 void AEnemyController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -179,4 +201,24 @@ ETeamAttitude::Type AEnemyController::GetTeamAttitudeTowards(const AActor& Other
 	else {
 		return ETeamAttitude::Hostile;
 	}
+}
+
+void AEnemyController::ReportDamaged(float Damage)
+{
+	AEnemy* ControlledPawn = Cast<AEnemy>(GetPawn());
+	APlayerCharacter* Attacker = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+	if (!ControlledPawn || !Attacker)
+	{
+		return; 
+	}
+
+	UAISense_Damage::ReportDamageEvent(
+		GetWorld(),
+		ControlledPawn,
+		Attacker,
+		Damage,
+		Attacker->GetActorLocation(),
+		ControlledPawn->GetActorLocation()
+	);
 }
