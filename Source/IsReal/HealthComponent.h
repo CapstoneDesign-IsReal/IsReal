@@ -33,6 +33,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void SetIsInvincible(bool bInvincible) { IsInvincible = bInvincible; }
 
+    UFUNCTION(BlueprintCallable, Category = "Health")
 	void hit(float damage);
 
 	//Player Current HP
