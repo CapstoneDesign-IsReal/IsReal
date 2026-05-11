@@ -158,9 +158,12 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		PlayerInput->BindAction(ia_Zoom, ETriggerEvent::Triggered, this, &APlayerCharacter::Wheel);
 
+		PlayerInput->BindAction(ia_Esc, ETriggerEvent::Triggered, this, &APlayerCharacter::Esc);
+
 	}
 
 }
+
 void APlayerCharacter::UpdateCrosshair()
 {
 	// 일단 다 끄기
@@ -226,6 +229,7 @@ void APlayerCharacter::StopAfterImage()
 
 void APlayerCharacter::Rewind(const FInputActionValue& inputValue)
 {
+	if (IsLookTimer) return;
 	if (IsDie) return;
 	if (CoreSystemComp) 
 	{
@@ -246,9 +250,66 @@ void APlayerCharacter::Wheel(const FInputActionValue& inputValue) {
 
 }
 
+void APlayerCharacter::Esc(const FInputActionValue& inputValue) {
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC) return;
+
+	// 현재 일시정지 상태인지 확인
+	bool bIsPaused = UGameplayStatics::IsGamePaused(GetWorld());
+
+	if (!bIsPaused)
+	{
+		// 게임 멈춤
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
+
+		// ESC 위젯 생성
+		if (EscWidgetClass && !EscWidget)
+		{
+			EscWidget = CreateWidget<UUserWidget>(PC, EscWidgetClass);
+		}
+
+		// ESC 위젯 화면에 띄우기
+		if (EscWidget)
+		{
+			EscWidget->AddToViewport();
+		}
+
+		// 마우스 보이게
+		PC->bShowMouseCursor = true;
+
+		// UI만 조작하게 변경
+		//FInputModeUIOnly InputMode;
+		//InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		//PC->SetInputMode(InputMode);
+	}
+	else
+	{
+		// 게임 재개
+		UGameplayStatics::SetGamePaused(GetWorld(), false);
+
+		// ESC 위젯 제거
+		if (EscWidget)
+		{
+			EscWidget->RemoveFromParent();
+			EscWidget = nullptr;
+		}
+
+		// 마우스 숨기기
+		PC->bShowMouseCursor = false;
+
+		//// 다시 게임 입력으로 변경
+		//FInputModeGameOnly InputMode;
+		//PC->SetInputMode(InputMode);
+	}
+}
+
 void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 {
-	// 몽타주 실행 중일 때
+	if (IsDie || IsDieAnim)
+	{
+		return;
+	}
+	// 몽타주 실행 중인데 그게 시계 보는거면 닫기
 	if (AnimInstance && AnimInstance->Montage_IsPlaying(nullptr))
 	{
 		// 시계 보는 중이면 닫기
@@ -280,7 +341,7 @@ void APlayerCharacter::ToggleClock(const FInputActionValue& inputValue)
 	{
 		ClockWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), ClockWidgetClass);
 	}
-
+	// 위젯 보이게 하기
 	if (!IsLookTimer)
 	{
 		// 혹시 조준 중이면 강제 해제
@@ -433,7 +494,7 @@ void APlayerCharacter::UnEquipWeapon()
 	IsShotgunEquipped = false;
 
 	IsHasGun = false;
-	CurrentWeapon = nullptr;
+	if (CurrentWeapon) CurrentWeapon = nullptr;
 	WeaponSlot[(int)EWeaponSlot::Primary] = nullptr;
 	WeaponSlot[(int)EWeaponSlot::Secondary] = nullptr;
 
@@ -448,8 +509,25 @@ void APlayerCharacter::PlayerDie() {
 	//AnimInstance->Montage_Play(DieMontage);
 	DoShootingEnd(); // 죽을 때 발사 멈추기
 	DoAimEnd(); // 죽을 때 조준 멈추기
+
+	// 시계 켜진 상태로 죽으면 강제로 끄기
+	if (IsLookTimer)
+	{
+		if (AnimInstance && ToggleClockMontage)
+		{
+			AnimInstance->Montage_Stop(0.1f, ToggleClockMontage);
+		}
+
+		if (ClockWidgetInstance)
+		{
+			ClockWidgetInstance->RemoveFromParent();
+		}
+
+		IsLookTimer = false;
+	}
+
 	StopAfterImage();
-	DetachWeapon();
+	//DetachWeapon();
 	SpringArmComp->TargetArmLength = 400.f;
 }
 
@@ -509,7 +587,7 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 	FVector Start = CameraComp->GetComponentLocation();
 	FVector End = Start + (CameraComp->GetForwardVector() * 500.f);
 
-	FHitResult HitResult; 
+	FHitResult HitResult;
 	FCollisionQueryParams param;
 	param.AddIgnoredActor(this);
 
@@ -564,7 +642,7 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			}
 			// @@@@@@@@@@@@그 다음에 새무기 넣기
 			WeaponSlot[(int)slot] = Weapon;
-			
+
 			CurrentWeapon = Weapon;
 			IsHasGun = true; // 이건 추후에 BP에서 설정안하게 하면 추가하면됨
 			// 그리고 맨위에 weaponsocket같은거 attach여기서 하면될거같은데
@@ -577,13 +655,16 @@ void APlayerCharacter::PInteract(const FInputActionValue& inputValue) {
 			break;
 		}
 		case EInteractionType::Card:
+			if (CardPickupSound)
+			{
+				UGameplayStatics::PlaySound2D(GetWorld(), CardPickupSound);
+			}
 			IInteractable::Execute_Interact(HitActor, this);
 			break;
 		default:
 			break;
 		}
 	}
-
 }
 void APlayerCharacter::AttachWeapon()
 {
@@ -631,6 +712,7 @@ void APlayerCharacter::AttachWeapon()
 	}
 }
 
+
 // 모든 무기 제거
 void APlayerCharacter::DetachWeapon() 
 {
@@ -643,10 +725,7 @@ void APlayerCharacter::DetachWeapon()
 			Weapon->Destroy(); // 레벨에서 삭제
 		}
 	}
-	if (CurrentWeapon) {
-		CurrentWeapon = nullptr;
-		IsHasGun = false;
-	}
+	UnEquipWeapon();
 	UpdateCrosshair();
 }
 

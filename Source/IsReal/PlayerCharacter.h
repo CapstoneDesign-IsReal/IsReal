@@ -99,6 +99,13 @@ protected:
 
 
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UUserWidget> EscWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	UUserWidget* EscWidget;
+
+
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 		class UInputMappingContext* imc_TPS;
@@ -132,6 +139,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input") // 저격총 상태에서 줌 
 		class UInputAction* ia_Zoom;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input") // ESC키 눌렀을 때 
+		class UInputAction* ia_Esc;
+
 
 
 	//void Roll(const struct FInputActionValue& inputValue);
@@ -158,6 +168,8 @@ protected:
 	void EquipSecondaryWeapon(const struct FInputActionValue& inputValue);
 
 	void Wheel(const struct FInputActionValue& inputValue);
+
+	void Esc(const struct FInputActionValue& inputValue);
 
 
 
@@ -272,6 +284,8 @@ protected:
 
 	float CurrentSniperFOV;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	USoundBase* CardPickupSound;
 
 
 public:
@@ -327,10 +341,11 @@ public:
 	// 플레이어의 애님인스턴스 자체를 가져오는 변수
 	UAnimInstance* AnimInstance;
 
+	void DetachWeapon(); //CoreSystem.cpp에서 참조해야함
 private:
 	void KnockbackEnd();
 	void AttachWeapon(); //CurrentWeapon만 Attach하게 하는 함수
-	void DetachWeapon();
+	
 	void PlayGetPrimaryMontage(); // 주무기를 interact하는 함수
 	void PlayGetSecondaryMontage(); // 보조무기를 interact 함수
 	void SetWeaponEquipped(); // Equipped 불변수를 셋팅하는 함수
