@@ -39,3 +39,13 @@ void AEnemyController_Boss::DecideAttack()
 		}
 	}
 }
+
+void AEnemyController_Boss::Groggy()
+{
+	UBlackboardComponent* BlackboardComp = GetBlackboardComponent();
+	if (!BlackboardComp) {
+		UE_LOG(LogTemp, Warning, TEXT("EnemyController_Boss: No BlackBoard"));
+		return;
+	}
+	BlackboardComp->SetValueAsEnum(TEXT("state"), static_cast<uint8>(EBossState::Groggy));
+}

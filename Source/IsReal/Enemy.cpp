@@ -92,7 +92,7 @@ void AEnemy::Hit(int damage, FName HitBoneName)
 {
 	auto EnemyController = Cast<AEnemyController>(GetController());
 	APlayerCharacter* CurrentPlayer = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	UBlackboardComponent* BlackboardComp = EnemyController->GetBlackboardComponent();
+	UBlackboardComponent* BlackboardComp = EnemyController ? EnemyController->GetBlackboardComponent() : nullptr;
 
 	if (!EnemyController || !BlackboardComp  || !CurrentPlayer) {
 		UE_LOG(LogTemp, Warning, TEXT("<Controller Unpossessed Error>: Ptr Access Error"));
@@ -103,11 +103,13 @@ void AEnemy::Hit(int damage, FName HitBoneName)
 	float ProcessedDamage = EnemyHitComp->DamageProcess(damage, HitBoneName);
 
 	HP = HP - ProcessedDamage;
+	
+	//EnemyController->ReportDamaged(ProcessedDamage);
 
 	UE_LOG(LogTemp, Warning, TEXT("Enemy HP : %f"), HP);	//for debug
 
 	//Implement Dodge when 50% HP
-	if (HP <= MaxHP / 2.0 && !bIsLowHPTriggered && HP > 0) {
+	if (HP <= MaxHP / 2.0 && !bIsLowHPTriggered && HP > 0) {  
 		bIsLowHPTriggered = true;	//prevent multiple execution
 
 		if (LowHPDelegate.IsBound()) {

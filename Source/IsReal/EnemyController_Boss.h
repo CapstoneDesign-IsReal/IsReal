@@ -34,6 +34,7 @@ class ISREAL_API AEnemyController_Boss : public AEnemyController
 	
 public:
 	void DecideAttack();
+	void Groggy();
 
 protected:
 	virtual void BeginPlay() override;

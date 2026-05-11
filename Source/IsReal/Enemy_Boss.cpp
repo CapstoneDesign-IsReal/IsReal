@@ -64,6 +64,10 @@ void AEnemy_Boss::EnableAttackCollision()
 	LeftFootHitBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	RightFootHitBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
+	LeftHandHitBox->OnComponentBeginOverlap.RemoveDynamic(this, &AEnemy_Boss::OnHitBoxHit);
+	RightHandHitBox->OnComponentBeginOverlap.RemoveDynamic(this, &AEnemy_Boss::OnHitBoxHit);
+	LeftFootHitBox->OnComponentBeginOverlap.RemoveDynamic(this, &AEnemy_Boss::OnHitBoxHit);
+	RightFootHitBox->OnComponentBeginOverlap.RemoveDynamic(this, &AEnemy_Boss::OnHitBoxHit);
 	
 	LeftHandHitBox->OnComponentBeginOverlap.AddDynamic(this, &AEnemy_Boss::OnHitBoxHit);
 	RightHandHitBox->OnComponentBeginOverlap.AddDynamic(this, &AEnemy_Boss::OnHitBoxHit);
@@ -93,4 +97,22 @@ void AEnemy_Boss::OnHitBoxHit(UPrimitiveComponent* OverlappedComponent, AActor* 
 	if (!OtherComp || !OtherActor || OtherActor == OverlappedComponent->GetOwner() || !CurrentPlayer) return;
 
 	CurrentPlayer->PlayerHit(CurrentAttackDamage);
+}
+
+void AEnemy_Boss::Hit(int damage, FName HitBoneName)
+{
+	if (GetIsArmored()) { //No damage when armor is active.
+		UE_LOG(LogTemp, Warning, TEXT("Enemy_Boss : Boss is Armored"), HP);
+		return; 
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Boss HP : %f"), HP);
+	Super::Hit(damage, HitBoneName);
+}
+
+void AEnemy_Boss::DecreaseArmor()
+{
+	Armor = Armor - 50.0f;
+	
+	if(Armor <= 0)
+		Cast<AEnemyController_Boss>(GetController())->Groggy();
 }

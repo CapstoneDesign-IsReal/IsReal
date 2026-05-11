@@ -35,7 +35,7 @@ protected:
 	//Enemy Status
 	UPROPERTY(EditAnywhere, Category = "Enemy Params")
 	float MaxHP = 200;
-	UPROPERTY(EditAnywhere, Category = "Enemy Params")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Params")
 	float HP = 200;
 	UPROPERTY(EditAnywhere, Category = "Enemy Params")
 	float AttackDamage = 40;
@@ -55,6 +55,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UEnemyHitComponent* EnemyHitComp;
 	bool bIsLowHPTriggered = false;
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -71,7 +72,7 @@ public:
 	//void Chase(APawn* target);
 	void Chase(AActor*);
 	UFUNCTION(BlueprintCallable)
-	void Hit(int damage, FName HitBoneName);
+	virtual void Hit(int damage, FName HitBoneName);
 	UFUNCTION(BlueprintCallable)
 	void DestroyEnemy();
 	virtual FGenericTeamId GetGenericTeamId() const override;

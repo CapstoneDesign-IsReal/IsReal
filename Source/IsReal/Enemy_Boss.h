@@ -24,9 +24,14 @@ public:
 	FORCEINLINE USphereComponent* GetRightHandHitBox() const { return RightHandHitBox; }
 
 	void DoAttack(UAnimMontage* NormalAttackMontage, float SelectedAttackDamage);
+	bool GetIsArmored() { return (Armor == 100); }
+
+	UFUNCTION(BlueprintCallable)
+	void DecreaseArmor();
 
 protected:
 	void NormalAttack(UAnimMontage* AttackMontage, float SelectedAttackDamage);
+	virtual void Hit(int damage, FName HitBoneName) override;
 
 	UFUNCTION()
 	void OnAttackMontageEnded(UAnimMontage* AttackMontage, bool bInterrupted);
@@ -56,4 +61,7 @@ protected:
 	float CurrentAttackDamage = 0.0f;
 
 	bool isPlayerHit = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Armor = 100.0f; //Can't Damage Boss if Armor is active.
 };
