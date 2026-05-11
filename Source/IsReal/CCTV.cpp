@@ -4,6 +4,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/StaticMeshComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Blueprint/UserWidget.h"
+#include "InputCoreTypes.h"
 
 ACCTV::ACCTV()
 {
@@ -37,6 +39,11 @@ void ACCTV::Tick(float DeltaTime)
     if (PlayerController->WasInputKeyJustPressed(EKeys::SpaceBar))
     {
         bIsActive = false;
+        if (CCTVWidgetInstance)
+        {
+            CCTVWidgetInstance->RemoveFromParent();
+            CCTVWidgetInstance = nullptr;
+        }
         PlayerController->SetViewTargetWithBlend(PlayerController->GetPawn(), 0.0f);
         return;
     }
@@ -66,11 +73,26 @@ void ACCTV::Interact_Implementation(AActor* Interactor)
 
         // CCTV 시점으로 전환
         PlayerController->SetViewTargetWithBlend(this, 0.0f);
+        if (CCTVWidgetClass && !CCTVWidgetInstance)
+        {
+            CCTVWidgetInstance = CreateWidget<UUserWidget>(PlayerController, CCTVWidgetClass);
+        }
+
+        // CCTV UI 표시
+        if (CCTVWidgetInstance)
+        {
+            CCTVWidgetInstance->AddToViewport();
+        }
     }
     else
     {
         bIsActive = false;
         PlayerController->SetViewTargetWithBlend(PlayerController->GetPawn(), 0.0f);
+        if (CCTVWidgetInstance)
+        {
+            CCTVWidgetInstance->RemoveFromParent();
+            CCTVWidgetInstance = nullptr;
+        }
     }
 }
 

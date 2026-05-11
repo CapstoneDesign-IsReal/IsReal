@@ -100,7 +100,7 @@ void UCoreSystem::RewindCooldown()
 			}
 		}
 
-		OwnerCharacter->DetachWeapon(); // �ֹ��� ����
+		//OwnerCharacter->DetachWeapon(); // �ֹ��� ����
 
 		CurruntRewindCoolTime = 0.0f;
 
@@ -138,7 +138,7 @@ void UCoreSystem::RewindOnDeath()   // ���� �� ����� ��
 		}
 	}
 
-	OwnerCharacter->DetachWeapon(); // �ֹ��� ����
+	//OwnerCharacter->DetachWeapon(); // �ֹ��� ����
 
 	CurruntRewindCoolTime = 0.0f;
 

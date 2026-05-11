@@ -6,6 +6,8 @@
 #include "Camera/CameraComponent.h"
 #include "CCTV.generated.h"
 
+class UUserWidget;
+
 UCLASS()
 class ISREAL_API ACCTV : public AActor, public IInteractable
 {
@@ -20,6 +22,12 @@ public:
 protected:
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaTime) override;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CCTV UI")
+    TSubclassOf<UUserWidget> CCTVWidgetClass;
+
+    UPROPERTY()
+    UUserWidget* CCTVWidgetInstance = nullptr;
 
 private:
     UPROPERTY(VisibleAnywhere)
