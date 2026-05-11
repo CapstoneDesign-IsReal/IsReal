@@ -70,7 +70,7 @@ void UCoreSystem::TryReWind()
 	}
 	else 
 	{
-		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Can't Rewind, Game Over"), true, true, FLinearColor::Green, 2.0f);
+		
 	}
 }
 
@@ -78,14 +78,8 @@ void UCoreSystem::RewindCooldown()
 {
 	CurruntRewindCoolTime++;
 
-	UKismetSystemLibrary::PrintString(						// ��ٿ� �����ִ� �ؽ�Ʈ(��������)
-		GetWorld(),
-		FString::Printf(TEXT("CoolDown.. : %.1f"), RewindCoolTime-CurruntRewindCoolTime)
-		, true, true, FLinearColor::Green, 2.0f);
-
 	if (CurruntRewindCoolTime >= RewindCoolTime && OwnerCharacter->GetIsDie() == false) {
 		GetWorld()->GetTimerManager().ClearTimer(RewindTimerHandle);
-		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("To Present!"), true, true, FLinearColor::Green, 2.0f);
 
 		// ����� �ö�
 		Is_Rewind = false;
@@ -116,7 +110,6 @@ void UCoreSystem::RewindCooldown()
 
 		// if core is less than 100, game is over
 		if (RewindCore < 100) {
-			UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Can't Rewind, Game Over"), true, true, FLinearColor::Green, 2.0f);
 			// 게임 오버 화면
 			if (!GameOverWidgetInstance && GameOverWidgetClass)
 			{
@@ -134,7 +127,6 @@ void UCoreSystem::RewindOnDeath()   // ���� �� ����� ��
 {
 	UE_LOG(LogTemp, Warning, TEXT("Rewind On Death"));
 	GetWorld()->GetTimerManager().ClearTimer(RewindTimerHandle);
-	UKismetSystemLibrary::PrintString(GetWorld(), TEXT("To Present!"), true, true, FLinearColor::Green, 2.0f);
 
 	// ����� �ö�
 	Is_Rewind = false;
@@ -162,7 +154,6 @@ void UCoreSystem::RewindOnDeath()   // ���� �� ����� ��
 
 	// if core is less than 100, game is over
 	if (RewindCore < 100) {
-		UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Can't Rewind, Game Over"), true, true, FLinearColor::Green, 2.0f);
 		// 게임 오버 화면
 		if (!GameOverWidgetInstance && GameOverWidgetClass)
 		{
@@ -184,11 +175,9 @@ void UCoreSystem::CoreHeal(int value)
 void UCoreSystem::PauseRewind() 
 {
 	GetWorld()->GetTimerManager().PauseTimer(RewindTimerHandle);
-	UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Rewind Paused"), true, true, FLinearColor::Green, 2.0f);
 }
 
 void UCoreSystem::UnPauseRewind() 
 {
 	GetWorld()->GetTimerManager().UnPauseTimer(RewindTimerHandle);
-	UKismetSystemLibrary::PrintString(GetWorld(), TEXT("Rewind Unpaused"), true, true, FLinearColor::Green, 2.0f);
 }

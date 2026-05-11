@@ -64,13 +64,11 @@ void UHealthComponent::heal()
 	else
 	{
 		GetWorld()->GetTimerManager().ClearTimer(RegenTimerHandle); // 체력이 최대치에 도달하면 타이머 정지
-		UKismetSystemLibrary::PrintString(GetWorld(), FString::Printf(TEXT("heal complete : %.1f"), PlayerHP), true, true, FLinearColor::Green, 2.0f);
 	}
 }
 
 void UHealthComponent::ExitCombat()
 {
-	UKismetSystemLibrary::PrintString(GetWorld(), FString::Printf(TEXT("out of combat")), true, true, FLinearColor::Green, 2.0f);
 	player->SetIsCombat(false); // 전투 상태에서 벗어남
 	GetWorld()->GetTimerManager().ClearTimer(RegenTimerHandle);
 
