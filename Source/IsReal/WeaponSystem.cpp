@@ -5,6 +5,7 @@
 #include "PlayerCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Enemy.h"
+#include "Enemy_Boss.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "NiagaraFunctionLibrary.h"
@@ -207,10 +208,20 @@ void AWeaponSystem::FireLineTrace()
 			AEnemy* Enemy = Cast<AEnemy>(HitActor2);
 			if (Enemy)
 			{
-				//DrawDebugPoint(GetWorld(), TargetPoint, 10.0f, FColor::Blue, false, 0.1f); // 적군을 맞추면 파란 점 찍힘
-				UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *Enemy->GetName());
-				Enemy->Hit(Damage, MuzzleHit.BoneName);    // 총기 별 데미지 주기
-				PlayBloodEffect(TargetPoint, TargetNormal); // 피격 이펙트 재생
+				AEnemy_Boss* Boss = Cast<AEnemy_Boss>(Enemy);
+
+				if (Boss && Boss->GetIsArmored()) 
+				{
+					Enemy->Hit(Damage, MuzzleHit.BoneName);    // 총기 별 데미지 주기
+					PlayArmorEffect(TargetPoint, TargetNormal); // 장갑 피격 이펙트 재생
+				}
+				else
+				{
+					//DrawDebugPoint(GetWorld(), TargetPoint, 10.0f, FColor::Blue, false, 0.1f); // 적군을 맞추면 파란 점 찍힘
+					UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *Enemy->GetName());
+					Enemy->Hit(Damage, MuzzleHit.BoneName);    // 총기 별 데미지 주기
+					PlayBloodEffect(TargetPoint, TargetNormal); // 피격 이펙트 재생
+				}
 			}
 		}
 	}
@@ -319,10 +330,20 @@ void AWeaponSystem::ScatterFireLineTrace()
 			AEnemy* Enemy = Cast<AEnemy>(HitActor2);
 			if (Enemy)
 			{
-				//DrawDebugLine(GetWorld(), MuzzleLocation, TargetPoint, FColor::Blue, false, 1.0f); // 적군을 맞추면 파란 점 찍힘
-				UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *Enemy->GetName());
-				Enemy->Hit(Damage, MuzzleHit.BoneName);    // 총기 별 데미지 주기
-				PlayBloodEffect(TargetPoint, TargetNormal); // 피격 이펙트 재생
+				AEnemy_Boss* Boss = Cast<AEnemy_Boss>(Enemy);
+
+				if (Boss && Boss->GetIsArmored())
+				{
+					Enemy->Hit(Damage, MuzzleHit.BoneName);    // 총기 별 데미지 주기
+					PlayArmorEffect(TargetPoint, TargetNormal); // 장갑 피격 이펙트 재생
+				}
+				else
+				{
+					//DrawDebugPoint(GetWorld(), TargetPoint, 10.0f, FColor::Blue, false, 0.1f); // 적군을 맞추면 파란 점 찍힘
+					UE_LOG(LogTemp, Warning, TEXT(" [Gun Trace] Hit Actor: %s"), *Enemy->GetName());
+					Enemy->Hit(Damage, MuzzleHit.BoneName);    // 총기 별 데미지 주기
+					PlayBloodEffect(TargetPoint, TargetNormal); // 피격 이펙트 재생
+				}
 			}
 		}
 	}
@@ -357,4 +378,14 @@ void AWeaponSystem::PlayBloodEffect(FVector impactpoint, FVector impactnormal)
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), RandBloodEffect, SurfacePoint, Rotation);
 
 	}
+}
+
+void AWeaponSystem::PlayArmorEffect(FVector impactpoint, FVector impactnormal)
+{
+	float OffsetDistance = 10.0f; // 이펙트가 표면에서 약간 떨어지도록 하는 거리
+	FVector SurfacePoint = impactpoint + (impactnormal * OffsetDistance);
+
+	FRotator Rotation = impactnormal.Rotation();
+
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ArmorVFX, SurfacePoint, Rotation);
 }

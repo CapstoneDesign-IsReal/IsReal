@@ -75,9 +75,14 @@ private:
 	bool isReloading = false;
 
 	UPROPERTY(EditAnywhere, Category = "VFX")
-	TArray<UNiagaraSystem*> BloodVFXArray; 
+	TArray<UNiagaraSystem*> BloodVFXArray;
 
 	void PlayBloodEffect(FVector ImpactLocation, FVector ImpactNormal);
+
+	UPROPERTY(EditAnywhere, Category = "VFX")
+	UNiagaraSystem* ArmorVFX;
+
+	void PlayArmorEffect(FVector ImpactLocation, FVector ImpactNormal);
 protected:
 
 	// 총기 반동 변수
