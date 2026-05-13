@@ -24,7 +24,7 @@ public:
 	FORCEINLINE USphereComponent* GetRightHandHitBox() const { return RightHandHitBox; }
 
 	void DoAttack(UAnimMontage* NormalAttackMontage, float SelectedAttackDamage);
-	bool GetIsArmored() { return (Armor == 100); }
+	bool GetIsArmored() { return isArmored; }
 
 	UFUNCTION(BlueprintCallable)
 	void DecreaseArmor();
@@ -64,4 +64,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Armor = 100.0f; //Can't Damage Boss if Armor is active.
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isArmored = true;
 };

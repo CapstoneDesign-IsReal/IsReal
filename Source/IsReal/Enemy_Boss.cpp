@@ -113,6 +113,8 @@ void AEnemy_Boss::DecreaseArmor()
 {
 	Armor = Armor - 50.0f;
 	
-	if(Armor <= 0)
+	if (Armor <= 0) {
+		isArmored = false;
 		Cast<AEnemyController_Boss>(GetController())->Groggy();
+	}
 }
