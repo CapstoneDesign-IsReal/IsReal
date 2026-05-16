@@ -47,12 +47,12 @@ EBTNodeResult::Type UTDecideAttack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 			break;
 		}
 	}
-
+	UE_LOG(LogTemp, Warning, TEXT("Elite: Selected Attack: %s"), *UEnum::GetValueAsString(SelectedAttack));
 	BlackboardComp->SetValueAsEnum(AttackTypeKey.SelectedKeyName, (uint8)SelectedAttack);
 	return EBTNodeResult::Succeeded;
 }
 
- EBTNodeResult::Type UTDecideAttack::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UTDecideAttack::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	 return Super::AbortTask(OwnerComp, NodeMemory);
+	return Super::AbortTask(OwnerComp, NodeMemory);
 }
