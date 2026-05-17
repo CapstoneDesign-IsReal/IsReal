@@ -104,7 +104,9 @@ void AEnemy::Hit(int damage, FName HitBoneName)
 
 	HP = HP - ProcessedDamage;
 	
-	//EnemyController->ReportDamaged(ProcessedDamage);
+
+	if(BlackboardComp->GetValueAsEnum(TEXT("state")) == static_cast<uint8>(EEnemyState::Idle))
+		EnemyController->ReportDamaged(ProcessedDamage);
 
 	UE_LOG(LogTemp, Warning, TEXT("Enemy HP : %f"), HP);	//for debug
 
@@ -130,7 +132,6 @@ void AEnemy::Hit(int damage, FName HitBoneName)
 		//Core Heal
 		UCoreSystem* PlayerCoreSystem = CurrentPlayer->FindComponentByClass<UCoreSystem>();
 		PlayerCoreSystem->CoreHeal(TimeEnergy);
-		
 	}
 }
 
