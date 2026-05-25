@@ -18,21 +18,21 @@ EBTNodeResult::Type UTDecideAttack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 
 	float Distance = BlackboardComp->GetValueAsFloat(DistanceKey.SelectedKeyName);
 
-	float ClawWeight = FMath::Max(0.0f, 1.0f - (Distance / ClawMaxRange));
+	//float ClawWeight = FMath::Max(0.0f, 1.0f - (Distance / ClawMaxRange));
 	float JumpWeight = FMath::Max(0.0f, 1.0f - (Distance / JumpMaxRange));
 	float ChargeWeight = FMath::Max(0.0f, 1.0f - (Distance / ChargeMaxRange));
 
-	float TotalWeight = ClawWeight + JumpWeight + ChargeWeight;
+	float TotalWeight = JumpWeight + ChargeWeight;
 
 	if (TotalWeight <= 0.0f){
-		BlackboardComp->SetValueAsEnum(AttackTypeKey.SelectedKeyName, (uint8)EAttackType::None);
-		return EBTNodeResult::Failed;
+		BlackboardComp->SetValueAsEnum(AttackTypeKey.SelectedKeyName, (uint8)EAttackType::Charge);
+		return EBTNodeResult::Succeeded;
 	}
 
 	float RandomRoll = FMath::RandRange(0.0f, TotalWeight);
 
 	TMap<EAttackType, float> AttackWeights;	//TMap for matching AttackType & Weight of Attack(Possibility)
-	AttackWeights.Add(EAttackType::Claw, ClawWeight);
+	//AttackWeights.Add(EAttackType::Claw, ClawWeight);
 	AttackWeights.Add(EAttackType::JumpAttack, JumpWeight);
 	AttackWeights.Add(EAttackType::Charge, ChargeWeight);
 
@@ -43,7 +43,7 @@ EBTNodeResult::Type UTDecideAttack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 
 		if (RandomRoll <= 0.0f)
 		{
-			SelectedAttack = Pair.Key; 
+			SelectedAttack = Pair.Key;
 			break;
 		}
 	}

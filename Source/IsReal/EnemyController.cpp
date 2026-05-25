@@ -208,10 +208,7 @@ void AEnemyController::ReportDamaged(float Damage)
 	AEnemy* ControlledPawn = Cast<AEnemy>(GetPawn());
 	APlayerCharacter* Attacker = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
-	if (!ControlledPawn || !Attacker)
-	{
-		return; 
-	}
+	if (!ControlledPawn || !Attacker)	return; 
 
 	UAISense_Damage::ReportDamageEvent(
 		GetWorld(),

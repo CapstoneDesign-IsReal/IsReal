@@ -56,6 +56,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Charge Settings | VFX")
 	UNiagaraSystem* HitWallVFX;
 
+	UPROPERTY(EditAnywhere, Category = "Charge Settings | Sound")
+	USoundBase* CollisionSound;
+
 	UPROPERTY(EditAnywhere, Category = "Charge Settings | VFX")
 	FVector SpawnSize = FVector(1.0f, 1.0f, 1.0f);
 };

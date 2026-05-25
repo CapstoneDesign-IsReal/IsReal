@@ -72,10 +72,11 @@ void UTElite_ChargeAttack::OnChargeHitWall(UPrimitiveComponent* HitComponent, AA
 	{
 		isChargeEnd = true;
 		//Spawn VFX
-		if (HitWallVFX)
+		if (HitWallVFX && CollisionSound)
 		{
 			FRotator VFXRotation = FRotationMatrix::MakeFromZ(-Hit.ImpactNormal).Rotator();
 			FVector SpawnLocation = Hit.ImpactPoint + (Hit.ImpactNormal * 15.0f);
+			UGameplayStatics::PlaySoundAtLocation(this, CollisionSound, SpawnLocation);
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(
 				GetWorld(), 
 				HitWallVFX, 
