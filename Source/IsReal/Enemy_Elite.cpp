@@ -26,7 +26,7 @@ void AEnemy_Elite::WarnJumpAttack()
 	}
 
 	FVector SpawnLocation = GetActorLocation();
-	SpawnLocation.Z = 0.0f;
+	SpawnLocation.Z = 10010.0f;
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
 
