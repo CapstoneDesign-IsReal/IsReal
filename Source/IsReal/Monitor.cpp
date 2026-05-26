@@ -21,13 +21,7 @@ AMonitor::AMonitor()
         MonitorMesh->SetStaticMesh(MeshAsset.Object);
     }
 
-    // 머티리얼 불러오기 (콘텐츠 브라우저 경로)
-    static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialAsset(TEXT("/Game/Materials/M_Monitor.M_Monitor"));
-    if (MaterialAsset.Succeeded())
-    {
-        MonitorMaterial = MaterialAsset.Object;
-        MonitorMesh->SetMaterial(0, MonitorMaterial);
-    }
+    
 }
 
 void AMonitor::Interact_Implementation(AActor* Interactor)
