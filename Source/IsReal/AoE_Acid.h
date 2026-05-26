@@ -66,4 +66,7 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<APlayerCharacter> PlayerCharacter = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	USoundBase* ExplodeSound;
 };

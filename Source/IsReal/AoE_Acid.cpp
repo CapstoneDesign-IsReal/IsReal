@@ -5,6 +5,7 @@
 #include "PlayerCharacter.h"
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AAoE_Acid::AAoE_Acid()
@@ -32,7 +33,7 @@ void AAoE_Acid::BeginPlay()
 
 	FVector SpawnLocation = GetActorLocation();
 	SpawnLocation.X += 15.0f;
-
+	UGameplayStatics::PlaySoundAtLocation(this, ExplodeSound, SpawnLocation);
 	if (AoEEffect) {
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, AoEEffect, GetActorLocation(), GetActorRotation(), EffectSize);
 	}
